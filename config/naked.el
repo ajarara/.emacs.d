@@ -13,6 +13,8 @@
 (scroll-bar-mode -1)
 (menu-bar-mode -1)
 
+;; add in a useful visual goodie
+(visual-line-mode 1)
 ;; decent enough theme
 (load-theme 'misterioso t)
 
