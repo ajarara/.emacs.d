@@ -36,3 +36,6 @@
 
 ;; M-e evaluates the whole sexp at point
 (global-set-key (kbd "M-e") `eval-defun)
+
+;; load in user defined functions
+(load "~/.emacs.d/config/my-functions.el")

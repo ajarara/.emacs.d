@@ -17,7 +17,10 @@
     ;; disabled until I figure out how to get C-d sending EOF working, and vim hooks
     :disabled
     :ensure t
-    ))
+    )
+  (use-package helm-projectile
+    :ensure t)
+  )
 
 
 (use-package weechat
@@ -46,6 +49,9 @@
   (evil-mode 1)
   ;; i know some of you may raise your eyebrows at this, but
   ;; this way i only have to disable one use-package declaration
+  ;; magit is awesome, evil is awesome, leader keys are awesome
+  (use-package evil-magit
+    :ensure t)
   (use-package evil-org
     :ensure t))
 
@@ -53,3 +59,9 @@
   :ensure t
   :config
   (which-key-mode))
+
+;; THEME
+(use-package monokai-theme
+  :ensure t
+  :config
+  (load-theme `monokai t))

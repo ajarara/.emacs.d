@@ -11,3 +11,4 @@
 (evil-leader/set-key "0" `text-scale-adjust)
 (evil-leader/set-key "k" `kill-buffer)
 (evil-leader/set-key "G" `magit-status)
+(evil-leader/set-key "f" `helm-for-files)
