@@ -12,7 +12,12 @@
   :ensure t
   :config
   ; overrides default find file and executes
-  (global-set-key (kbd "M-x") `helm-M-x))
+  (global-set-key (kbd "M-x") `helm-M-x)
+  (use-package helm-mt
+    ;; disabled until I figure out how to get C-d sending EOF working, and vim hooks
+    :disabled
+    :ensure t
+    ))
 
 
 (use-package weechat
@@ -33,6 +38,7 @@
   (use-package evil-leader
     :ensure t
     :config
+    ;; is this the best way to load it in? 
     (load "~/.emacs.d/config/my-evil-leader-bindings.el"))
 
   :ensure t

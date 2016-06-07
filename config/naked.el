@@ -29,6 +29,9 @@
 (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
 
+;; echo keystrokes quicker, helps a lot with prefix keys.
+;; heavily recommend which-key to the emacs newbie
+(setq echo-keystrokes 0.1)
 ;; BINDINGS
 
 ;; M-e evaluates the whole sexp at point
