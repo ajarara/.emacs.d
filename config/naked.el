@@ -2,7 +2,7 @@
 ;; this is needed, otherwise emacsclient hangs upon exit when it has something in the kill ring
 (setq x-select-enable-clipboard-manager nil)
 
-;; ido mode an objective improvement over switch-to-buffer. since i use helm's find file, only apply to the buffer menu.
+;; welcome back IDO mode!
 (ido-mode `buffers)
 
 ;; use ibuffer for heavy lifting
@@ -29,6 +29,10 @@
 (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
 
+;; slower, saner scrolling
+(setq scroll-step 1
+         scroll-conservatively 10000)
+
 ;; echo keystrokes quicker, helps a lot with prefix keys.
 ;; heavily recommend which-key to the emacs newbie
 (setq echo-keystrokes 0.1)
@@ -37,5 +41,6 @@
 ;; M-e evaluates the whole sexp at point
 (global-set-key (kbd "M-e") `eval-defun)
 
-;; load in user defined functions
-(load "~/.emacs.d/config/my-functions.el")
+;; C-tab switches windows
+;; I find myself using the window ops a LOT, I can't tag it to a 2 double chorded thing.
+(global-set-key (kbd "C-<tab>") `other-window)

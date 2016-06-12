@@ -25,10 +25,15 @@
 (defvar my-package-list
   `("naked.el"
     "my-packages.el"
-    "hooks.el"
+    "my-functions.el"
+    "my-hooks.el"
+    "my-org.el"
     ))
 
-(mapcar
- (lambda (config-file-name)
-   (load (concat "~/.emacs.d/config/" config-file-name)))
- my-package-list)
+(defvar my/config-loaded
+  (directory-files "~/.emacs.d/config" nil "^[^\.]*.el$")
+  "all files found in config that are not hidden and end in .el")
+;; load all files in the above variable.
+;; alternative: add my config to the load path, then require everything?
+(dolist (config-file-name my/config-loaded)
+ (load (concat "~/.emacs.d/config/" config-file-name)))

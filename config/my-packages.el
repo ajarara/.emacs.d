@@ -23,9 +23,7 @@
   )
 
 
-(use-package weechat
-  :ensure t)
-
+;; weechat removed, too much of a pain to ensure always up, I'll just use erc.
 (use-package slime
   :ensure t
   :config
@@ -53,6 +51,8 @@
   (use-package evil-magit
     :ensure t)
   (use-package evil-org
+    ;; not maintained anymore it seems, further conflicts with leader bindings (seriously, don't mess with my safe space)
+    :disabled t
     :ensure t))
 
 (use-package which-key
@@ -60,6 +60,10 @@
   :config
   (which-key-mode))
 
+(use-package hyde
+  :ensure t
+  :config
+  (setq hyde-home))
 ;; THEME
 (use-package monokai-theme
   :ensure t
