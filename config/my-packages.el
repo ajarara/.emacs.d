@@ -40,7 +40,7 @@
     :ensure t
     :config
     ;; is this the best way to load it in? 
-    (load "~/.emacs.d/config/my-evil-leader-bindings.el"))
+    (load "./aux/my-evil-leader-bindings.el"))
 
   :ensure t
   :config
