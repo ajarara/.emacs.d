@@ -7,6 +7,10 @@
 
 (setq package-enable-at-startup nil)
 
+;; just so I have the flexibility of changing install directory later on
+(setq default-directory "~/.emacs.d/")
+(setq my-config-dir (concat default-directory "config/"))
+
 ;; use-package automatic install
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -22,18 +26,10 @@
 (or (file-exists-p package-user-dir)
     (package-refresh-contents))
 
-(defvar my-package-list
-  `("naked.el"
-    "my-packages.el"
-    "my-functions.el"
-    "my-hooks.el"
-    "my-org.el"
-    ))
-
 (defvar my/config-loaded
-  (directory-files "~/.emacs.d/config" nil "^[^\.]*.el$")
-  "all files found in config that are not hidden and end in .el")
+  (directory-files my-config-dir nil "^[^\.]*.el$")
+  "all files found in config that are not hidden and end in .el.\n Warning: Currently thinks directories ending in .el are files")
 ;; load all files in the above variable.
 ;; alternative: add my config to the load path, then require everything?
 (dolist (config-file-name my/config-loaded)
- (load (concat "~/.emacs.d/config/" config-file-name)))
+  (load (concat my-config-dir config-file-name)))

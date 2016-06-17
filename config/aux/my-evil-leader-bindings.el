@@ -6,12 +6,10 @@
 (evil-leader/set-key "w" `save-buffer)
 (evil-leader/set-key "b" `ibuffer)
 (evil-leader/set-key "x" `helm-M-x)
-(evil-leader/set-key "," `other-window)
 (evil-leader/set-key "v" `split-window-right)
-(evil-leader/set-key "o" `delete-other-windows)
 (evil-leader/set-key "s" `save-buffer)
+;; this is a duplicate with my emacs-leader, but I think I'll keep it.
 (evil-leader/set-key "0" `text-scale-adjust)
-(evil-leader/set-key "q" `kill-buffer)
 (evil-leader/set-key "G" `magit-status)
 (evil-leader/set-key "f" `helm-for-files)
 (evil-leader/set-key "Q" `delete-frame)
