@@ -24,8 +24,8 @@
 (my/emacs-leader-bind "C-o" `delete-other-windows) ; I have no idea why I prefer this, to be honest, I have C-x and C-w as prefixes for the exact same key
 
 ;; wish there was a cleaner way to do this so I didn't have to look at this definition, but this is also INVALUABLE
-(progn
-  (my/emacs-leader-bind "C-c" `my/find-emacs-config-file))
+(my/emacs-leader-bind "C-c" `my/find-emacs-config-file)
+(my/emacs-leader-bind "c" `my/find-emacs-config-file)
 
 ;; what would be interesting is defining a function that interactively got keybinds and asked for an expression and concatenated it to this file.
 ;; org-capture is significantly better than remember
@@ -40,7 +40,37 @@
 (my/emacs-leader-bind "V" `visual-line-mode)
 (my/emacs-leader-bind "v" `split-window-horizontally)
 
+(my/emacs-leader-bind "t" `my/toggle-window-split)
+;; FUNCTION defs below
+
+;; not mine, found off of emacs-wiki. quickly switches orientation of two buffers.
+(defun my/toggle-window-split ()
+  (interactive)
+  (if (= (count-windows) 2)
+      (let* ((this-win-buffer (window-buffer))
+	     (next-win-buffer (window-buffer (next-window)))
+	     (this-win-edges (window-edges (selected-window)))
+	     (next-win-edges (window-edges (next-window)))
+	     (this-win-2nd (not (and (<= (car this-win-edges)
+					 (car next-win-edges))
+				     (<= (cadr this-win-edges)
+					 (cadr next-win-edges)))))
+	     (splitter
+	      (if (= (car this-win-edges)
+		     (car (window-edges (next-window))))
+		  'split-window-horizontally
+		'split-window-vertically)))
+	(delete-other-windows)
+	(let ((first-win (selected-window)))
+	  (funcall splitter)
+	  (if this-win-2nd (other-window 1))
+	  (set-window-buffer (selected-window) this-win-buffer)
+	  (set-window-buffer (next-window) next-win-buffer)
+	  (select-window first-win)
+	  (if this-win-2nd (other-window 1))))))
+
 ;; quick way to find configuration files
 (defun my/find-emacs-config-file ()
   (interactive)
   (ido-find-file-in-dir "~/.emacs.d/config/"))
+

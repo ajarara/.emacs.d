@@ -13,21 +13,23 @@
 (use-package helm
   :ensure t
   :config
-  ; overrides default find file and executes
+  ;; literally the only thing I use helm and not ivy for. When ivy gets inline bindings, maybe I'll get rid of this for good. 
   (global-set-key (kbd "M-x") `helm-M-x)
-  (use-package helm-mt
-    ;; disabled until I figure out how to get C-d sending EOF working, and vim hooks
-    :disabled
-    :ensure t
-    )
-  (use-package helm-projectile
-    ;; disabled until I figure out how to pin melpa-stable as default
-    :disabled t
-    :ensure t)
   )
 
+(use-package swiper
+   :ensure t
+   :config
+   (global-set-key (kbd "C-s") `swiper)
+   (ivy-mode t)
+   )
+(use-package ace-window
+  :ensure t
+  :config
+  (global-set-key (kbd "M-p") `ace-window)
+  )
 
-;; weechat removed, too much of a pain to ensure always up, I'll just use erc.
+;; Weechat removed, too much of a pain to ensure always up, I'll just use erc.
 (use-package slime
   :ensure t
   :config
@@ -44,6 +46,7 @@
 (use-package evil
   ;; evil-leader is run before evil, so that leader keys work in scratch and messages 
   :init
+  (global-set-key (kbd "C-z") `evil-mode)
   (use-package evil-leader
     :ensure t
     :config
@@ -52,8 +55,8 @@
 
   :ensure t
   :config
-  ;; need a bind to toggle evil mode
-  (evil-mode 1)
+  ;; weaning off evil
+  (evil-toggle-key "C-z")
   ;; i know some of you may raise your eyebrows at this, but
   ;; this way i only have to disable one use-package declaration
   ;; magit is awesome, evil is awesome, leader keys are awesome
@@ -77,11 +80,15 @@
   :ensure t
   :config
   (setq hyde-home))
+
+
+(use-package geiser
+  :ensure t)
+
+(use-package try
+  :ensure t)
 ;; THEME
 (use-package monokai-theme
   :ensure t
   :config
   (load-theme `monokai t))
-
-(use-package geiser
-  :ensure t)

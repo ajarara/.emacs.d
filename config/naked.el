@@ -2,8 +2,8 @@
 ;; this is needed, otherwise emacsclient hangs upon exit when it has something in the kill ring
 (setq x-select-enable-clipboard-manager nil)
 
-;; welcome back IDO mode!
-(ido-mode `buffers)
+;; byebye IDO mode! thank you ivy.
+
 
 ;; use ibuffer for heavy lifting
 (global-set-key (kbd "C-x C-b") 'ibuffer)
@@ -33,14 +33,20 @@
 (setq scroll-step 1
          scroll-conservatively 10000)
 
+;; ido improvements
+(setq ido-enable-flex-matching t)
+(setq ido-ignore-extensions t)
+
+;; please enter yes/no, no screw that, I just want y/n
+(fset `yes-or-no-p `y-or-n-p)
+
 ;; echo keystrokes quicker, helps a lot with prefix keys.
 ;; heavily recommend which-key to the emacs newbie
 (setq echo-keystrokes 0.1)
 ;; BINDINGS
 
-;; M-e evaluates the whole sexp at point
-(global-set-key (kbd "M-e") `eval-defun)
+;; changed from M-e to M-o, also, M-o does not work with describe key.
+;; M-o evaluates the whole sexp at point
+(global-set-key (kbd "M-o") `eval-defun)
 
-;; C-tab switches windows
-;; I find myself using the window ops a LOT, I can't tag it to a 2 double chorded thing.
-(global-set-key (kbd "C-<tab>") `other-window)
+
