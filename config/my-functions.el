@@ -10,6 +10,9 @@
         (select-window new-window))))
 
 
+
+;; should I move this func to the my namespace?
+;; meh.
 (defun smarter-move-beginning-of-line (arg)
   "Move point back to indentation of beginning of line.
 
@@ -37,3 +40,11 @@ point reaches the beginning or end of the buffer, stop there."
 (global-set-key [remap move-beginning-of-line]
                 'smarter-move-beginning-of-line)
 
+;; I type it enough for it to be useful.
+;; maybe a cool package idea would be to suggest a more interactive way to define keybinds
+;; based on frequency of M-x invocations
+;; another would be a visualization of all keybinds of all minor/major modes installed, so you
+;; can find a key that you'll be fine with 
+(global-set-key (kbd "C-h SPC") `which-key-show-top-level)
+
+;; C-x 0 is too much for an operation that I do all the damn time.

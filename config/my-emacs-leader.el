@@ -4,6 +4,7 @@
 
 ;; just represent your leader as a string
 (defvar my/emacs-leader "C-,")
+
 (global-set-key (kbd my/emacs-leader) `my/emacs-leader-keymap)
 
 ;; now just use this function to bind things
