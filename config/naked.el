@@ -3,10 +3,6 @@
 ;; this is needed, otherwise emacsclient hangs upon exit when it has something in the kill ring
 (setq x-select-enable-clipboard-manager nil)
 
-;; byebye IDO mode! thank you ivy.
-
-
-
 ;; removing all the visual goodies
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
@@ -25,6 +21,8 @@
 ;; another example of stupid variable interfaces. if I'm setting this, I'd want to have debugging on all the time
 ;; but I have to unset this when I explicitly enable init-debugging or something.
 ;;(toggle-debug-on-error)
+
+
 
 ;; open files ending in .scm, .rkt into lisp-mode
 (add-to-list `auto-mode-alist `("\\.rkt\\.scm" . scheme))
@@ -51,6 +49,12 @@
 ;; echo keystrokes quicker, helps a lot with prefix keys.
 ;; heavily recommend which-key to the emacs newbie
 (setq echo-keystrokes 0.1)
+
+;; paste at point, not on location of click (thanks wasamasa!)
+(setq mouse-yank-at-point t)
+
+;; ignore dialog boxes
+(setq use-dialog-box nil)
 ;; BINDINGS
 
 ;; changed from M-e to M-o, also, M-o does not work with describe key.

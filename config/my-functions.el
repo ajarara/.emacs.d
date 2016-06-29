@@ -3,12 +3,12 @@
 ;; found on https://stackoverflow.com/questions/6464738/how-can-i-switch-focus-after-buffer-split-in-emacs
 ;; not good for getting rid of help buffers. Maybe a better function would be to just quit-restore-window other-window.
 ;; window
-(setq split-window-preferred-function 'my/split-window-func)
-(defun my/split-window-func (&optional window)
-  (let ((new-window (split-window-sensibly window)))
-    (if (not (active-minibuffer-window))
-        (select-window new-window))))
-
+;;(setq split-window-preferred-function 'my/split-window-func)
+;;(defun my/split-window-func (&optional window)
+;;  (let ((new-window (split-window-sensibly window)))
+;;    (if (not (active-minibuffer-window))
+;;        (select-window new-window))))
+;; DISABLED because I now use ace-window to manage my buffers, and would rather the point move consistently.
 
 
 ;; should I move this func to the my namespace?
@@ -48,3 +48,8 @@ point reaches the beginning or end of the buffer, stop there."
 (global-set-key (kbd "C-h SPC") `which-key-show-top-level)
 
 ;; C-x 0 is too much for an operation that I do all the damn time.
+(defun my/znc ()
+  (interactive)
+  (erc-tls
+   :server "jarmac.org"
+   :port 6697))

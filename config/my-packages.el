@@ -1,7 +1,8 @@
 ;; all packages besides use package are placed here, including package config.
 ;; prefer melpa-stable
 
-;;(setq use-package-always-pin melpa-stable)
+;;(setq use-package-always-pin `melpa-stable)
+
 (use-package magit
   :ensure t)
 
@@ -12,25 +13,24 @@
   :ensure t
   :config
   ;; literally the only thing I use helm and not ivy for. When ivy gets inline bindings, maybe I'll get rid of this for good. 
-  (global-set-key (kbd "M-x") `helm-M-x)
-  )
+  (global-set-key (kbd "M-x") `helm-M-x))
 
 (use-package ivy
   :ensure t
   :config
-  (ivy-mode t)
-  )
+  (ivy-mode t))
 
+;; need to set this using bind key*
 (use-package swiper
    :ensure t
    :config
-   (global-set-key (kbd "C-s") `swiper)
-   )
+   (global-set-key (kbd "C-s") `swiper))
 
 (use-package ace-window
   :ensure t
+  ;; the asterisk denotes never to rebind this.
+  :bind* (("M-p" . ace-window))
   :config
-  (global-set-key (kbd "M-p") `ace-window)
   )
 
 ;; Weechat removed, too much of a pain to ensure always up, I'll just use erc.
@@ -68,7 +68,7 @@
   
   :config
   (evil-mode t)
-  ;; the below is used to have emacs be the default state, but allow me to drop in to vi if need be.
+  ;; the below is used to have emacs be the default state, but allow me to drop in to evil if need be.
   ;; more config is available in the URL contained within the progn
   (progn
     (defalias 'evil-insert-state 'evil-emacs-state) ; http://stackoverflow.com/a/27794225/2932728
@@ -106,8 +106,10 @@
 
 (use-package try
     :ensure t)
+
 ;; THEME
 (use-package monokai-theme
+  :disabled t
   :ensure t
   :config
   (load-theme `monokai t))
