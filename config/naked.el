@@ -15,7 +15,7 @@
 
 
 ;; decent enough theme
-(load-theme 'misterioso t)
+;;(load-theme 'misterioso t)
 
 ;; let's see what this does.
 ;; another example of stupid variable interfaces. if I'm setting this, I'd want to have debugging on all the time

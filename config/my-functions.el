@@ -52,4 +52,5 @@ point reaches the beginning or end of the buffer, stop there."
   (interactive)
   (erc-tls
    :server "jarmac.org"
-   :port 6697))
+   :port 6697
+   ))

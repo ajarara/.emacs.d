@@ -17,6 +17,7 @@
 
 (use-package ivy
   :ensure t
+  :diminish ivy-mode
   :config
   (ivy-mode t))
 
@@ -47,18 +48,15 @@
   (smooth-scrolling-mode 1)
   (setq smooth-scroll-margin 5))
 
-(use-package guide-key
-  ;; which key is better
-  :disabled t
-  :ensure t)
 
 ;; awesome. so now emacs is default state, and evil is reachable by just typing in escape. all insert mode bindings are overriden by emacs bindings.
 ;; so far the context switch is clear: if I can type text, I'm in emacs state, otherwise use j/k to navigate, V.. etc. great.
 (use-package evil
-  ;; evil-leader is run before evil, so that leader keys work in scratch and messages 
+  ;; evil-leader is run bfore evil, so that leader keys work in scratch and messages 
   :init
   (use-package evil-leader
     ;; disabled until i find use for it
+    :disabled t
     :ensure t
     :config
     ;; is this the best way to load it in? 
@@ -90,6 +88,7 @@
 
 (use-package which-key
   :ensure t
+  :diminish which-key-mode
   :config
   (which-key-mode))
 
@@ -104,12 +103,17 @@
   :disabled t
   :ensure t)
 
+(use-package whitespace-cleanup-mode
+  :diminish whitespace-cleanup-mode
+  :ensure t
+  :config
+  (global-whitespace-cleanup-mode))
+
 (use-package try
     :ensure t)
 
 ;; THEME
 (use-package monokai-theme
-  :disabled t
   :ensure t
   :config
   (load-theme `monokai t))
