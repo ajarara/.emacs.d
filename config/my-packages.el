@@ -21,6 +21,12 @@
   :config
   (ivy-mode t))
 
+(use-package yasnippet
+  :ensure t
+  :config
+  (use-package common-lisp-snippets
+    :ensure t)
+  (yas-global-mode))
 ;; need to set this using bind key*
 (use-package swiper
    :ensure t
@@ -50,10 +56,11 @@
 
 
 ;; awesome. so now emacs is default state, and evil is reachable by just typing in escape. all insert mode bindings are overriden by emacs bindings.
-;; so far the context switch is clear: if I can type text, I'm in emacs state, otherwise use j/k to navigate, V.. etc. great.
+ ;; so far the context switch is clear: if I can type text, I'm in emacs state, otherwise use j/k to navigate, V.. etc. great.
 (use-package evil
   ;; evil-leader is run bfore evil, so that leader keys work in scratch and messages 
   :init
+  (setq evil-toggle-key "C-`")
   (use-package evil-leader
     ;; disabled until i find use for it
     :disabled t
@@ -76,6 +83,13 @@
     (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
     (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
     )
+  
+  (use-package evil-visual-mark-mode
+    :ensure t
+    :config
+    ;; maybe should move this outside of this config block. 
+    (define-key evil-normal-state-map (kbd "'") `evil-goto-mark)
+    (evil-visual-mark-mode))
   )
   
 
@@ -117,3 +131,5 @@
   :ensure t
   :config
   (load-theme `monokai t))
+
+
