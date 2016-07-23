@@ -313,6 +313,13 @@
 ;; shadows Set face:
 (bind-key* "M-o" `eval-defun)
 
+;; I'm gonna need shackle just for this async.
+;; shadows universal argument, 7
+(bind-key* "M-7" `async-shell-command)
+
+;; shadows universal argument, 1
+(bind-key* "M-1" `shell-command)
+
 
 ;; shadows tab-to-tab-stop
 (bind-key* "M-i" `my/find-init-file)
@@ -363,11 +370,12 @@ point reaches the beginning or end of the buffer, stop there."
 
 ;; -------------------- MY-MODE (to be pruned) ---------------------
 
-;; planning on moving all this functionality to bind-key.
+;; planning on moving all this functionality to bind-key. bind-keymap.
 ;; got rid of this because I'd like to use top level binds for most of these extremely common operations. unfortunately, there is no easy way to unbind these temporarily without commenting the relevant lines out, then reloading the entirety of emacs. if there was a package that rebound stock keys or dynamically rebound them to something, that would be neat!
 ;; oh jeeze, emacs thought of it already: describe-personal-keybindings
+;; okay emacs, how about a package that looks at all the keymaps installed (but not necessarily active) and checking if they redefine a specific key? No? Hah.
 
-(defvar my-prefix "C-j ")
+(defvar my-prefix "M-c ")
 (defun my/prefix-add-to-map (map key-as-string function-symbol)
   (define-key map (kbd (concat my-prefix key-as-string)) function-symbol))
 
@@ -378,19 +386,26 @@ point reaches the beginning or end of the buffer, stop there."
     ;;(define-key my-map (kbd "C-i") `my/kill-other-window)
     
     ;; under my/prefix
-    (my/prefix-add-to-map my-map "V" `visual-line-mode)
-    (my/prefix-add-to-map my-map "v" `split-window-horizontally)
-    (my/prefix-add-to-map my-map "h" `split-window-vertically) ; yeah, it doesnt make sense.
+    (my/prefix-add-to-map my-map "s" `magit-status)
+    (my/prefix-add-to-map my-map "M-s" `magit-status)
 
-    (my/prefix-add-to-map my-map "C-g" `keyboard-quit) 
-    (my/prefix-add-to-map my-map "C-j" `ace-window)
-    (my/prefix-add-to-map my-map "C-r" `org-capture)
-    (my/prefix-add-to-map my-map "C-f" `ffap)
-    (my/prefix-add-to-map my-map "C-s" `magit-status)
+    (my/prefix-add-to-map my-map "z" `evil-emacs-state)
+    (my/prefix-add-to-map my-map "M-z" `evil-emacs-state)
+    
+    (my/prefix-add-to-map my-map "g" `keyboard-quit)
+    (my/prefix-add-to-map my-map "M-g" `keyboard-quit)
+    (my/prefix-add-to-map my-map "C-g" `keyboard-quit) ; hell, why not
+
+    (my/prefix-add-to-map my-map "r" `org-capture)
+    (my/prefix-add-to-map my-map "M-r" `org-capture)
+    
     
     ;; under my/prefix with a custom func
-    (my/prefix-add-to-map my-map "C-t" `my/toggle-window-split)
-    (my/prefix-add-to-map my-map "C-p" `my/find-projects)
+    (my/prefix-add-to-map my-map "p" `my/find-projects) ; adding a meta prefix won't make much sense here, based on key layout
+
+    (my/prefix-add-to-map my-map "t" `my/toggle-window-split)
+    (my/prefix-add-to-map my-map "M-t" `my/toggle-window-split)
+    
     ;; return my-map
     my-map
     ))
@@ -464,3 +479,15 @@ point reaches the beginning or end of the buffer, stop there."
 ;; org mode hooks
 (add-hook `org-mode-hook `org-indent-mode)
 (add-hook `org-mode-hook `visual-line-mode)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages (quote (epkg))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
