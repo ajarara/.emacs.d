@@ -161,9 +161,13 @@
   (use-package evil-leader
     :config
     (setq evil-leader/leader "<SPC>")
+    
+    (evil-leader/set-key "g" `keyboard-quit)
+    
+    (evil-leader/set-key "w" `save-buffer)
     (evil-leader/set-key "v" `visual-line-mode)
-    (evil-leader/set-key "w" `toggle-word-wrap)
-    (evil-leader/set-key "g" `magit-status)
+    (evil-leader/set-key "t" `toggle-word-wrap)
+    (evil-leader/set-key "s" `magit-status)
     (global-evil-leader-mode)
     )
   
@@ -386,7 +390,6 @@ point reaches the beginning or end of the buffer, stop there."
     
     ;; under my/prefix with a custom func
     (my/prefix-add-to-map my-map "C-t" `my/toggle-window-split)
-    (my/prefix-add-to-map my-map "C-c" `my/find-emacs-config-file)
     (my/prefix-add-to-map my-map "C-p" `my/find-projects)
     ;; return my-map
     my-map
@@ -439,22 +442,24 @@ point reaches the beginning or end of the buffer, stop there."
 	  (select-window first-win)
 	  (if this-win-2nd (other-window 1))))))
 
-;; quick way to find configuration files
-(defun my/find-emacs-config-file ()
-  (interactive)
-  (ido-find-file-in-dir "~/.emacs.d/config/"))
 
 (defun my/find-init-file ()
-  "Displays the contents of ~/.emacs.d/init.el"
+  "Displays the contents of ~/.emacs.d/init.el, if already shown, revert to previous buffer"
   (interactive)
-  (find-file "~/.emacs.d/init.el"))
+  (let ((init-file-location "/home/ajarara/.emacs.d/init.el"))
+    (if (string= init-file-location (buffer-file-name))
+	(previous-buffer)
+      (find-file init-file-location)))
+  )
 
-;; quick way to nav projects
+  (buffer-file-name)
+
 (defun my/find-projects ()
+  "navigates to ~/Documents/projects"
   (interactive)
   (ido-find-file-in-dir "~/Documents/projects/"))
 
-;; Next stop. Gift shop.
+;; -------------------- HOOKS --------------------
 
 ;; org mode hooks
 (add-hook `org-mode-hook `org-indent-mode)
