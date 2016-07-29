@@ -2,6 +2,7 @@
 (require 'package)
 (package-initialize)
 
+;; every time I see this I want to start using borg. it looks great.
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
@@ -29,10 +30,8 @@
 ;; yes I know I should use org mode for this..
 ;; TODO not emacs related, make keyboard config a single shell script
 ;; TODO emacs related, find out the most used org capture template keywords
-;; TODO xml parser! there's a lib released on reddit that might help with this, it's new! GET HYPE
-;; . as super modifier? Only problem is ". " How about /, but that's too much. Q is also considered. need ideas. semicolon works GREAT
-;; maybe it's a good idea to split shift usage. there was a guy who wrote something that ignored all input unless you used the right keys.
-;; here's what I wanted to write initially: make the cursor color change based on modes. Yes I can look down but that's too slow. maybe some red or something, use the monokai theme as a guide. the defun color?
+;; TODO xml parser! there's a lib released on reddit that might help with this, it's new! GET HYPE search parsec
+;; implemented: emacs state now has the same cursor as the replace key. I encountered a bug when setting emacs state cursor color, it reverted on normal mode. perhaps that's intentional, perhaps not. idk. (then again, probably intentional)
 ;; -------------------- NAKED-CONFIG --------------------
 ;; configuration that doesn't rely on any external packages, with the exception of bind-key, because it's very useful.
 
@@ -50,7 +49,7 @@
 ;; why is this the only way to set word wrap... -_-
 (toggle-word-wrap)
 
-;; decent enough theme, in case monokai is not available
+;; decent enough default theme, in case monokai is not available
 ;;(load-theme 'misterioso t)
 
 ;; another example of stupid variable interfaces. if I'm setting this, I'd want to have debugging on all the time.
@@ -86,7 +85,14 @@
 (setq use-dialog-box nil)
 
 
+;; registers are neat. let's try using them more often. If I bother creating a register, I want it to be persistent. Emacs calls persistent registers bookmarks, and to save them, you must either call `bookmark-save or configure it to save after x amount of bookmarks created
+(setq bookmark-save-flag 1) ; so save after every bookmark made.
 
+;; simple scrolling
+(progn
+  (setq scroll-conservatively 10000)
+  (setq auto-window-vscroll nil)
+  )
 
 ;; -------------------- PACKAGES ---------------------
 
@@ -94,6 +100,8 @@
 
 ;;(setq use-package-always-pin `melpa-stable)
 ;; TODO list packages by order of use 
+
+(use-package dired)
 
 (use-package helm
   :init
@@ -109,22 +117,24 @@
   (ivy-mode t))
 
 
-(use-package yasnippet
-  :ensure t
-  :config
-  (use-package common-lisp-snippets
-    :ensure t)
-  (yas-global-mode))
-
 (use-package swiper
   :ensure t
+  :config
+
+  ;; almost required, I use search a lot for navigation, especially in this growing init file.
+  (setq swiper-action-recenter t)
+  ;; shadows isearch
   :bind* (("C-s" . swiper))
   )
 
 (use-package ace-window
   :ensure t
-  ;; the asterisk denotes never to rebind this.
-  ;; why is the binding outside this block?
+  :bind*
+  ;; shadows fill-paragraph
+  (("M-q" . ace-window)
+   ;; despite quoted-insert growing on me, maybe that's better reserved for something to be used in evil-leader, <leader> q or something, as that's definitely something I'll use in normal mode often.
+   ;; shadows quoted-insert
+   ("C-q" . ace-window))
   :config
   )
 
@@ -146,42 +156,45 @@
 	   :nick "alphor"
 	   ))))
 
-(use-package smooth-scrolling
-  :ensure t
-  :config
-  (smooth-scrolling-mode 1)
-  (setq smooth-scroll-margin 5))
-
 (use-package evil
   ;; evil-leader is run before evil, so that leader keys work in scratch and messages 
   :init
   (setq evil-toggle-key "C-`")
-  ;; since I have evil everywhere now, this might be neat. only works in normal mode, obviously.
+  
+  ;; evil's undo is a little strong, especially since I'm staying insert mode more often.
+  (setq evil-want-fine-undo t)
 
+  ;; since I have evil everywhere now, this might be neat. only works in normal mode, obviously.
   (use-package evil-leader
     :config
     (setq evil-leader/leader "<SPC>")
     
     (evil-leader/set-key "g" `keyboard-quit)
+
+    (evil-leader/set-key "SPC" `ace-window)
     
     (evil-leader/set-key "w" `save-buffer)
     (evil-leader/set-key "v" `visual-line-mode)
     (evil-leader/set-key "t" `toggle-word-wrap)
     (evil-leader/set-key "s" `magit-status)
+    
+    (evil-leader/set-key "f" `find-file)
+    (evil-leader/set-key "p" `projectile-find-file)
+    
     (global-evil-leader-mode)
     )
   
   ;; don't actually use this at all, just couldn't set it to nothing
   :ensure t
   
-  ;; notice the lack of bind*. since I'm binding to a map, I don't want this to be global.
+  ;; notice the lack of the previous comment.
   :bind* (:map evil-emacs-state-map
-	       ("C-y" . yank)
 	       ("C-r" . evil-paste-from-register)
 	       :map evil-normal-state-map
 	       ("j" . evil-next-visual-line)
-	       ("k" . evil-previous-visual-line))
-
+	       ("k" . evil-previous-visual-line)
+	       ("'" . evil-goto-mark)
+	       ("C-y" . yank))
   :bind-keymap*
   (("C-w" . evil-window-map))
   
@@ -202,7 +215,8 @@
   ;; IDK about motion state, it blocks useful keys, like ? or h.
 
   ;; a quick way to differentiate which state I'm in without looking at the mode line, may change this later.
-  (setq evil-emacs-state-cursor `bar)
+  (setq evil-emacs-state-cursor `(hbar . 2))
+  
 
   
   (use-package evil-visual-mark-mode
@@ -211,11 +225,50 @@
     (evil-visual-mark-mode))
   )
 
-;; has to be after evil has been loaded in. For some reason, evil does not want to let go of the C-z key.
-;; better than ansi-term. has sane defaults, allows me to M-x, C-h still operates, multi-term-next spawns a new shell if there aren't any, and cycles!
-(use-package multi-term
+(use-package term
+  :config
+  ;; all of this config is from:
+  ;; http://echosa.github.io/blog/2012/06/06/improving-ansi-term/
+
+  ;; kill the buffer after finishing.
+  (defadvice term-sentinel (around my-advice-term-sentinel (proc msg))
+    (if (memq (process-status proc) '(signal exit))
+	(let ((buffer (process-buffer proc)))
+	  ad-do-it
+	  (kill-buffer buffer))
+      ad-do-it))
+  (ad-activate 'term-sentinel)
+
+  ;; don't ask me about whether I want to use bash. I do.
+  ;; modified from ansi-term to term from source post
+  (defvar my-term-shell "/bin/bash")
+  (defadvice term (before force-bash)
+    (interactive (list my-term-shell)))
+  (ad-activate 'term)
+  
+  ;; why is this not the default?
+  (defun my-term-use-utf8 ()
+    (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
+  (add-hook 'term-exec-hook 'my-term-use-utf8)
+ 
+  (add-hook 'term-mode-hook 'goto-address-mode)
+
+    
+  
+  :bind*
+  (("C-z" . term))
+)
+
+
+
+(use-package expand-region
   :ensure t
-  :bind* (("C-z" . multi-term-next))
+  :bind (("M-t" . er/expand-region))
+  )
+
+
+(use-package sml-mode
+  :ensure t
   )
 
 (use-package elpy
@@ -229,6 +282,7 @@
   :ensure t
   :diminish which-key-mode
   :config
+  (bind-key "C-h SPC" `which-key-show-top-level)
   (which-key-mode))
 
 (use-package whitespace-cleanup-mode
@@ -260,15 +314,15 @@
   ;; capture templates that work, as of now.
   ;; for more info, check out http://orgmode.org/manual/Capture-templates.html
   (setq org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/Documents/org/gtd.org" "Tasks")
+	'(("t" "Todo" entry (file+headline "~/Documents/org/gtd.org" "Tasks")
 	   "* TODO %?\n  %i\n  %a")
-          ("j" "Journal" entry (file+datetree "~/Documents/org/journal.org")
+	  ("j" "Journal" entry (file+datetree "~/Documents/org/journal.org")
 	   "* %?\nEntered on %U\n  %i\n  %a")
 	  ("e" "Emacs" entry (file+datetree "~/Documents/org/emacs.org")
 	   "* %?\nEntered on %U\n  %i\n  %a")
-          ("k" "KOL" entry (file+datetree "~/Documents/org/kol.org")
+	  ("k" "KOL" entry (file+datetree "~/Documents/org/kol.org")
 	   "* %?\nEntered on %U\n %a")
-          ("a" "ascension" entry (file+datetree "~/Documents/org/kol-ascension.org")
+	  ("a" "ascension" entry (file+datetree "~/Documents/org/kol-ascension.org")
 	   "* %?\nEntered on %U\n %a")
 	  ("m" "track" entry (file+datetree "~/Documents/org/track.org")
 	   "* %?\nEntered on %U\n")
@@ -291,13 +345,9 @@
 ;; M-u? maybe. M-k
 ;; shadows means stock emacs ships with this bound, but I rebind it.
 
-;; shadows fill-paragraph
-(bind-key* "M-q" `ace-window)
 ;; I don't know if this is the best idea, seeing as how I ALWAYS use ace-window, but it makes a little sense to do this with the evil windowing system.
-;; despite quoted-insert growing on me, maybe that's better reserved for something to be used in evil-leader, <leader> q or something, as that's definitely something I'll use in normal mode often.
-;; shadows quoted-insert
-(bind-key* "C-q" `ace-window)
 
+;; shadows help
 ;; shadows universal arg, I think? Damn, I need to read the manual.
 (bind-key* "C-0" `text-scale-adjust)
 
@@ -320,11 +370,23 @@
 ;; shadows universal argument, 1
 (bind-key* "M-1" `shell-command)
 
+;; shadows prefix containing occur
+(bind-key* "M-s" `switch-to-buffer)
 
 ;; shadows tab-to-tab-stop
 (bind-key* "M-i" `my/find-init-file)
+
+;; instantly kills buffer (without deleting the window), unless unsaved content. this advices kill-buffer
+;; shadows kill-sentence
+(bind-key* "M-k" `kill-this-buffer)
+
+;; U for undeaaaaaaaaaaaaaaaaad
+;; shadows upcase-word
+(bind-key* "M-u" `bury-buffer)
+
 ;; shadows nothing that I know of.
-(bind-key "M-p" `my/find-projects)
+(bind-key* "M-p" `my/find-projects)
+
 
 ;; I type it just enough for it to be useful.
 ;; maybe a cool package idea would be to suggest a more interactive way to define keybinds
@@ -333,7 +395,6 @@
 ;; can find a key that you'll be fine with 
 ;; shadows nothing that I know of, hence the lack of *
 (bind-key "C-h SPC" `which-key-show-top-level)
-
 
 
 ;; -------------------- CUSTOM-FUNCTIONS ---------------------
@@ -351,7 +412,6 @@ If ARG is not nil or 1, move forward ARG - 1 lines first.  If
 point reaches the beginning or end of the buffer, stop there."
   (interactive "^p")
   (setq arg (or arg 1))
-
   ;; Move lines first
   (when (/= arg 1)
     (let ((line-move-visual nil))
@@ -364,8 +424,7 @@ point reaches the beginning or end of the buffer, stop there."
 
 ;; remap C-a to `smarter-move-beginning-of-line'
 (global-set-key [remap move-beginning-of-line]
-                'my/smarter-move-beginning-of-line)
-
+		'my/smarter-move-beginning-of-line)
 
 
 ;; -------------------- MY-MODE (to be pruned) ---------------------
@@ -396,9 +455,17 @@ point reaches the beginning or end of the buffer, stop there."
     (my/prefix-add-to-map my-map "M-g" `keyboard-quit)
     (my/prefix-add-to-map my-map "C-g" `keyboard-quit) ; hell, why not
 
+    (my/prefix-add-to-map my-map "o" `my/find-org-files)
     (my/prefix-add-to-map my-map "r" `org-capture)
     (my/prefix-add-to-map my-map "M-r" `org-capture)
     
+    
+    ;; oh emacs, some people think you don't make any sense
+    ;; but I'll just chalk it up to charm.
+    (my/prefix-add-to-map my-map "v" `split-window-horizontally)
+    (my/prefix-add-to-map my-map "M-v" `split-window-horizontally)
+    (my/prefix-add-to-map my-map "h" `split-window-vertically)
+    (my/prefix-add-to-map my-map "M-h" `split-window-vertically) 
     
     ;; under my/prefix with a custom func
     (my/prefix-add-to-map my-map "p" `my/find-projects) ; adding a meta prefix won't make much sense here, based on key layout
@@ -420,7 +487,7 @@ point reaches the beginning or end of the buffer, stop there."
 (my/mode)
 
 ;; -------------------- FUNCTIONS --------------------
-	
+
 (defun my/kill-other-window ()
   (interactive)
   (if (= (count-windows) 2)
@@ -430,7 +497,7 @@ point reaches the beginning or end of the buffer, stop there."
 	(other-window 1))
     (error "This only works when there are two buffers!")))
 
-		  
+
 ;; not mine, found off of emacs-wiki. quickly switches orientation of two buffers.
 (defun my/toggle-window-split ()
   (interactive)
@@ -467,12 +534,17 @@ point reaches the beginning or end of the buffer, stop there."
       (find-file init-file-location)))
   )
 
-  (buffer-file-name)
+(buffer-file-name)
 
 (defun my/find-projects ()
   "navigates to ~/Documents/projects"
   (interactive)
   (ido-find-file-in-dir "~/Documents/projects/"))
+
+(defun my/find-org-files ()
+  "navigates to ~/Documents/org"
+  (interactive)
+  (ido-find-file-in-dir "~/Documents/org/"))
 
 ;; -------------------- HOOKS --------------------
 
@@ -484,7 +556,7 @@ point reaches the beginning or end of the buffer, stop there."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (epkg))))
+ '(package-selected-packages (quote (counsel-projectile counsel sml-mode expand-region))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
