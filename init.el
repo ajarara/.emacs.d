@@ -57,13 +57,18 @@
 ;;(toggle-debug-on-error)
 
 
-;; FROM http://emacsredux.com/blog/2013/05/09/keep-backup-and-auto-save-files-out-of-the-way/
-;; store all backup and autosave files in the tmp dir
-;; still have to deal with garbage files, though. it's really god damn annoying to have those be added in git
-(setq backup-directory-alist
-      `((".*" . ,temporary-file-directory)))
-(setq auto-save-file-name-transforms
-      `((".*" ,temporary-file-directory t)))
+;; FROM wasamasa's config
+;; store all backup and autosave files in folders out of version control, emacs.d/backup and emacs.d/autosave
+
+(setq backup-directory-alist '((".*" . "~/.emacs.d/backup")))
+(setq version-control t)
+(setq delete-old-versions t)
+
+(setq auto-save-list-file-prefix "~/.emacs.d/autosave/")
+(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosave/" t)))
+
+;; I would deactivate lock files, but I can just ignore them in swiper and in git. they serve a somewhat useful purpose.
+
 
 ;; is there a way in vim to insert just one character at a specific place without having to go in insert mode?
 (setq split-height-threshold nil)
@@ -84,6 +89,8 @@
 ;; why dialog boxes are a thing are beyond me
 (setq use-dialog-box nil)
 
+;; did someone say ssh tunnels? I HEARD SSH TUNNELS
+(setq server-use-tcp t)
 
 ;; registers are neat. let's try using them more often. If I bother creating a register, I want it to be persistent. Emacs calls persistent registers bookmarks, and to save them, you must either call `bookmark-save or configure it to save after x amount of bookmarks created
 (setq bookmark-save-flag 1) ; so save after every bookmark made.
@@ -101,7 +108,8 @@
 ;;(setq use-package-always-pin `melpa-stable)
 ;; TODO list packages by order of use 
 
-(use-package dired)
+(use-package dired
+   )
 
 (use-package helm
   :init
@@ -147,17 +155,21 @@
 (use-package circe
   :ensure t
   :config
+  (setq circe-split-line-length 200)
   (setq circe-reduce-lurker-spam t)
   (setq circe-network-options
 	'(("ZNC"
 	   :tls t
 	   :host "jarmac.org"
 	   :port 6697
-	   :nick "alphor"
+	   :user "alphor"
+	   ;; the param is needed otherwise error!
+	   ;; read from minibuffer doesn't use named arguments, but has 7 of them.
+	   :pass (lambda (server-name) (read-from-minibuffer "Password?: "))
 	   ))))
 
 (use-package evil
-  ;; evil-leader is run before evil, so that leader keys work in scratch and messages 
+    ;; evil-leader is run before evil, so that leader keys work in scratch and messages 
   :init
   (setq evil-toggle-key "C-`")
   
@@ -253,10 +265,11 @@
  
   (add-hook 'term-mode-hook 'goto-address-mode)
 
-    
-  
   :bind*
-  (("C-z" . term))
+  (("C-z" . term)
+   :map term-raw-map
+;;   ("C-h" . help-command)
+   ("C-y" . term-paste))
 )
 
 
@@ -347,7 +360,7 @@
 
 ;; I don't know if this is the best idea, seeing as how I ALWAYS use ace-window, but it makes a little sense to do this with the evil windowing system.
 
-;; shadows help
+
 ;; shadows universal arg, I think? Damn, I need to read the manual.
 (bind-key* "C-0" `text-scale-adjust)
 
@@ -359,7 +372,7 @@
 (bind-key* "M-w" `delete-window)
 
 ;; I don't actually know what the name of the function is, but I know I don't need it. It's some typeface stuff.
-;; also, the function name here is misleading, it evaluates the whole top-level expression, from anywhere in the expression.
+;; also, the function name here is misleading, it evaluates the whole top-level expression, from anywhere in the expression, not just defuns 
 ;; shadows Set face:
 (bind-key* "M-o" `eval-defun)
 
@@ -378,7 +391,7 @@
 
 ;; instantly kills buffer (without deleting the window), unless unsaved content. this advices kill-buffer
 ;; shadows kill-sentence
-(bind-key* "M-k" `kill-this-buffer)
+(bind-key* "M-z" `kill-this-buffer)
 
 ;; U for undeaaaaaaaaaaaaaaaaad
 ;; shadows upcase-word
@@ -386,15 +399,6 @@
 
 ;; shadows nothing that I know of.
 (bind-key* "M-p" `my/find-projects)
-
-
-;; I type it just enough for it to be useful.
-;; maybe a cool package idea would be to suggest a more interactive way to define keybinds
-;; based on frequency of M-x invocations
-;; another would be a visualization of all keybinds of all minor/major modes installed, so you
-;; can find a key that you'll be fine with 
-;; shadows nothing that I know of, hence the lack of *
-(bind-key "C-h SPC" `which-key-show-top-level)
 
 
 ;; -------------------- CUSTOM-FUNCTIONS ---------------------
@@ -551,15 +555,3 @@ point reaches the beginning or end of the buffer, stop there."
 ;; org mode hooks
 (add-hook `org-mode-hook `org-indent-mode)
 (add-hook `org-mode-hook `visual-line-mode)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (counsel-projectile counsel sml-mode expand-region))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
