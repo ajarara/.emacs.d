@@ -142,7 +142,10 @@
   (("M-q" . ace-window)
    ;; despite quoted-insert growing on me, maybe that's better reserved for something to be used in evil-leader, <leader> q or something, as that's definitely something I'll use in normal mode often.
    ;; shadows quoted-insert
-   ("C-q" . ace-window))
+   ("C-q" . ace-window)
+   ;; needs abo-abo's key config (search for "semimap")
+   ;; U03A1
+   ("Ρ" . ace-window))
   :config
   )
 
@@ -165,7 +168,7 @@
 	   :user "alphor"
 	   ;; the param is needed otherwise error!
 	   ;; read from minibuffer doesn't use named arguments, but has 7 of them.
-	   :pass (lambda (server-name) (read-from-minibuffer "Password?: "))
+	   :pass (lambda (server-name) (read-passwd "Password?: "))
 	   ))))
 
 (use-package evil
@@ -238,6 +241,7 @@
   )
 
 (use-package term
+  ;; ugh, I need a good terminal emulator. I only use an emacs term over real ones because I get to use evil (or emacs keys, if you're that kinda guy)
   :config
   ;; all of this config is from:
   ;; http://echosa.github.io/blog/2012/06/06/improving-ansi-term/
@@ -268,8 +272,12 @@
   :bind*
   (("C-z" . term)
    :map term-raw-map
-;;   ("C-h" . help-command)
+   ("C-h" . help-command)
    ("C-y" . term-paste))
+  :bind
+  (:map evil-normal-state-map
+	("C-y" . term-paste))
+
 )
 
 
