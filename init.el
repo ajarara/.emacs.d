@@ -274,9 +274,6 @@
    :map term-raw-map
    ("C-h" . help-command)
    ("C-y" . term-paste))
-  :bind
-  (:map evil-normal-state-map
-	("C-y" . term-paste))
 
 )
 
@@ -563,3 +560,17 @@ point reaches the beginning or end of the buffer, stop there."
 ;; org mode hooks
 (add-hook `org-mode-hook `org-indent-mode)
 (add-hook `org-mode-hook `visual-line-mode)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (evil-leader monokai-theme try whitespace-cleanup-mode which-key sml-mode expand-region evil-visual-mark-mode evil circe slime ace-window swiper ivy helm use-package))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
