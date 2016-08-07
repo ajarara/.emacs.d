@@ -5,11 +5,11 @@
 (Don't know if this is worth it, to be honest. I could just manually build it instead. That would avoid the possibility of catastrophe.)
 *** Enable debugging
 This allows us to immediately detect if something went wrong with loading the init file. At the end of this init, this is toggled off.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (toggle-debug-on-error)
 #+END_SRC
 ** Package archive config
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 ;; package-archive config
 (require 'package)
 (package-initialize)
@@ -23,7 +23,7 @@ This allows us to immediately detect if something went wrong with loading the in
 
 ** Quelpa bootstrap
 "Quelpa" is like a personal melpa that doesn't automatically build from whatever the author feels like pushing to their repo. It is a little more involved then just using package.el, with the benefit that you can manage the source yourself, with the ability to choose branches, easily patch things (looking into whether this is better then borg is for pushing back upstream)
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 ;; Quelpa bootstrap
   (package-initialize)
   (if (require 'quelpa nil t)
@@ -34,7 +34,7 @@ This allows us to immediately detect if something went wrong with loading the in
 #+END_SRC
 ** Use-package bootstrap
 Use package is a way to tidy up config and a convenient way to lazy load packages (that is, defer loading so that emacs doesn't load everything on startup. johnw tags a release every six months or so, so let's use quelpa's stable declaration until we need cutting edge functionality.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 ;; Use-package bootstrap
 (quelpa '(use-package :stable t))
 ;; is this really necessary? imenu allows me to instead manage this file through the headings anyway.
@@ -50,7 +50,7 @@ Use package is a way to tidy up config and a convenient way to lazy load package
 ** UI
 *** Disabling 'helpful' visual goodies
 The only useful thing I lose here is the menubar, but typing <F10> gives you one at your cursor.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 ;; Disabling 'helpful' visual goodies
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
@@ -59,7 +59,7 @@ The only useful thing I lose here is the menubar, but typing <F10> gives you one
 #+END_SRC
 *** Enabling visual line mode
 Some people consider it a hindrance, but I rarely need more then 80 columns while programming and would rather not have to deal with horizontal scrolling. These two settings are neat for prose, and org mode.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 ;; enabling visual line mode
 (visual-line-mode 1)
 
@@ -75,18 +75,16 @@ Echoing keystrokes allows you to see exactly what you've typed almost immediatel
 the third assignment tells emacs to paste at point, not on location of click. Now if C-y doesn't work, I can use my mouse without caring about precision.
 
 and consolidate any interaction to minibuffers. These two options were brought to me, again, by (wasamasa's config)[https://github.com/wasamasa/dotemacs/blob/master/init.org]
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 ;; Making emacs snappier
-(fset `yes-or-no-p `y-or-no-p)
+(fset `yes-or-no-p `y-or-n-p)
 (setq echo-keystrokes 0.1)
 (setq mouse-yank-at-point t)
 #+END_SRC
 
-** Core packages
-*** Packages that I think immensely improve the usability of emacs
-**** swiper/ivy
+** swiper/ivy
 man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode globally gives most aspects of the minibuffer fuzzy typeahead (like ido-mode) but it further allows you to keep your search session if needed (especially useful when looking in help variables). Swiper is used to search buffers, and uses ivy as a backend. It is possible to use helm as a backend instead.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa `swiper) ; installs both swiper and ivy
 (use-package ivy
   :diminish ivy-mode
@@ -103,9 +101,9 @@ man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode glo
   )
 
 #+END_SRC
-**** ace-window
+** ace-window
 C-x o is way too much to switch between windows (which is an operation I find myself doing near constantly). The "Ρ" you see below isn't actually a "Potato" P, it's a capital letter greek rho. Check out (semimap)[http://oremacs.com/2015/02/14/semi-xmodmap/] for details.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'ace-window)
 (use-package ace-window
   :bind*
@@ -121,18 +119,18 @@ C-x o is way too much to switch between windows (which is an operation I find my
   )
 #+END_SRC
 
-**** magit
+** magit
 Tarsius is a god. I have no idea where my use-package declaration went, though.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'magit)
 (use-package magit)
 #+END_SRC
 
-*** evil-mode
+** evil-mode
 Yeah, sorry. Maybe if I fixed my keyboard so that I had meta on semicolon without having to muck about with xcape (my previous config) I would consider using just emacs keybinds (C-a C-k is awesome) But the way I have it set up right now means that I never have to deal with an abrupt context switch. Sometimes.
 
 TODO: break this up into something that at least looks sane
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (use-package evil
     ;; evil-leader is run before evil, so that leader keys work in scratch and messages
   :init
@@ -200,10 +198,10 @@ TODO: break this up into something that at least looks sane
   )
 #+END_SRC
 
-*** org mode
+** org mode
 Ah, org mode. Lovingly described as the crack of emacs, the thing that I absolutely couldn't live without (probably).
 I love org-capture, and make heavy, heavy use of it, but I don't think I grok it very well.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 ;; init or config? I never know.
 (use-package org
   :init
@@ -235,9 +233,9 @@ I love org-capture, and make heavy, heavy use of it, but I don't think I grok it
   )
 #+END_SRC
 
-*** The quest for a usable terminal
+** term
 I'm not exactly happy with term. There's a bunch of workarounds and keys get rebound and still I encounter usability issues. But it works enough, and I have good clipboard (and visual selection) interaction. So it stays. Maybe someone with knowledge of how to do things the right way will get a real terminal working by embedding or linking to the binary.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (use-package term
   ;; ugh, I need a good terminal emulator. I only use an emacs term over real ones because I get to use evil (or emacs keys, if you're that kinda guy)
   :config
@@ -276,10 +274,10 @@ I'm not exactly happy with term. There's a bunch of workarounds and keys get reb
 )
 #+END_SRC
 
-*** which-key
+** which-key
 which-key is fantastic. It provides a visual reminder for any keymap. It even has a dialog for showing the top level binds (I bind it here to C-h SPC)
 
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (use-package which-key
   :ensure t
   :diminish which-key-mode
@@ -288,9 +286,9 @@ which-key is fantastic. It provides a visual reminder for any keymap. It even ha
   (which-key-mode))
 #+END_SRC
 
-*** helm
+** helm
 Meh, I only use it for M-x invocations (in case I forget keybinds)
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'helm)
 (use-package helm
   :init
@@ -300,21 +298,25 @@ Meh, I only use it for M-x invocations (in case I forget keybinds)
   :bind* (("M-x" . helm-M-x)))
 #+END_SRC
 
-** Lang specific
-*** Slime
+** mingus
+I have yet to figure out how to use quelpa to select branches (and it is not at all clear from browsing any of the source files)
+#+BEGIN_SRC emacs-lisp :tangle init.el
+;;(quelpa 'mingus)
+;;(use-package mingus)
+#+END_SRC
+Wow, this is a lot slower than I expected. Disabling for now.
+** Slime
 I've done all my swank config using ql, so all I gotta do is point it here.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'slime)
 (use-package slime
   :config
   (slime-setup)
   (setq inferior-lisp-program "/usr/bin/sbcl"))
 #+END_SRC
-
-** Nice-to-haves
-*** circe
+** circe
 I just connect to my znc server. Someday I might consider connecting to a network other than freenode, but as of now, there's no need. On attempted connection, this config asks for my password, so I don't have to mess with any auth files.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'circe)
 (use-package circe
   :config
@@ -334,19 +336,19 @@ I just connect to my znc server. Someday I might consider connecting to a networ
 
 *** Have emacs use tcp
 I'm significantly more familiar with using tcp sockets then unix ones, so while this isn't really necessary at all, I'd rather have it now so that I don't run any new problems when I eventually have to ssh into something.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (setq server-use-tcp t)
 #+END_SRC
 *** persistent bookmarks
 registers are neat. let's try using them more often. If I bother creating a register, I want it to be persistent. Emacs calls persistent registers bookmarks, and to save them, you must either call `bookmark-save or configure it to save after x amount of bookmarks created
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 ;; persistent bookmarks
 (setq bookmark-save-flag 1) ; so save after every bookmark made.
 #+END_SRC
 
 *** simple scrolling
 Initially I just used the package (named simple-scrolling), but found that it caused weird graphical issues with browsing manual pages. This works just fine, although sometimes I miss the ability to have margins, but I also don't miss the jumpiness that sometimes occurred.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 ;; simple scrolling
 (progn
   (setq scroll-conservatively 10000)
@@ -356,19 +358,18 @@ Initially I just used the package (named simple-scrolling), but found that it ca
 
 *** expand-region
 I don't use this enough, but that's mostly because I don't manipulate xml a lot (where this shines imo)
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'expand-region)
 (use-package expand-region
   :bind (("M-t" . er/expand-region))
   )
 #+END_SRC
 
-** Personal taste
-*** Directory clutter
+** Directory clutter
 From (wasamasa's config)[https://github.com/wasamasa/dotemacs/blob/master/init.org]
 control, emacs.d/backup and emacs.d/autosave
 
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 ;; Directory clutter
 (setq backup-directory-alist '((".*" . "~/.emacs.d/backup")))
 (setq version-control t)
@@ -377,35 +378,34 @@ control, emacs.d/backup and emacs.d/autosave
 (setq auto-save-list-file-prefix "~/.emacs.d/autosave/")
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosave/" t)))
 #+END_SRC
-*** Prefer "horizontal" splits when the frame has the space for it.
+** Prefer "horizontal" splits when the frame has the space for it.
 By horizontal I mean vim's (and the rest of the world's) notion of vertical. You split along the horizontal axis, I guess. Sure.
 
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (setq split-height-threshold nil)
 ;; tried 150, I'm using xfwm4 if that makes any difference, but it did not work.
 (setq split-width-threshold 140)
 #+END_SRC
-*** ???
+** QOL fixes
 To be honest I have no idea what this does, but I know that it causes emacs to hang on exit. Setting it to nil disables it, and there's no apparent loss of functionality of my clipboard interaction with emacs.. so... :|
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (setq x-select-enable-clipboard-manager nil)
 #+END_SRC
 
-*** Theme
+** Theme
 I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 ;; (load-theme 'misterioso t)
 (quelpa `monokai-theme)
 (use-package monokai-theme
   :config
   (load-theme `monokai t))
 #+END_SRC
-
 ** Unconfigured/barely used
 Not much to say about these, but hell I have you here so you're gonna have to read some more rambling.
 
 Try is useful for not having to edit a config file, installing packages that you're sure you don't even wanna bother configuring. Zamansky showcases it in one of his teaching emacs videos by grabbing lorem-ipsum, a package that does exactly what you think it does, and a package that I don't really think I'd need to install more then 3 or 4 times in my life.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'try)
 #+END_SRC
 
@@ -416,7 +416,7 @@ I don't know enough about sml-mode to say anything meaningful about it, but I us
 Most of these are definitely not my code or my ideas. But they've definitely made a difference.
 
 C-a C-k is again, the one emacs combo that I really like. But C-a pretends like whitespace isn't a thing. Found on the emacswiki:
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 ;; something useful from the emacs wiki? No way.
 (defun my/smarter-move-beginning-of-line (arg)
   "Move point back to indentation of beginning of line.
@@ -446,7 +446,7 @@ point reaches the beginning or end of the buffer, stop there."
 #+END_SRC
 
 This is primarily for killing help buffers without deleting the frame. I would replace this with shackle, but this works for now.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (defun my/kill-other-window ()
   (interactive)
   (if (= (count-windows) 2)
@@ -459,7 +459,7 @@ This is primarily for killing help buffers without deleting the frame. I would r
 #+END_SRC
 
 in case something decides not to respect my "horizontal" preference.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 
 ;; not mine, found off of emacs-wiki. quickly switches orientation of two buffers.
 (defun my/toggle-window-split ()
@@ -489,13 +489,13 @@ in case something decides not to respect my "horizontal" preference.
 
 #+END_SRC
 
-invaluable for quick edits. Will likely change this to init.org after this commit.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+invaluable for quick edits. 
+#+BEGIN_SRC emacs-lisp :tangle init.el
 
 (defun my/find-init-file ()
-  "Displays the contents of ~/.emacs.d/init.el, if already shown, revert to previous buffer"
+  "Displays the contents of ~/.emacs.d/myinit.org, if already shown, revert to previous buffer"
   (interactive)
-  (let ((init-file-location "/home/ajarara/.emacs.d/init.el"))
+  (let ((init-file-location "/home/ajarara/.emacs.d/myinit.org"))
     (if (string= init-file-location (buffer-file-name))
         (previous-buffer)
       (find-file init-file-location)))
@@ -504,7 +504,7 @@ invaluable for quick edits. Will likely change this to init.org after this commi
 #+END_SRC
 
 90% of what I play around with is in this folder, so I can easily select one of these folders to quickly start an editing session.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (defun my/find-projects ()
   "navigates to ~/Documents/projects"
   (interactive)
@@ -512,7 +512,7 @@ invaluable for quick edits. Will likely change this to init.org after this commi
 #+END_SRC
 
 
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (defun my/find-org-files ()
   "navigates to ~/Documents/org"
   (interactive)
@@ -522,7 +522,7 @@ invaluable for quick edits. Will likely change this to init.org after this commi
 
 ** my-mode
 Initially before I discovered bind-key I used a minor-mode that I enabled globally so that none of my keybinds were overridden (overridded? overwritten? whatever). I keep it around because it's pretty much a flexible keymap that I can easily turn on and off. (and it only shadows capitalize-word)
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (defvar my-prefix "M-c ")
 (defun my/prefix-add-to-map (map key-as-string function-symbol)
   (define-key map (kbd (concat my-prefix key-as-string)) function-symbol))
@@ -578,7 +578,7 @@ Initially before I discovered bind-key I used a minor-mode that I enabled global
 
 ** Binds (that don't belong to specific packages)
 These are largely personal preference so not going to explain them.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 ;; shadows universal arg, I think? Damn, I need to read the manual.
 (bind-key* "C-0" `text-scale-adjust)
 
@@ -622,7 +622,7 @@ These are largely personal preference so not going to explain them.
 
 ** Hooks
 org-mode hooks. Maybe these should go into package specific configuration. Meh.
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (add-hook `org-mode-hook `org-indent-mode)
 (add-hook `org-mode-hook `visual-line-mode)
 #+END_SRC
@@ -630,11 +630,11 @@ org-mode hooks. Maybe these should go into package specific configuration. Meh.
 ** Goodbye
 Okay, we're done. Let's switch off debugging and send an OK.
 *** Disable debugging
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 ;; disable debugging
 (toggle-debug-on-error)
 #+END_SRC
 *** Message
-#+BEGIN_SRC emacs-lisp :tangle my-init.el
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (message "Emacs config successfully loaded!")
 #+END_SRC
