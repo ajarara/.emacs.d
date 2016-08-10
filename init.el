@@ -24,7 +24,7 @@
 ;; is this really necessary? imenu allows me to instead manage this file through the headings anyway.
 (setq use-package-enable-imenu-support t)
 
-;; bind-key is provided with use-package, and I often use diminish with it.
+;; bind-key is provided with use-package, diminish I only use once or twice
 (eval-when-compile
   (require 'use-package))
 (require 'diminish)
@@ -211,11 +211,13 @@
 
 )
 
+(quelpa 'which-key)
 (use-package which-key
-  :ensure t
+  :demand t
   :diminish which-key-mode
+  :bind* 
+  (("C-h SPC" . which-key-show-top-level))
   :config
-  (bind-key "C-h SPC" `which-key-show-top-level)
   (which-key-mode))
 
 (quelpa 'helm)
@@ -421,6 +423,12 @@ point reaches the beginning or end of the buffer, stop there."
   )
 ;; evaluate it. considering moving to johnw's bind-key so that I can declare these keybinds in use-package configs
 (my/mode)
+
+(define-key key-translation-map [?\C-h] [?\C-p])
+(define-key key-translation-map [?\C-p] [?\C-h])
+
+(define-key key-translation-map "ν" (kbd "M-f")) ;; [f]
+(define-key key-translation-map "ι" (kbd "M-b")) ;; [b]
 
 ;; shadows universal arg, I think? Damn, I need to read the manual.
 (bind-key* "C-0" `text-scale-adjust)
