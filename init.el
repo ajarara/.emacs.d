@@ -30,6 +30,8 @@
 (require 'diminish)
 (require 'bind-key)
 
+(set-face-attribute 'default nil :font "-xos4-Terminus-normal-normal-normal-*-16-*-*-*-c-80-iso10646-1")
+
 ;; Disabling 'helpful' visual goodies
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
@@ -297,7 +299,7 @@
 (use-package try)
 
 (quelpa 'ledger-mode)
-(use-package ledger
+(use-package ledger-mode
   :config
   (autoload 'ledger-mode "ledger-mode" "A major mode for Ledger" t)
   (add-to-list 'load-path
@@ -450,17 +452,3 @@ point reaches the beginning or end of the buffer, stop there."
 (toggle-debug-on-error)
 
 (message "Emacs config successfully loaded!")
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (ledger-mode try monokai-theme expand-region circe slime macrostep mingus libmpdee helm helm-core popup which-key evil-visual-mark-mode evil-leader evil goto-chg undo-tree magit magit-popup git-commit with-editor dash async ace-window avy swiper ivy use-package quelpa))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

@@ -1,8 +1,9 @@
 #+STARTIP: overview
 # Local variables:
-# eval: (evil-set-register a "#+BEGIN_SRC emacs-lisp :tangle init.el")
-# eval: (evil-set-register d "#+BEGIN_SRC emacs-lisp")
-# eval: (evil-set-register e "#+END_SRC")
+# eval: (evil-set-register ?a "#+BEGIN_SRC emacs-lisp :tangle init.el") \
+# eval: (evil-set-register ?d "#+BEGIN_SRC emacs-lisp") \
+# eval: (evil-set-register ?e "#+END_SRC")
+
 
 * Init
 ** Check if the org file has been changed, if so, update it.
@@ -54,6 +55,12 @@ Use package is a way to tidy up config and a convenient way to lazy load package
 #+END_SRC
 
 * UI
+** Font
+I tried the default font (DejaVu Sans Mono, use M-x describe-font to find out what yours is), source code pro, and a couple others the emacs subreddit recommended, but all I need is a monospace font that looks nice and doesn't crap out on <= 80 characters. Terminus is that font.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(set-face-attribute 'default nil :font "-xos4-Terminus-normal-normal-normal-*-16-*-*-*-c-80-iso10646-1")
+#+END_SRC
+
 ** Disabling 'helpful' visual goodies
 The only useful thing I lose here is the menubar, but typing <F10> gives you one at your cursor. And now I get all this real estate (it's free!)
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -474,7 +481,7 @@ I don't know enough about sml-mode to say anything meaningful about it, but I us
 Just playing around with john wiegley's ledger mode
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (quelpa 'ledger-mode)
-  (use-package ledger
+  (use-package ledger-mode
     :config
     (autoload 'ledger-mode "ledger-mode" "A major mode for Ledger" t)
     (add-to-list 'load-path
