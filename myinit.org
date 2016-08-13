@@ -1,17 +1,18 @@
 #+STARTIP: overview
 # Local variables:
 # eval: (evil-set-register a "#+BEGIN_SRC emacs-lisp :tangle init.el")
+# eval: (evil-set-register d "#+BEGIN_SRC emacs-lisp")
 # eval: (evil-set-register e "#+END_SRC")
 
-
 * Init
-*** Check if the org file has been changed, if so, update it.
+** Check if the org file has been changed, if so, update it.
 (Don't know if this is worth it, to be honest. I could just manually build it instead. That would avoid the possibility of catastrophe.)
-*** Enable debugging
+** Enable debugging
 This allows us to immediately detect if something went wrong with loading the init file. At the end of this init, this is toggled off.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (toggle-debug-on-error)
 #+END_SRC
+
 * Package archive config
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; package-archive config
@@ -41,7 +42,7 @@ This allows us to immediately detect if something went wrong with loading the in
 Use package is a way to tidy up config and a convenient way to lazy load packages (that is, defer loading so that emacs doesn't load everything on startup. johnw tags a release every six months or so, so let's use quelpa's stable declaration until we need cutting edge functionality.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; Use-package bootstrap
-(quelpa '(use-package :stable t))
+(quelpa 'use-package :stable t)
 ;; is this really necessary? imenu allows me to instead manage this file through the headings anyway.
 (setq use-package-enable-imenu-support t)
 
@@ -62,6 +63,7 @@ The only useful thing I lose here is the menubar, but typing <F10> gives you one
 (menu-bar-mode -1)
 (blink-cursor-mode 0)
 #+END_SRC
+
 ** Enabling visual line mode
 Some people consider it a hindrance, but I rarely need more then 80 columns while programming and would rather not have to deal with horizontal scrolling. These two settings are neat for prose, and org mode.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -70,6 +72,7 @@ Some people consider it a hindrance, but I rarely need more then 80 columns whil
 
 (toggle-word-wrap)
 #+END_SRC
+
 * Interface
 ** Making emacs snappier
 any dialog that asks for confirmation requires that you type in the full yes or no (and ignores whatever is after it, but does not accept y/n. And you don't have to hit RET.
@@ -105,6 +108,7 @@ man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode glo
   )
 
 #+END_SRC
+
 * ace-window
 C-x o is way too much to switch between windows (which is an operation I find myself doing near constantly). The "Ρ" you see below isn't actually a "Potato" P, it's a capital letter greek rho. Check out (semimap)[http://oremacs.com/2015/02/14/semi-xmodmap/] for details.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -133,21 +137,34 @@ Tarsius is a god. I have no idea where my use-package declaration went, though.
 * evil-mode
 Yeah, sorry. Maybe if I fixed my keyboard so that I had meta on semicolon without having to muck about with xcape (my previous config) I would consider using just emacs keybinds (C-a C-k is awesome) But the way I have it set up right now means that I never have to deal with an abrupt context switch. Sometimes.
 
-TODO: break this up into something that at least looks sane
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (use-package evil
     ;; evil-leader is run before evil, so that leader keys work in scratch and messages
-  :init
+ #+END_SRC
+
+evil likes to override my C-z key with evil-toggle-state. Unfortunately, even with this config evil will still manage to do so unexpectedly, but as of now this works most of the time.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+
+ :init
   (setq evil-toggle-key "C-`")
+#+END_SRC
 
-  ;; evil's undo is a little strong, especially since I'm staying insert mode more often.
+evil's undo is a little strong, especially since I'm staying in insert ("emacs", later explained) mode more often.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  
   (setq evil-want-fine-undo t)
+#+END_SRC
 
+initially I had a lot of issues with evil-leader as evil-mode would simply be disabled in modes like ibuffer, dired, and what have you, for good reason! Fortunately, I found out a way to make emacs and evil play together nicely permanently, and that's getting rid of insert state altogether (again, later explained). To be honest I still don't use it much except for ace-window. Ace-window is awesome.
+
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (quelpa 'evil-leader)
   (use-package evil-leader
     :config
     (setq evil-leader/leader "<SPC>")
 
     (evil-leader/set-key "g" `keyboard-quit)
+    (evil-leader/set-key "C-g" `keyboard-quit)
 
     (evil-leader/set-key "SPC" `ace-window)
 
@@ -157,31 +174,24 @@ TODO: break this up into something that at least looks sane
     (evil-leader/set-key "s" `magit-status)
 
     (evil-leader/set-key "f" `find-file)
-    (evil-leader/set-key "p" `projectile-find-file)
+    (evil-leader/set-key "p" `my/find-projects)
+    (evil-leader/set-key "o" `my/find-org-files)
 
+    (evil-leader/set-key "r" `org-capture)
     (global-evil-leader-mode)
     )
+#+END_SRC
 
-  ;; don't actually use this at all, just couldn't set it to nothing
-  :ensure t
-
-  ;; notice the lack of the previous comment.
-  :bind* (:map evil-emacs-state-map
-               ("C-r" . evil-paste-from-register)
-               :map evil-normal-state-map
-               ("j" . evil-next-visual-line)
-               ("k" . evil-previous-visual-line)
-               ("'" . evil-goto-mark)
-               ("C-y" . yank))
-  :bind-keymap*
-  (("C-w" . evil-window-map))
-
-  ;; the bind keyword lazy loads evil until you use one of the binds. I don't wanna do that, instead, I want it to load immediately.
-  :demand
+Turn evil mode on globally
+#+BEGIN_SRC emacs-lisp :tangle init.el
   :config
   (evil-mode t)
-  ;; the below is used to have emacs be the default state, but allow me to drop in to evil if need be.
-  ;; more config is available in the URL contained within the progn
+#+END_SRC
+
+the below is used to have emacs be the default state, but allow me to drop in (go up?) to evil if need be.
+more config is available in the URL contained within the progn
+there are less context switches now. when I go to dired or ibuffer, I know I'm in emacs state
+#+BEGIN_SRC emacs-lisp :tangle init.el
   (progn
     (defalias 'evil-insert-state 'evil-emacs-state) ; http://stackoverflow.com/a/27794225/2932728
     (setq evil-default-state 'emacs)
@@ -190,16 +200,46 @@ TODO: break this up into something that at least looks sane
     )
   ;; I didn't put the above define-key into the bind just because it makes more sense here. If I encounter a remapping of esc, I'd probably move it into bind*
 
-  ;; IDK about motion state, it blocks useful keys, like ? or h.
+  ;; IDK about motion state, it blocks useful keys, like ? or h. (which I get to by typing "\" in normal mode)
+#+END_SRC
 
-  ;; a quick way to differentiate which state I'm in without looking at the mode line, may change this later.
+a quick way to differentiate which state I'm in without looking at the mode line, may change this later.
+#+BEGIN_SRC emacs-lisp :tangle init.el
   (setq evil-emacs-state-cursor `(hbar . 2))
+#+END_SRC
 
+inserts highly visible characters at marks. they go away upon entering visual mode or 'insert' mode.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (quelpa 'evil-visual-mark-mode)
   (use-package evil-visual-mark-mode
-    :ensure t
     :config
     (evil-visual-mark-mode))
-  )
+#+END_SRC
+
+Once you start binding keys, use-package will lazy-load the packages, that is, wait until you hit a key that is in the bind before loading.
+While a useful feature, in this case I want evil-mode on start asap.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+   :demand t
+#+END_SRC
+
+
+Even though I use emacs-state as my insert state, I still want certain things to be available all the time, no matter what state I'm in.
+
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  :bind* (:map evil-emacs-state-map
+               ("C-r" . evil-paste-from-register)
+               :map evil-normal-state-map
+               ("j" . evil-next-visual-line)
+               ("k" . evil-previous-visual-line)
+               ("'" . evil-goto-mark)
+               ("C-y" . yank))
+#+END_SRC
+
+Y'know I don't really use it all that often, but that's just because I came from tmux, and used that to manage most of my windowing. But I do use C-w C-o a lot.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  :bind-keymap*
+  (("C-w" . evil-window-map))
+)
 #+END_SRC
 
 * org mode
@@ -230,6 +270,8 @@ I love org-capture, and make heavy, heavy use of it, but I don't think I grok it
            "* %?\nEntered on %U\n")
           ("g" "grievances" entry (file+datetree "~/Documents/org/grievances.org")
            "* %?\nEntered on %U\n")
+          ("p" "programming-lang" entry (file+datetree "~/Documents/org/pl.org")
+           "* %?\nEntered on %U\n  %i")
           )
         )
   :bind*
@@ -307,8 +349,8 @@ Meh, I only use it for M-x invocations (in case I forget keybinds)
 * mingus
 I have yet to figure out how to use quelpa to select branches (and it is not at all clear from browsing any of the source files)
 #+BEGIN_SRC emacs-lisp :tangle init.el
-;;(quelpa 'mingus)
-;;(use-package mingus)
+(quelpa 'mingus)
+(use-package mingus)
 #+END_SRC
 Wow, this is a lot slower than I expected. Disabling for now.
 * Slime
@@ -320,6 +362,7 @@ I've done all my swank config using ql, so all I gotta do is point it here.
   (slime-setup)
   (setq inferior-lisp-program "/usr/bin/sbcl"))
 #+END_SRC
+
 * circe
 I just connect to my znc server. Someday I might consider connecting to a network other than freenode, but as of now, there's no need. On attempted connection, this config asks for my password, so I don't have to mess with any auth files.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -340,19 +383,20 @@ I just connect to my znc server. Someday I might consider connecting to a networ
            ))))
 #+END_SRC
 
-*** Have emacs use tcp
+* Have emacs use tcp
 I'm significantly more familiar with using tcp sockets then unix ones, so while this isn't really necessary at all, I'd rather have it now so that I don't run any new problems when I eventually have to ssh into something.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (setq server-use-tcp t)
 #+END_SRC
-*** persistent bookmarks
+
+* persistent bookmarks
 registers are neat. let's try using them more often. If I bother creating a register, I want it to be persistent. Emacs calls persistent registers bookmarks, and to save them, you must either call `bookmark-save or configure it to save after x amount of bookmarks created
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; persistent bookmarks
 (setq bookmark-save-flag 1) ; so save after every bookmark made.
 #+END_SRC
 
-*** simple scrolling
+* simple scrolling
 Initially I just used the package (named simple-scrolling), but found that it caused weird graphical issues with browsing manual pages. This works just fine, although sometimes I miss the ability to have margins, but I also don't miss the jumpiness that sometimes occurred.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; simple scrolling
@@ -362,7 +406,7 @@ Initially I just used the package (named simple-scrolling), but found that it ca
   )
 #+END_SRC
 
-*** expand-region
+* expand-region
 I don't use this enough, but that's mostly because I don't manipulate xml a lot (where this shines imo)
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'expand-region)
@@ -384,6 +428,7 @@ control, emacs.d/backup and emacs.d/autosave
 (setq auto-save-list-file-prefix "~/.emacs.d/autosave/")
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosave/" t)))
 #+END_SRC
+
 * Prefer "horizontal" splits when the frame has the space for it.
 By horizontal I mean vim's (and the rest of the world's) notion of vertical. You split along the horizontal axis, I guess. Sure.
 
@@ -392,6 +437,7 @@ By horizontal I mean vim's (and the rest of the world's) notion of vertical. You
 ;; tried 150, I'm using xfwm4 if that makes any difference, but it did not work.
 (setq split-width-threshold 140)
 #+END_SRC
+
 * QOL fixes
 To be honest I have no idea what this does, but I know that it causes emacs to hang on exit. Setting it to nil disables it, and there's no apparent loss of functionality of my clipboard interaction with emacs.. so... :|
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -407,16 +453,35 @@ I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
   :config
   (load-theme `monokai t))
 #+END_SRC
+
 * Unconfigured/barely used
 Not much to say about these, but hell I have you here so you're gonna have to read some more rambling.
 
 Try is useful for not having to edit a config file, installing packages that you're sure you don't even wanna bother configuring. Zamansky showcases it in one of his teaching emacs videos by grabbing lorem-ipsum, a package that does exactly what you think it does, and a package that I don't really think I'd need to install more then 3 or 4 times in my life.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'try)
+(use-package try)
 #+END_SRC
 
 I don't know enough about sml-mode to say anything meaningful about it, but I use it for my class.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+
 (quelpa 'sml-mode)
+(use-package try)
+
+#+END_SRC
+
+Just playing around with john wiegley's ledger mode
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (quelpa 'ledger-mode)
+  (use-package ledger
+    :config
+    (autoload 'ledger-mode "ledger-mode" "A major mode for Ledger" t)
+    (add-to-list 'load-path
+                 (expand-file-name "/path/to/ledger/source/lisp/"))
+    (add-to-list 'auto-mode-alist '("\\.ledger$" . ledger-mode)))
+    
+#+END_SRC
 
 * "my-" functions
 Most of these are definitely not my code or my ideas. But they've definitely made a difference.
@@ -514,72 +579,14 @@ invaluable for quick edits.
 (defun my/find-projects ()
   "navigates to ~/Documents/projects"
   (interactive)
-  (ido-find-file-in-dir "~/Documents/projects/"))
+  (find-file "~/Documents/projects/"))
 #+END_SRC
-
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (defun my/find-org-files ()
   "navigates to ~/Documents/org"
   (interactive)
-  (ido-find-file-in-dir "~/Documents/org/"))
-
-#+END_SRC
-
-* my-mode
-Initially before I discovered bind-key I used a minor-mode that I enabled globally so that none of my keybinds were overridden (overridded? overwritten? whatever). I keep it around because it's pretty much a flexible keymap that I can easily turn on and off. (and it only shadows capitalize-word)
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(defvar my-prefix "M-c ")
-(defun my/prefix-add-to-map (map key-as-string function-symbol)
-  (define-key map (kbd (concat my-prefix key-as-string)) function-symbol))
-
-(defvar my/mode-map
-  (let ((my-map (make-keymap)))
-
-    ;; this doesn't work well, it gets rebound to tab. need another keybind. C-m doesn't work either, for the same stupid reason.
-    ;;(define-key my-map (kbd "C-i") `my/kill-other-window)
-
-    ;; under my/prefix
-    (my/prefix-add-to-map my-map "s" `magit-status)
-    (my/prefix-add-to-map my-map "M-s" `magit-status)
-
-    (my/prefix-add-to-map my-map "z" `evil-emacs-state)
-    (my/prefix-add-to-map my-map "M-z" `evil-emacs-state)
-
-    (my/prefix-add-to-map my-map "g" `keyboard-quit)
-    (my/prefix-add-to-map my-map "M-g" `keyboard-quit)
-    (my/prefix-add-to-map my-map "C-g" `keyboard-quit) ; hell, why not
-
-    (my/prefix-add-to-map my-map "o" `my/find-org-files)
-    (my/prefix-add-to-map my-map "r" `org-capture)
-    (my/prefix-add-to-map my-map "M-r" `org-capture)
-
-
-    ;; oh emacs, some people think you don't make any sense
-    ;; but I'll just chalk it up to charm.
-    (my/prefix-add-to-map my-map "v" `split-window-horizontally)
-    (my/prefix-add-to-map my-map "M-v" `split-window-horizontally)
-    (my/prefix-add-to-map my-map "h" `split-window-vertically)
-    (my/prefix-add-to-map my-map "M-h" `split-window-vertically)
-
-    ;; under my/prefix with a custom func
-    (my/prefix-add-to-map my-map "p" `my/find-projects) ; adding a meta prefix won't make much sense here, based on key layout
-
-    (my/prefix-add-to-map my-map "t" `my/toggle-window-split)
-    (my/prefix-add-to-map my-map "M-t" `my/toggle-window-split)
-
-    ;; return my-map
-    my-map
-    ))
-
-;; all homemade functions can be found under this minor mode declaration
-(define-minor-mode my/mode
-  :diminish
-  :global
-  :keymap `my/mode-map
-  )
-;; evaluate it. considering moving to johnw's bind-key so that I can declare these keybinds in use-package configs
-(my/mode)
+  (find-file "~/Documents/org/"))
 #+END_SRC
 
 * Binds (that don't belong to specific packages)
@@ -598,7 +605,7 @@ keyboard-translate allows me to swap these two keys without worrying about the c
 However, this doesn't work if you use emacsclient (well it does, but you have to evaluate it yourself everytime you start the daemon. The above code block is not tangled into my init.) Instead, the mailing list provides a solution:
 https://lists.gnu.org/archive/html/help-gnu-emacs/2009-10/msg00505.html
 
-Now I don't have to worry about swapping C-p -> C-h in every single corner of emacs.
+Now I don't have to worry about swapping C-p -> C-h in every single corner of emacs. (A problem with this is that I still have to use 'p' in place of 'h' in modes like dired or magit commit logs.)
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (define-key key-translation-map [?\C-h] [?\C-p])
 (define-key key-translation-map [?\C-p] [?\C-h])
@@ -607,8 +614,18 @@ Now I don't have to worry about swapping C-p -> C-h in every single corner of em
 using semicolon as a modifier (see abo-abo's semimap post) is a little weird at first, but works quite well. I used to use it as meta, and then xcape to insert an actual semicolon, but if I ever used vim/evil's extended command mode it was so annoying. This solution works well, but I want to emulate certain things I missed.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
+;; if there are two letters commented after the definition, the second is reached by using shift AND mode shift. It's a lot, so don't expect there to be many
+;; movement
 (define-key key-translation-map "ν" (kbd "M-f")) ;; [f]
-(define-key key-translation-map "ι" (kbd "M-b")) ;; [b]
+(define-key key-translation-map "β" (kbd "M-b")) ;; [b]
+
+;; shortcuts
+(define-key key-translation-map "Ι" (kbd "M-i")) ;; [i]
+(define-key key-translation-map "Σ" (kbd "M-z")) ;; [z]
+(define-key key-translation-map "χ" (kbd "M-c")) ;; [c]
+
+;; window manipulation
+(define-key key-translation-map "ψ" (kbd "M-r")) ;; [r]
 #+END_SRC
 
 
@@ -616,6 +633,9 @@ These are largely personal preference so not going to explain them.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; shadows universal arg, I think? Damn, I need to read the manual.
 (bind-key* "C-0" `text-scale-adjust)
+
+;; shadows capitalize word (used to be my minor mode keymap, I moved all that to evil-leader, which I may eventually move to general)
+(bind-key "M-c" `comment-dwim)
 
 ;; shadows move-to-window-line-top-bottom
 (bind-key* "M-r" `delete-other-windows)
@@ -669,7 +689,8 @@ Okay, we're done. Let's switch off debugging and send an OK.
 ;; disable debugging
 (toggle-debug-on-error)
 #+END_SRC
-*** Message
+
+*** Message "loaded successfully"
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (message "Emacs config successfully loaded!")
 #+END_SRC

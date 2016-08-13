@@ -20,7 +20,7 @@
       (eval-buffer)))
 
 ;; Use-package bootstrap
-(quelpa '(use-package :stable t))
+(quelpa 'use-package :stable t)
 ;; is this really necessary? imenu allows me to instead manage this file through the headings anyway.
 (setq use-package-enable-imenu-support t)
 
@@ -80,69 +80,68 @@
 
 (use-package evil
     ;; evil-leader is run before evil, so that leader keys work in scratch and messages
-  :init
-  (setq evil-toggle-key "C-`")
 
-  ;; evil's undo is a little strong, especially since I'm staying insert mode more often.
-  (setq evil-want-fine-undo t)
+:init
+ (setq evil-toggle-key "C-`")
 
-  (use-package evil-leader
-    :config
-    (setq evil-leader/leader "<SPC>")
+(setq evil-want-fine-undo t)
 
-    (evil-leader/set-key "g" `keyboard-quit)
-
-    (evil-leader/set-key "SPC" `ace-window)
-
-    (evil-leader/set-key "w" `save-buffer)
-    (evil-leader/set-key "v" `visual-line-mode)
-    (evil-leader/set-key "t" `toggle-word-wrap)
-    (evil-leader/set-key "s" `magit-status)
-
-    (evil-leader/set-key "f" `find-file)
-    (evil-leader/set-key "p" `projectile-find-file)
-
-    (global-evil-leader-mode)
-    )
-
-  ;; don't actually use this at all, just couldn't set it to nothing
-  :ensure t
-
-  ;; notice the lack of the previous comment.
-  :bind* (:map evil-emacs-state-map
-               ("C-r" . evil-paste-from-register)
-               :map evil-normal-state-map
-               ("j" . evil-next-visual-line)
-               ("k" . evil-previous-visual-line)
-               ("'" . evil-goto-mark)
-               ("C-y" . yank))
-  :bind-keymap*
-  (("C-w" . evil-window-map))
-
-  ;; the bind keyword lazy loads evil until you use one of the binds. I don't wanna do that, instead, I want it to load immediately.
-  :demand
+(quelpa 'evil-leader)
+(use-package evil-leader
   :config
-  (evil-mode t)
-  ;; the below is used to have emacs be the default state, but allow me to drop in to evil if need be.
-  ;; more config is available in the URL contained within the progn
-  (progn
-    (defalias 'evil-insert-state 'evil-emacs-state) ; http://stackoverflow.com/a/27794225/2932728
-    (setq evil-default-state 'emacs)
-    ;; https://bitbucket.org/bastibe/.emacs.d/src/12d08ec90a6445787b028fa8640844a67182e96d/init.el?at=master&fileviewer=file-view-default
-    (define-key evil-emacs-state-map [escape] 'evil-normal-state)
-    )
-  ;; I didn't put the above define-key into the bind just because it makes more sense here. If I encounter a remapping of esc, I'd probably move it into bind*
+  (setq evil-leader/leader "<SPC>")
 
-  ;; IDK about motion state, it blocks useful keys, like ? or h.
+  (evil-leader/set-key "g" `keyboard-quit)
+  (evil-leader/set-key "C-g" `keyboard-quit)
 
-  ;; a quick way to differentiate which state I'm in without looking at the mode line, may change this later.
-  (setq evil-emacs-state-cursor `(hbar . 2))
+  (evil-leader/set-key "SPC" `ace-window)
 
-  (use-package evil-visual-mark-mode
-    :ensure t
-    :config
-    (evil-visual-mark-mode))
+  (evil-leader/set-key "w" `save-buffer)
+  (evil-leader/set-key "v" `visual-line-mode)
+  (evil-leader/set-key "t" `toggle-word-wrap)
+  (evil-leader/set-key "s" `magit-status)
+
+  (evil-leader/set-key "f" `find-file)
+  (evil-leader/set-key "p" `my/find-projects)
+  (evil-leader/set-key "o" `my/find-org-files)
+
+  (evil-leader/set-key "r" `org-capture)
+  (global-evil-leader-mode)
   )
+
+:config
+(evil-mode t)
+
+(progn
+  (defalias 'evil-insert-state 'evil-emacs-state) ; http://stackoverflow.com/a/27794225/2932728
+  (setq evil-default-state 'emacs)
+  ;; https://bitbucket.org/bastibe/.emacs.d/src/12d08ec90a6445787b028fa8640844a67182e96d/init.el?at=master&fileviewer=file-view-default
+  (define-key evil-emacs-state-map [escape] 'evil-normal-state)
+  )
+;; I didn't put the above define-key into the bind just because it makes more sense here. If I encounter a remapping of esc, I'd probably move it into bind*
+
+;; IDK about motion state, it blocks useful keys, like ? or h. (which I get to by typing "\" in normal mode)
+
+(setq evil-emacs-state-cursor `(hbar . 2))
+
+(quelpa 'evil-visual-mark-mode)
+(use-package evil-visual-mark-mode
+  :config
+  (evil-visual-mark-mode))
+
+:demand t
+
+:bind* (:map evil-emacs-state-map
+             ("C-r" . evil-paste-from-register)
+             :map evil-normal-state-map
+             ("j" . evil-next-visual-line)
+             ("k" . evil-previous-visual-line)
+             ("'" . evil-goto-mark)
+             ("C-y" . yank))
+
+:bind-keymap*
+  (("C-w" . evil-window-map))
+)
 
 ;; init or config? I never know.
 (use-package org
@@ -168,6 +167,8 @@
            "* %?\nEntered on %U\n")
           ("g" "grievances" entry (file+datetree "~/Documents/org/grievances.org")
            "* %?\nEntered on %U\n")
+          ("p" "programming-lang" entry (file+datetree "~/Documents/org/pl.org")
+           "* %?\nEntered on %U\n  %i")
           )
         )
   :bind*
@@ -228,8 +229,8 @@
   :ensure t
   :bind* (("M-x" . helm-M-x)))
 
-;;(quelpa 'mingus)
-;;(use-package mingus)
+(quelpa 'mingus)
+(use-package mingus)
 
 (quelpa 'slime)
 (use-package slime
@@ -290,6 +291,18 @@
   (load-theme `monokai t))
 
 (quelpa 'try)
+(use-package try)
+
+(quelpa 'sml-mode)
+(use-package try)
+
+(quelpa 'ledger-mode)
+(use-package ledger
+  :config
+  (autoload 'ledger-mode "ledger-mode" "A major mode for Ledger" t)
+  (add-to-list 'load-path
+               (expand-file-name "/path/to/ledger/source/lisp/"))
+  (add-to-list 'auto-mode-alist '("\\.ledger$" . ledger-mode)))
 
 ;; something useful from the emacs wiki? No way.
 (defun my/smarter-move-beginning-of-line (arg)
@@ -365,73 +378,34 @@ point reaches the beginning or end of the buffer, stop there."
 (defun my/find-projects ()
   "navigates to ~/Documents/projects"
   (interactive)
-  (ido-find-file-in-dir "~/Documents/projects/"))
+  (find-file "~/Documents/projects/"))
 
 (defun my/find-org-files ()
   "navigates to ~/Documents/org"
   (interactive)
-  (ido-find-file-in-dir "~/Documents/org/"))
-
-(defvar my-prefix "M-c ")
-(defun my/prefix-add-to-map (map key-as-string function-symbol)
-  (define-key map (kbd (concat my-prefix key-as-string)) function-symbol))
-
-(defvar my/mode-map
-  (let ((my-map (make-keymap)))
-
-    ;; this doesn't work well, it gets rebound to tab. need another keybind. C-m doesn't work either, for the same stupid reason.
-    ;;(define-key my-map (kbd "C-i") `my/kill-other-window)
-
-    ;; under my/prefix
-    (my/prefix-add-to-map my-map "s" `magit-status)
-    (my/prefix-add-to-map my-map "M-s" `magit-status)
-
-    (my/prefix-add-to-map my-map "z" `evil-emacs-state)
-    (my/prefix-add-to-map my-map "M-z" `evil-emacs-state)
-
-    (my/prefix-add-to-map my-map "g" `keyboard-quit)
-    (my/prefix-add-to-map my-map "M-g" `keyboard-quit)
-    (my/prefix-add-to-map my-map "C-g" `keyboard-quit) ; hell, why not
-
-    (my/prefix-add-to-map my-map "o" `my/find-org-files)
-    (my/prefix-add-to-map my-map "r" `org-capture)
-    (my/prefix-add-to-map my-map "M-r" `org-capture)
-
-
-    ;; oh emacs, some people think you don't make any sense
-    ;; but I'll just chalk it up to charm.
-    (my/prefix-add-to-map my-map "v" `split-window-horizontally)
-    (my/prefix-add-to-map my-map "M-v" `split-window-horizontally)
-    (my/prefix-add-to-map my-map "h" `split-window-vertically)
-    (my/prefix-add-to-map my-map "M-h" `split-window-vertically)
-
-    ;; under my/prefix with a custom func
-    (my/prefix-add-to-map my-map "p" `my/find-projects) ; adding a meta prefix won't make much sense here, based on key layout
-
-    (my/prefix-add-to-map my-map "t" `my/toggle-window-split)
-    (my/prefix-add-to-map my-map "M-t" `my/toggle-window-split)
-
-    ;; return my-map
-    my-map
-    ))
-
-;; all homemade functions can be found under this minor mode declaration
-(define-minor-mode my/mode
-  :diminish
-  :global
-  :keymap `my/mode-map
-  )
-;; evaluate it. considering moving to johnw's bind-key so that I can declare these keybinds in use-package configs
-(my/mode)
+  (find-file "~/Documents/org/"))
 
 (define-key key-translation-map [?\C-h] [?\C-p])
 (define-key key-translation-map [?\C-p] [?\C-h])
 
+;; if there are two letters commented after the definition, the second is reached by using shift AND mode shift. It's a lot, so don't expect there to be many
+;; movement
 (define-key key-translation-map "ν" (kbd "M-f")) ;; [f]
-(define-key key-translation-map "ι" (kbd "M-b")) ;; [b]
+(define-key key-translation-map "β" (kbd "M-b")) ;; [b]
+
+;; shortcuts
+(define-key key-translation-map "Ι" (kbd "M-i")) ;; [i]
+(define-key key-translation-map "Σ" (kbd "M-z")) ;; [z]
+(define-key key-translation-map "χ" (kbd "M-c")) ;; [c]
+
+;; window manipulation
+(define-key key-translation-map "ψ" (kbd "M-r")) ;; [r]
 
 ;; shadows universal arg, I think? Damn, I need to read the manual.
 (bind-key* "C-0" `text-scale-adjust)
+
+;; shadows capitalize word (used to be my minor mode keymap, I moved all that to evil-leader, which I may eventually move to general)
+(bind-key "M-c" `comment-dwim)
 
 ;; shadows move-to-window-line-top-bottom
 (bind-key* "M-r" `delete-other-windows)
@@ -476,3 +450,17 @@ point reaches the beginning or end of the buffer, stop there."
 (toggle-debug-on-error)
 
 (message "Emacs config successfully loaded!")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (ledger-mode try monokai-theme expand-region circe slime macrostep mingus libmpdee helm helm-core popup which-key evil-visual-mark-mode evil-leader evil goto-chg undo-tree magit magit-popup git-commit with-editor dash async ace-window avy swiper ivy use-package quelpa))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
