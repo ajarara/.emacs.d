@@ -30,7 +30,10 @@
 (require 'diminish)
 (require 'bind-key)
 
-(set-face-attribute 'default nil :font "-xos4-Terminus-normal-normal-normal-*-16-*-*-*-c-80-iso10646-1")
+;; this didn't seem to work, would not have the first frame be terminus'd
+;; (set-face-attribute 'default nil :font "-xos4-Terminus-normal-normal-normal-*-16-*-*-*-c-80-iso10646-1")
+;; this worked!
+(add-to-list 'default-frame-alist '(font . "-xos4-Terminus-normal-normal-normal-*-16-*-*-*-c-80-iso10646-1"))
 
 ;; Disabling 'helpful' visual goodies
 (tool-bar-mode -1)
@@ -43,13 +46,26 @@
 
 (toggle-word-wrap)
 
+(defvar my-hl-line-mode-hook-list
+  `(prog-mode-hook
+    circe-mode-hook))
+
+(dolist (this-mode-hook my-hl-line-mode-hook-list)
+  (add-hook this-mode-hook `hl-line-mode))
+
 ;; Making emacs snappier
 (fset `yes-or-no-p `y-or-n-p)
 (setq echo-keystrokes 0.1)
 (setq mouse-yank-at-point t)
 
+(use-package dired
+;;  :bind (:map dired-mode-map
+;;         (("h" . dired-previous-line)))
+)
+
 (quelpa `swiper) ; installs both swiper and ivy
 (use-package ivy
+  :demand t
   :diminish ivy-mode
   :config
   (ivy-mode t))
@@ -139,6 +155,7 @@
              ("j" . evil-next-visual-line)
              ("k" . evil-previous-visual-line)
              ("'" . evil-goto-mark)
+             ("C-e" . end-of-line)
              ("C-y" . yank))
 
 :bind-keymap*
@@ -152,67 +169,41 @@
 
   (setq org-default-notes-file (concat org-directory "/notes.org"))
 
-  ;; capture templates that work, as of now.
-  ;; for more info, check out http://orgmode.org/manual/Capture-templates.html
-  (setq org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/Documents/org/gtd.org" "Tasks")
-           "* TODO %?\n  %i\n  %a")
-          ("j" "Journal" entry (file+datetree "~/Documents/org/journal.org")
-           "* %?\nEntered on %U\n  %i\n  %a")
-          ("e" "Emacs" entry (file+datetree "~/Documents/org/emacs.org")
-           "* %?\nEntered on %U\n  %i\n  %a")
-          ("k" "KOL" entry (file+datetree "~/Documents/org/kol.org")
-           "* %?\nEntered on %U\n %a")
-          ("a" "ascension" entry (file+datetree "~/Documents/org/kol-ascension.org")
-           "* %?\nEntered on %U\n %a")
-          ("m" "track" entry (file+datetree "~/Documents/org/track.org")
-           "* %?\nEntered on %U\n")
-          ("g" "grievances" entry (file+datetree "~/Documents/org/grievances.org")
-           "* %?\nEntered on %U\n")
-          ("p" "programming-lang" entry (file+datetree "~/Documents/org/pl.org")
-           "* %?\nEntered on %U\n  %i")
-          )
+(setq my/org-capture-directory "~/Documents/org/capture/") ; will not be used this commit.
+(setq org-capture-templates
+      '(("t" "Todo" entry (file+headline "~/Documents/org/gtd-capture.org" "Tasks")
+         "* TODO %?\n  %i\n  %a")
+        ("j" "Journal" entry (file+datetree "~/Documents/org/journal.org")
+         "* %?\nEntered on %U\n  %i\n  %a")
+        ("e" "Emacs" entry (file+datetree "~/Documents/org/emacs.org")
+         "* %?\nEntered on %U\n  %i\n  %a")
+        ("k" "KOL" entry (file+datetree "~/Documents/org/kol.org")
+         "* %?\nEntered on %U\n %a")
+        ("a" "ascension" entry (file+datetree "~/Documents/org/kol-ascension.org")
+         "* %?\nEntered on %U\n %a")
+        ("m" "track" entry (file+datetree "~/Documents/org/track.org")
+         "* %?\nEntered on %U\n")
+        ("g" "grievances" entry (file+datetree "~/Documents/org/grievances.org")
+         "* %?\")
+        ("p" "programming-lang" entry (file+datetree "~/Documents/org/pl.org")
+         "* %?\nEntered on %U\n  %i")
+        ("u" "uncategorized-mess" entry (file+datetree "~/Documents/org/u-mess.org")
+         "* %?\nEntered on %U\n")
         )
-  :bind*
-  (("<f5>" . org-capture))
-  )
-
-(use-package term
-  ;; ugh, I need a good terminal emulator. I only use an emacs term over real ones because I get to use evil (or emacs keys, if you're that kinda guy)
-  :config
-  ;; all of this config is from:
-  ;; http://echosa.github.io/blog/2012/06/06/improving-ansi-term/
-
-  ;; kill the buffer after finishing.
-  (defadvice term-sentinel (around my-advice-term-sentinel (proc msg))
-    (if (memq (process-status proc) '(signal exit))
-        (let ((buffer (process-buffer proc)))
-          ad-do-it
-          (kill-buffer buffer))
-      ad-do-it))
-  (ad-activate 'term-sentinel)
-
-  ;; don't ask me about whether I want to use bash. I do.
-  ;; modified from ansi-term to term from source post
-  (defvar my-term-shell "/bin/bash")
-  (defadvice term (before force-bash)
-    (interactive (list my-term-shell)))
-  (ad-activate 'term)
-
-  ;; why is this not the default?
-  (defun my-term-use-utf8 ()
-    (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
-  (add-hook 'term-exec-hook 'my-term-use-utf8)
-
-  (add-hook 'term-mode-hook 'goto-address-mode)
-
-  :bind*
-  (("C-z" . term)
-   :map term-raw-map
-   ("C-h" . help-command)
-   ("C-y" . term-paste))
-
+      )
+:bind*
+(("<f5>" . org-capture))
 )
+
+(use-package ansi-term
+  :init
+  (defun my-bash-ansi-term ()
+    (interactive)
+    (ansi-term "/bin/bash"))
+  (setq term-supress-hard-newline t)
+  :bind*
+  (("C-z" . my-bash-ansi-term))
+  )
 
 (quelpa 'which-key)
 (use-package which-key
@@ -243,7 +234,11 @@
 (quelpa 'circe)
 (use-package circe
   :config
-  (setq circe-split-line-length 200)
+  (add-hook 'circe-mode-hook 'my/font-lock-ensure-function-nilify)
+  ;; enable nicks
+  (enable-circe-color-nicks)
+
+  ;; don't bombard me with leaves if the leaver hasn't spoke in a while.
   (setq circe-reduce-lurker-spam t)
   (setq circe-network-options
         '(("ZNC"
@@ -296,6 +291,8 @@
 (use-package try)
 
 (quelpa 'sml-mode)
+(use-package sml-mode)
+
 (use-package try)
 
 (quelpa 'ledger-mode)
@@ -387,6 +384,11 @@ point reaches the beginning or end of the buffer, stop there."
   (interactive)
   (find-file "~/Documents/org/"))
 
+(defun my/font-lock-ensure-function-nilify ()
+  (setq font-lock-ensure-function
+        (lambda (_beg _end)
+          nil)))
+
 (define-key key-translation-map [?\C-h] [?\C-p])
 (define-key key-translation-map [?\C-p] [?\C-h])
 
@@ -402,6 +404,7 @@ point reaches the beginning or end of the buffer, stop there."
 
 ;; window manipulation
 (define-key key-translation-map "ψ" (kbd "M-r")) ;; [r]
+(define-key key-translation-map "κ" (kbd "M-k")) ;; [k]
 
 ;; shadows universal arg, I think? Damn, I need to read the manual.
 (bind-key* "C-0" `text-scale-adjust)
@@ -443,7 +446,11 @@ point reaches the beginning or end of the buffer, stop there."
 (bind-key* "M-u" `bury-buffer)
 
 ;; shadows nothing that I know of.
-(bind-key* "M-p" `my/find-projects)
+;; (bind-key* "M-p" `my/find-projects)
+
+;; this leaves M-d free, for something. Although I use mode-d for colon/semicolon, so it's gotta be good.
+;; shadows kill-sentence
+(bind-key* "M-k" `kill-word)
 
 (add-hook `org-mode-hook `org-indent-mode)
 (add-hook `org-mode-hook `visual-line-mode)
