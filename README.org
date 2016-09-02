@@ -1,18 +1,15 @@
 #+STARTIP: overview
-# Local variables:
-# eval: (evil-set-register ?e "#+BEGIN_SRC emacs-lisp :tangle init.el")
-# eval: (evil-set-register ?a "#+BEGIN_SRC emacs-lisp :tangle init.el")
-# eval: (evil-set-register ?d "#+BEGIN_SRC emacs-lisp :tangle init.el")
+* What is this?
+This file is an org mode file that emacs can use to generate configuration.
 
+Almost all of the code blocks you see below are placed into init.el. This has two benefits: I don't have to comment this code with semicolons, and I can easily navigate to what code I'd like to edit or add. Here's a picture of my config:
+![dark-themes-are-bad-for-your-eyes-but-good-for-the-soul.exe.gz](http://i.imgur.com/yQPukq6.png)
 * Init
-** Check if the org file has been changed, if so, update it.
-(Don't know if this is worth it, to be honest. I could just manually build it instead. That would avoid the possibility of catastrophe.)
 ** Enable debugging
 This allows us to immediately detect if something went wrong with loading the init file. At the end of this init, this is toggled off.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (toggle-debug-on-error)
 #+END_SRC
-
 * Package archive config
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; package-archive config
@@ -116,8 +113,9 @@ I really like C-h as up, it makes moving around significantly easier. Unfortunat
 Uh, disabled. I need access to help, but I can't get at it with M-x.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (use-package dired
-;;  :bind (:map dired-mode-map
-;;         (("h" . dired-previous-line)))
+  :bind (:map dired-mode-map
+         (("i" . evil-insert-state))
+         )
 )    
 #+END_SRC
 
@@ -129,6 +127,8 @@ man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode glo
   :demand t
   :diminish ivy-mode
   :config
+  (setq ivy-ignore-buffers `("\\` "
+                             "\\#"))
   (ivy-mode t))
 
 (use-package swiper
@@ -143,7 +143,7 @@ man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode glo
 #+END_SRC
 
 * ace-window
-C-x o is way too much to switch between windows (which is an operation I find myself doing near constantly). The "Ρ" you see below isn't actually a "Potato" P, it's a capital letter greek rho. Check out (semimap)[http://oremacs.com/2015/02/14/semi-xmodmap/] for details.
+C-x o is way too much to switch between windows (which is an operation I find myself doing near constantly). The "Ρ" you see below isn't actually a "Potato" P, it's a capital letter greek rho. Check out [semimap](http://oremacs.com/2015/02/14/semi-xmodmap/) for details.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'ace-window)
 (use-package ace-window
@@ -265,7 +265,8 @@ Even though I use emacs-state as my insert state, I still want certain things to
                ("k" . evil-previous-visual-line)
                ("'" . evil-goto-mark)
                ("C-e" . end-of-line)
-               ("C-y" . yank))
+               ("C-y" . yank)
+               ("C-d" . evil-scroll-down))
 #+END_SRC
 
 Y'know I don't really use it all that often, but that's just because I came from tmux, and used that to manage most of my windowing. But I do use C-w C-o a lot.
@@ -308,7 +309,7 @@ a quick primer: this is a listing, where each element is itself a list that foll
     "baz.org")) ; this will be concatenated (probably not if you use an absolute path, check out expand-file-name)
 #+END_SRC
 
-and that's it! for more info, check out http://orgmode.org/manual/Template-elements.html#Template-elements
+and that's it! for more info, check out [the org mode manual for templates!](http://orgmode.org/manual/Template-elements.html#Template-elements)
 
  #+BEGIN_SRC emacs-lisp :tangle init.el
    (setq my/org-capture-directory "~/Documents/org/capture/") ; will not be used this commit.
@@ -326,7 +327,7 @@ and that's it! for more info, check out http://orgmode.org/manual/Template-eleme
            ("m" "track" entry (file+datetree "~/Documents/org/track.org")
             "* %?\nEntered on %U\n")
            ("g" "grievances" entry (file+datetree "~/Documents/org/grievances.org")
-            "* %?\")
+            "* %?\nEntered on %U\n %i")
            ("p" "programming-lang" entry (file+datetree "~/Documents/org/pl.org")
             "* %?\nEntered on %U\n  %i")
            ("u" "uncategorized-mess" entry (file+datetree "~/Documents/org/u-mess.org")
@@ -341,14 +342,16 @@ and that's it! for more info, check out http://orgmode.org/manual/Template-eleme
 * term
 I'm not exactly happy with term. There's a bunch of workarounds and keys get rebound and still I encounter usability issues. But it works enough, and I have good clipboard (and visual selection) interaction. So it stays. Maybe someone with knowledge of how to do things the right way will get a real terminal working by embedding or linking to the binary.
 
-Let's try ansi-term instead. This config isn't tangled anymore (and will likely be removed after this commit.)
-#+BEGIN_SRC emacs-lisp
+I use term instead of ansi-term (tried it in a previous iteration) because it's much clearer to configure. I still have no idea how to make ansi-term not insert line breaks.
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (use-package term 
-  :disabled t
   ;; ugh, I need a good terminal emulator. I only use an emacs term over real ones because I get to use evil (or emacs keys, if you're that kinda guy)
   :config
-  ;; all of this config is from:
+  ;; most of this config is from:
   ;; http://echosa.github.io/blog/2012/06/06/improving-ansi-term/
+
+  ;; don't modify my output please
+  (setq term-suppress-hard-newline t)
 
   ;; kill the buffer after finishing.
   (defadvice term-sentinel (around my-advice-term-sentinel (proc msg))
@@ -377,22 +380,11 @@ Let's try ansi-term instead. This config isn't tangled anymore (and will likely 
   (("C-z" . term)
    :map term-raw-map
    ("C-h" . help-command)
-   ("C-y" . term-paste))
-
+   ("C-y" . term-paste)
+   )
+  :bind-keymap*
+  (("C-x" . ctl-x-map))
 )
-#+END_SRC
-
-okay, hopefull ansi-term plays nicer. I was under the impression that they were one and the same, but clearly, they're not. One difference immediately is calling ansi-term again creates a new terminal buffer. Another is that C-x is not sent to the process, or C-c. That's enough to make me start liking it.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-  (use-package ansi-term
-    :init
-    (defun my-bash-ansi-term ()
-      (interactive)
-      (ansi-term "/bin/bash"))
-    (setq term-supress-hard-newline t)
-    :bind*
-    (("C-z" . my-bash-ansi-term))
-    )
 #+END_SRC
 
 * which-key
@@ -421,6 +413,29 @@ Meh, I only use it for M-x invocations (in case I forget keybinds)
   :bind* (("M-x" . helm-M-x)))
 #+END_SRC
 
+* elpy
+It was a little difficult figuring out how to change tests programmatically, so if you want to use something else, first M-x elpy-set-test-runner , and then query elpy-test-runner. For py.test, I had to use the symbol elpy-test-pytest-runner.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(quelpa 'elpy)
+(use-package elpy
+  :config
+
+  ;; py.test is actively developed. 
+  (elpy-set-test-runner `elpy-test-pytest-runner)
+
+  ;; silences completion warning. found on ob-python's issue pages, strangely enough.
+  (setq python-shell-completion-native-enable nil) 
+
+  ;; convenience
+  (defalias 'workon 'pyvenv-workon)
+  
+  ;; preference
+  (setq elpy-rpc-backend "jedi")
+  (setq elpy-rpc-python-command "python3")
+  
+  ;; start
+  (elpy-enable))
+#+END_SRC
 * mingus
 I have yet to figure out how to use quelpa to select branches (and it is not at all clear from browsing any of the source files)
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -449,6 +464,10 @@ I have no idea why colored nicks are not enabled by default. Much prettier!
   (add-hook 'circe-mode-hook 'my/font-lock-ensure-function-nilify)
   ;; enable nicks
   (enable-circe-color-nicks)
+
+  ;; fools
+  (setq circe-fool-list
+        '("^7heo"))
 
   ;; don't bombard me with leaves if the leaver hasn't spoke in a while.
   (setq circe-reduce-lurker-spam t)
@@ -497,7 +516,7 @@ I don't use this enough, but that's mostly because I don't manipulate xml a lot 
 #+END_SRC
 
 * Directory clutter
-From (wasamasa's config)[https://github.com/wasamasa/dotemacs/blob/master/init.org]
+From ![wasamasa's config](https://github.com/wasamasa/dotemacs/blob/master/init.org)
 control, emacs.d/backup and emacs.d/autosave
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -650,7 +669,7 @@ invaluable for quick edits.
 (defun my/find-init-file ()
   "Displays the contents of ~/.emacs.d/myinit.org, if already shown, revert to previous buffer"
   (interactive)
-  (let ((init-file-location "/home/ajarara/.emacs.d/myinit.org"))
+  (let ((init-file-location "/home/ajarara/.emacs.d/README.org"))
     (if (string= init-file-location (buffer-file-name))
         (previous-buffer)
       (find-file init-file-location)))
@@ -677,31 +696,12 @@ Sometimes font-lock-ensure-function is called (whenever you invoke swiper). Some
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (defun my/font-lock-ensure-function-nilify ()
     (setq font-lock-ensure-function
-          (lambda (_beg _end)
-            nil)))
+          'ignore))
 #+END_SRC
 
 * Binds (that don't belong to specific packages)
 
 Abo-abo's had quite the influence on my config.
-
-keyboard-translate allows me to swap these two keys without worrying about the context switch that might occur if these two are rebound in some other package.
-
-#+BEGIN_SRC emacs-lisp 
-;; not tangled, see below
-(keyboard-translate ?\C-h ?\C-p)
-(keyboard-translate ?\C-p ?\C-h)
-#+END_SRC
-
-
-However, this doesn't work if you use emacsclient (well it does, but you have to evaluate it yourself everytime you start the daemon. The above code block is not tangled into my init.) Instead, the mailing list provides a solution:
-https://lists.gnu.org/archive/html/help-gnu-emacs/2009-10/msg00505.html
-
-Now I don't have to worry about swapping C-p -> C-h in every single corner of emacs. (A problem with this is that I still have to use 'p' in place of 'h' in modes like dired or magit commit logs.)
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(define-key key-translation-map [?\C-h] [?\C-p])
-(define-key key-translation-map [?\C-p] [?\C-h])
-#+END_SRC
 
 using semicolon as a modifier (see abo-abo's semimap post) is a little weird at first, but works quite well. I used to use it as meta, and then xcape to insert an actual semicolon, but if I ever used vim/evil's extended command mode it was so annoying. This solution works well, but I want to emulate certain things I missed.
 
@@ -729,6 +729,9 @@ These are largely personal preference so not going to explain them.
 
 ;; shadows capitalize word (used to be my minor mode keymap, I moved all that to evil-leader, which I may eventually move to general)
 (bind-key "M-c" `comment-dwim)
+
+;; shadows indent-new-comment-line
+(bind-key* "M-j" `end-of-buffer)
 
 ;; shadows move-to-window-line-top-bottom
 (bind-key* "M-r" `delete-other-windows)

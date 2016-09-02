@@ -59,8 +59,9 @@
 (setq mouse-yank-at-point t)
 
 (use-package dired
-;;  :bind (:map dired-mode-map
-;;         (("h" . dired-previous-line)))
+  :bind (:map dired-mode-map
+         (("i" . evil-insert-state))
+         )
 )
 
 (quelpa `swiper) ; installs both swiper and ivy
@@ -68,6 +69,8 @@
   :demand t
   :diminish ivy-mode
   :config
+  (setq ivy-ignore-buffers `("\\` "
+                             "\\#"))
   (ivy-mode t))
 
 (use-package swiper
@@ -156,7 +159,8 @@
              ("k" . evil-previous-visual-line)
              ("'" . evil-goto-mark)
              ("C-e" . end-of-line)
-             ("C-y" . yank))
+             ("C-y" . yank)
+             ("C-d" . evil-scroll-down))
 
 :bind-keymap*
   (("C-w" . evil-window-map))
@@ -184,7 +188,7 @@
         ("m" "track" entry (file+datetree "~/Documents/org/track.org")
          "* %?\nEntered on %U\n")
         ("g" "grievances" entry (file+datetree "~/Documents/org/grievances.org")
-         "* %?\")
+         "* %?\nEntered on %U\n %i")
         ("p" "programming-lang" entry (file+datetree "~/Documents/org/pl.org")
          "* %?\nEntered on %U\n  %i")
         ("u" "uncategorized-mess" entry (file+datetree "~/Documents/org/u-mess.org")
@@ -195,15 +199,47 @@
 (("<f5>" . org-capture))
 )
 
-(use-package ansi-term
-  :init
-  (defun my-bash-ansi-term ()
-    (interactive)
-    (ansi-term "/bin/bash"))
-  (setq term-supress-hard-newline t)
+(use-package term 
+  ;; ugh, I need a good terminal emulator. I only use an emacs term over real ones because I get to use evil (or emacs keys, if you're that kinda guy)
+  :config
+  ;; most of this config is from:
+  ;; http://echosa.github.io/blog/2012/06/06/improving-ansi-term/
+
+  ;; don't modify my output please
+  (setq term-suppress-hard-newline t)
+
+  ;; kill the buffer after finishing.
+  (defadvice term-sentinel (around my-advice-term-sentinel (proc msg))
+    (if (memq (process-status proc) '(signal exit))
+        (let ((buffer (process-buffer proc)))
+          ad-do-it
+          (kill-buffer buffer))
+      ad-do-it))
+  (ad-activate 'term-sentinel)
+
+  ;; don't ask me about whether I want to use bash. I do.
+  ;; modified from ansi-term to term from source post
+  (defvar my-term-shell "/bin/bash")
+  (defadvice term (before force-bash)
+    (interactive (list my-term-shell)))
+  (ad-activate 'term)
+
+  ;; why is this not the default?
+  (defun my-term-use-utf8 ()
+    (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
+  (add-hook 'term-exec-hook 'my-term-use-utf8)
+
+  (add-hook 'term-mode-hook 'goto-address-mode)
+
   :bind*
-  (("C-z" . my-bash-ansi-term))
-  )
+  (("C-z" . term)
+   :map term-raw-map
+   ("C-h" . help-command)
+   ("C-y" . term-paste)
+   )
+  :bind-keymap*
+  (("C-x" . ctl-x-map))
+)
 
 (quelpa 'which-key)
 (use-package which-key
@@ -222,6 +258,26 @@
   :ensure t
   :bind* (("M-x" . helm-M-x)))
 
+(quelpa 'elpy)
+(use-package elpy
+  :config
+
+  ;; py.test is actively developed. 
+  (elpy-set-test-runner `elpy-test-pytest-runner)
+
+  ;; silences completion warning. found on ob-python's issue pages, strangely enough.
+  (setq python-shell-completion-native-enable nil) 
+
+  ;; convenience
+  (defalias 'workon 'pyvenv-workon)
+  
+  ;; preference
+  (setq elpy-rpc-backend "jedi")
+  (setq elpy-rpc-python-command "python3")
+  
+  ;; start
+  (elpy-enable))
+
 (quelpa 'mingus)
 (use-package mingus)
 
@@ -237,6 +293,10 @@
   (add-hook 'circe-mode-hook 'my/font-lock-ensure-function-nilify)
   ;; enable nicks
   (enable-circe-color-nicks)
+
+  ;; fools
+  (setq circe-fool-list
+        '("^7heo"))
 
   ;; don't bombard me with leaves if the leaver hasn't spoke in a while.
   (setq circe-reduce-lurker-spam t)
@@ -368,7 +428,7 @@ point reaches the beginning or end of the buffer, stop there."
 (defun my/find-init-file ()
   "Displays the contents of ~/.emacs.d/myinit.org, if already shown, revert to previous buffer"
   (interactive)
-  (let ((init-file-location "/home/ajarara/.emacs.d/myinit.org"))
+  (let ((init-file-location "/home/ajarara/.emacs.d/README.org"))
     (if (string= init-file-location (buffer-file-name))
         (previous-buffer)
       (find-file init-file-location)))
@@ -386,11 +446,7 @@ point reaches the beginning or end of the buffer, stop there."
 
 (defun my/font-lock-ensure-function-nilify ()
   (setq font-lock-ensure-function
-        (lambda (_beg _end)
-          nil)))
-
-(define-key key-translation-map [?\C-h] [?\C-p])
-(define-key key-translation-map [?\C-p] [?\C-h])
+        'ignore))
 
 ;; if there are two letters commented after the definition, the second is reached by using shift AND mode shift. It's a lot, so don't expect there to be many
 ;; movement
@@ -411,6 +467,9 @@ point reaches the beginning or end of the buffer, stop there."
 
 ;; shadows capitalize word (used to be my minor mode keymap, I moved all that to evil-leader, which I may eventually move to general)
 (bind-key "M-c" `comment-dwim)
+
+;; shadows indent-new-comment-line
+(bind-key* "M-j" `end-of-buffer)
 
 ;; shadows move-to-window-line-top-bottom
 (bind-key* "M-r" `delete-other-windows)
