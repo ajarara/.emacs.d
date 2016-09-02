@@ -3,6 +3,7 @@
 This file is an org mode file that emacs can use to generate configuration.
 
 Almost all of the code blocks you see below are placed into init.el. This has two benefits: I don't have to comment this code with semicolons, and I can easily navigate to what code I'd like to edit or add. Here's a picture of my config:
+
 ![dark-themes-are-bad-for-your-eyes-but-good-for-the-soul.exe.gz](http://i.imgur.com/yQPukq6.png)
 * Init
 ** Enable debugging
