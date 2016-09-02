@@ -4,7 +4,8 @@ This file is an org mode file that emacs can use to generate configuration.
 
 Almost all of the code blocks you see below are placed into init.el. This has two benefits: I don't have to comment this code with semicolons, and I can easily navigate to what code I'd like to edit or add. Here's a picture of my config:
 
-![dark-themes-are-bad-for-your-eyes-but-good-for-the-soul.exe.gz](http://i.imgur.com/yQPukq6.png)
+[[http://i.imgur.com/yQPukq6.png]]
+
 * Init
 ** Enable debugging
 This allows us to immediately detect if something went wrong with loading the init file. At the end of this init, this is toggled off.
@@ -100,7 +101,7 @@ Echoing keystrokes allows you to see exactly what you've typed almost immediatel
 
 the third assignment tells emacs to paste at point, not on location of click. Now if C-y doesn't work, I can use my mouse without caring about precision.
 
-and consolidate any interaction to minibuffers. These two options were brought to me, again, by (wasamasa's config)[https://github.com/wasamasa/dotemacs/blob/master/init.org]
+and consolidate any interaction to minibuffers. These two options were brought to me, again, by [[https://github.com/wasamasa/dotemacs/blob/master/init.org][wasamasa's config]]
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; Making emacs snappier
 (fset `yes-or-no-p `y-or-n-p)
@@ -144,7 +145,8 @@ man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode glo
 #+END_SRC
 
 * ace-window
-C-x o is way too much to switch between windows (which is an operation I find myself doing near constantly). The "Ρ" you see below isn't actually a "Potato" P, it's a capital letter greek rho. Check out [semimap](http://oremacs.com/2015/02/14/semi-xmodmap/) for details.
+C-x o is way too much to switch between windows (which is an operation I find myself doing near constantly). The "Ρ" you see below isn't actually a "Potato" P, it's a capital letter greek rho. Check out [[http://oremacs.com/2015/02/14/semi-xmodmap/][semimap]] for details.
+
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'ace-window)
 (use-package ace-window
@@ -517,7 +519,8 @@ I don't use this enough, but that's mostly because I don't manipulate xml a lot 
 #+END_SRC
 
 * Directory clutter
-From ![wasamasa's config](https://github.com/wasamasa/dotemacs/blob/master/init.org)
+From [[https://github.com/wasamasa/dotemacs/blob/master/init.org][wasamasa's config]] 
+
 control, emacs.d/backup and emacs.d/autosave
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
