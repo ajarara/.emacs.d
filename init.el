@@ -69,8 +69,7 @@
   :demand t
   :diminish ivy-mode
   :config
-  (setq ivy-ignore-buffers `("\\` "
-                             "\\#"))
+  (setq ivy-ignore-buffers `("\\` "))
   (ivy-mode t))
 
 (use-package swiper
@@ -185,12 +184,14 @@
          "* %?\nEntered on %U\n %a")
         ("a" "ascension" entry (file+datetree "~/Documents/org/kol-ascension.org")
          "* %?\nEntered on %U\n %a")
-        ("m" "track" entry (file+datetree "~/Documents/org/track.org")
+        ("r" "track" entry (file+datetree "~/Documents/org/track.org")
          "* %?\nEntered on %U\n")
         ("g" "grievances" entry (file+datetree "~/Documents/org/grievances.org")
          "* %?\nEntered on %U\n %i")
         ("p" "programming-lang" entry (file+datetree "~/Documents/org/pl.org")
          "* %?\nEntered on %U\n  %i")
+        ("m" "music" entry (file+datetree "~/Documents/org/music.org")
+         "* %?\nEntered on %U\n %i")
         ("u" "uncategorized-mess" entry (file+datetree "~/Documents/org/u-mess.org")
          "* %?\nEntered on %U\n")
         )
@@ -234,7 +235,6 @@
   :bind*
   (("C-z" . term)
    :map term-raw-map
-   ("C-h" . help-command)
    ("C-y" . term-paste)
    )
   :bind-keymap*
@@ -353,8 +353,6 @@
 (quelpa 'sml-mode)
 (use-package sml-mode)
 
-(use-package try)
-
 (quelpa 'ledger-mode)
 (use-package ledger-mode
   :config
@@ -461,6 +459,8 @@ point reaches the beginning or end of the buffer, stop there."
 ;; window manipulation
 (define-key key-translation-map "ψ" (kbd "M-r")) ;; [r]
 (define-key key-translation-map "κ" (kbd "M-k")) ;; [k]
+
+(bind-key* "C-h" `help-command)
 
 ;; shadows universal arg, I think? Damn, I need to read the manual.
 (bind-key* "C-0" `text-scale-adjust)

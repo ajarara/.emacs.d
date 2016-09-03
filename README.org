@@ -56,7 +56,7 @@ Use package is a way to tidy up config and a convenient way to lazy load package
 ** Font
 I tried the default font (DejaVu Sans Mono, use M-x describe-font to find out what yours is), source code pro, and a couple others the emacs subreddit recommended, but all I need is a monospace font that looks nice and doesn't crap out on <= 80 characters. Terminus is that font.
 
-Uh, gohu works too. Meh.
+Uh, gohu works too.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; this didn't seem to work, would not have the first frame be terminus'd
 ;; (set-face-attribute 'default nil :font "-xos4-Terminus-normal-normal-normal-*-16-*-*-*-c-80-iso10646-1")
@@ -129,8 +129,7 @@ man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode glo
   :demand t
   :diminish ivy-mode
   :config
-  (setq ivy-ignore-buffers `("\\` "
-                             "\\#"))
+  (setq ivy-ignore-buffers `("\\` "))
   (ivy-mode t))
 
 (use-package swiper
@@ -312,7 +311,7 @@ a quick primer: this is a listing, where each element is itself a list that foll
     "baz.org")) ; this will be concatenated (probably not if you use an absolute path, check out expand-file-name)
 #+END_SRC
 
-and that's it! for more info, check out [the org mode manual for templates!](http://orgmode.org/manual/Template-elements.html#Template-elements)
+and that's it! for more info, check out [[http://orgmode.org/manual/Template-elements.html#Template-elements][the org mode manual for templates!]]
 
  #+BEGIN_SRC emacs-lisp :tangle init.el
    (setq my/org-capture-directory "~/Documents/org/capture/") ; will not be used this commit.
@@ -327,12 +326,14 @@ and that's it! for more info, check out [the org mode manual for templates!](htt
             "* %?\nEntered on %U\n %a")
            ("a" "ascension" entry (file+datetree "~/Documents/org/kol-ascension.org")
             "* %?\nEntered on %U\n %a")
-           ("m" "track" entry (file+datetree "~/Documents/org/track.org")
+           ("r" "track" entry (file+datetree "~/Documents/org/track.org")
             "* %?\nEntered on %U\n")
            ("g" "grievances" entry (file+datetree "~/Documents/org/grievances.org")
             "* %?\nEntered on %U\n %i")
            ("p" "programming-lang" entry (file+datetree "~/Documents/org/pl.org")
             "* %?\nEntered on %U\n  %i")
+           ("m" "music" entry (file+datetree "~/Documents/org/music.org")
+            "* %?\nEntered on %U\n %i")
            ("u" "uncategorized-mess" entry (file+datetree "~/Documents/org/u-mess.org")
             "* %?\nEntered on %U\n")
            )
@@ -382,7 +383,6 @@ I use term instead of ansi-term (tried it in a previous iteration) because it's 
   :bind*
   (("C-z" . term)
    :map term-raw-map
-   ("C-h" . help-command)
    ("C-y" . term-paste)
    )
   :bind-keymap*
@@ -405,7 +405,7 @@ which-key is fantastic. It provides a visual reminder for any keymap. It even ha
 #+END_SRC
 
 * helm
-Meh, I only use it for M-x invocations (in case I forget keybinds)
+I only use it for M-x invocations (in case I forget keybinds). Counsel-M-x does this as well.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'helm)
 (use-package helm
@@ -561,7 +561,7 @@ I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
 * Unconfigured/barely used
 Not much to say about these, but hell I have you here so you're gonna have to read some more rambling.
 
-Try is useful for not having to edit a config file, installing packages that you're sure you don't even wanna bother configuring. Zamansky showcases it in one of his teaching emacs videos by grabbing lorem-ipsum, a package that does exactly what you think it does, and a package that I don't really think I'd need to install more then 3 or 4 times in my life.
+Try is useful for not having to edit a config file, installing packages that you're sure you don't even wanna bother configuring. Zamansky showcases it in one of his teaching emacs videos by grabbing lorem-ipsum, a package that does exactly what you think it does, and is a package that I don't really think I'd need to install more then 3 or 4 times in my life.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'try)
 (use-package try)
@@ -571,11 +571,6 @@ I don't know enough about sml-mode to say anything meaningful about it, but I us
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'sml-mode)
 (use-package sml-mode)
-#+END_SRC
-
-Try is great for not fussing around.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(use-package try)
 #+END_SRC
 
 Just playing around with john wiegley's ledger mode
@@ -725,6 +720,10 @@ using semicolon as a modifier (see abo-abo's semimap post) is a little weird at 
 (define-key key-translation-map "κ" (kbd "M-k")) ;; [k]
 #+END_SRC
 
+Keep C-h bound to help.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(bind-key* "C-h" `help-command)
+#+END_SRC
 
 These are largely personal preference so not going to explain them.
 #+BEGIN_SRC emacs-lisp :tangle init.el
