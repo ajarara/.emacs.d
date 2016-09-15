@@ -207,6 +207,8 @@ initially I had a lot of issues with evil-leader as evil-mode would simply be di
     (evil-leader/set-key "t" `toggle-word-wrap)
     (evil-leader/set-key "s" `magit-status)
 
+    (evil-leader/set-key "m" `fill-region)
+
     (evil-leader/set-key "f" `find-file)
     (evil-leader/set-key "p" `my/find-projects)
     (evil-leader/set-key "o" `my/find-org-files)
@@ -263,6 +265,8 @@ Even though I use emacs-state as my insert state, I still want certain things to
   :bind* (:map evil-emacs-state-map
                ("C-r" . evil-paste-from-register)
                :map evil-normal-state-map
+               ("C-f" . evil-scroll-down)
+               ("C-b" . evil-scroll-up)
                ("j" . evil-next-visual-line)
                ("k" . evil-previous-visual-line)
                ("'" . evil-goto-mark)
@@ -435,10 +439,12 @@ It was a little difficult figuring out how to change tests programmatically, so 
   ;; preference
   (setq elpy-rpc-backend "jedi")
   (setq elpy-rpc-python-command "python3")
+  (setq python-shell-interpreter "python3")
   
   ;; start
   (elpy-enable))
 #+END_SRC
+
 * mingus
 I have yet to figure out how to use quelpa to select branches (and it is not at all clear from browsing any of the source files)
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -457,33 +463,60 @@ I've done all my swank config using ql, so all I gotta do is point it here.
 #+END_SRC
 
 * circe
-I just connect to my znc server. Someday I might consider connecting to a network other than freenode, but as of now, there's no need. On attempted connection, this config asks for my password, so I don't have to mess with any auth files.
 
-I have no idea why colored nicks are not enabled by default. Much prettier!
+Circe is described as an intermediary between erc and rcirc. It features pretty good default options (with one exception that's really not all that necessary), and default network configuration out of the box. It's written by jorgenschaefer, who also is one of the leads on elpy!
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'circe)
 (use-package circe
+#+END_SRC
+
+I use ZNC to connect to my networks. So far, I only really fool around in #emacs, and some other dev-related channels. But this means I don't really care about circe's default channels, so I clear it here.
+#+BEGIN_SRC emacs-lisp :tangle init.el
   :config
-  (add-hook 'circe-mode-hook 'my/font-lock-ensure-function-nilify)
-  ;; enable nicks
-  (enable-circe-color-nicks)
+  (setq circe-network-defaults nil)
+#+END_SRC
 
-  ;; fools
-  (setq circe-fool-list
-        '("^7heo"))
-
-  ;; don't bombard me with leaves if the leaver hasn't spoke in a while.
-  (setq circe-reduce-lurker-spam t)
+It's very simple to configure circe to connect to ZNC (a personal irc server, essentially, that optionally saves the last 50 lines of chats so you have context upon logging in)
+#+BEGIN_SRC emacs-lisp :tangle init.el
   (setq circe-network-options
-        '(("ZNC"
+        '(("ZNC/freenode"
            :tls t
            :host "jarmac.org"
            :port 6697
-           :user "alphor"
+           :user "alphor/freenode"
            ;; the param is needed otherwise error!
            ;; read from minibuffer doesn't use named arguments, but has 7 of them.
-           :pass (lambda (server-name) (read-passwd "Password?: "))
-           ))))
+           :pass (lambda (server-name) (read-passwd "Password?: ")))
+           ("ZNC/mozilla"
+            :tls t
+            :host "jarmac.org"
+            :port 6697
+            :user "alphor/mozilla"
+            :pass (lambda (server-name) (read-passwd "Password?: ")))
+           ))
+#+END_SRC
+
+I have no idea why colored nicks are not enabled by default. Much prettier! (This is the default option I was complaining about earlier)
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  ;; enable nicks
+  (enable-circe-color-nicks)
+#+END_SRC
+
+Unfortunately, swiper calls font-lock-ensure-function which has the annoying habit of washing out all the color. I add a function to circe's mode hook that sets font-lock-ensure to the ignore function. 
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (add-hook 'circe-mode-hook 'my/font-lock-ensure-function-nilify)
+#+END_SRC
+
+It's rare that I need to update this list, but it's sometimes necessary.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (setq circe-fool-list
+        '("^7heo"))
+#+END_SRC
+
+don't bombard me with leaves if the leaver hasn't spoke in a while.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (setq circe-reduce-lurker-spam t)
+)
 #+END_SRC
 
 * Have emacs use tcp
@@ -555,6 +588,7 @@ I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
 (quelpa `monokai-theme)
 (use-package monokai-theme
   :config
+  (setq monokai-comments "#d3d3d3")
   (load-theme `monokai t))
 #+END_SRC
 
@@ -567,13 +601,7 @@ Try is useful for not having to edit a config file, installing packages that you
 (use-package try)
 #+END_SRC
 
-I don't know enough about sml-mode to say anything meaningful about it, but I use it for my class.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'sml-mode)
-(use-package sml-mode)
-#+END_SRC
-
-Just playing around with john wiegley's ledger mode
+Playing around with john wiegley's ledger mode
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (quelpa 'ledger-mode)
   (use-package ledger-mode
@@ -585,6 +613,11 @@ Just playing around with john wiegley's ledger mode
     
 #+END_SRC
 
+Seeing what the buzz is about.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (quelpa 'projectile)
+  (use-package projectile)
+#+END_SRC
 * "my-" functions
 Most of these are definitely not my code or my ideas. But they've definitely made a difference.
 
@@ -694,9 +727,10 @@ invaluable for quick edits.
 Sometimes font-lock-ensure-function is called (whenever you invoke swiper). Sometimes I want to disable it. There is likely a better way to do this, but this works for now. To use this, simply call it in any hook, and you get to keep your colors and fonts!
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (defun my/font-lock-ensure-function-nilify ()
-    (setq font-lock-ensure-function
+    (setq-local font-lock-ensure-function
           'ignore))
 #+END_SRC
+
 
 * Binds (that don't belong to specific packages)
 
@@ -720,7 +754,7 @@ using semicolon as a modifier (see abo-abo's semimap post) is a little weird at 
 (define-key key-translation-map "κ" (kbd "M-k")) ;; [k]
 #+END_SRC
 
-Keep C-h bound to help.
+The emacs help system is absolutely fantastic. Unfortunately, in some cases, (looking at you, term-mode), it gets unbound. This keeps C-h bound to help.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (bind-key* "C-h" `help-command)
 #+END_SRC
@@ -772,10 +806,12 @@ These are largely personal preference so not going to explain them.
 ;; shadows nothing that I know of.
 ;; (bind-key* "M-p" `my/find-projects)
 
-;; this leaves M-d free, for something. Although I use mode-d for colon/semicolon, so it's gotta be good.
+;; this leaves M-d free, for something. Although I use mode-d for colon/semicolon
 ;; shadows kill-sentence
 (bind-key* "M-k" `kill-word)
 
+;; shadows nothing
+(bind-key* "M-\"" `insert-pair)
 #+END_SRC
 
 * Hooks

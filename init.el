@@ -121,6 +121,8 @@
   (evil-leader/set-key "t" `toggle-word-wrap)
   (evil-leader/set-key "s" `magit-status)
 
+  (evil-leader/set-key "m" `fill-region)
+
   (evil-leader/set-key "f" `find-file)
   (evil-leader/set-key "p" `my/find-projects)
   (evil-leader/set-key "o" `my/find-org-files)
@@ -154,6 +156,8 @@
 :bind* (:map evil-emacs-state-map
              ("C-r" . evil-paste-from-register)
              :map evil-normal-state-map
+             ("C-f" . evil-scroll-down)
+             ("C-b" . evil-scroll-up)
              ("j" . evil-next-visual-line)
              ("k" . evil-previous-visual-line)
              ("'" . evil-goto-mark)
@@ -274,6 +278,7 @@
   ;; preference
   (setq elpy-rpc-backend "jedi")
   (setq elpy-rpc-python-command "python3")
+  (setq python-shell-interpreter "python3")
   
   ;; start
   (elpy-enable))
@@ -289,27 +294,37 @@
 
 (quelpa 'circe)
 (use-package circe
-  :config
-  (add-hook 'circe-mode-hook 'my/font-lock-ensure-function-nilify)
-  ;; enable nicks
-  (enable-circe-color-nicks)
 
-  ;; fools
-  (setq circe-fool-list
-        '("^7heo"))
+:config
+(setq circe-network-defaults nil)
 
-  ;; don't bombard me with leaves if the leaver hasn't spoke in a while.
-  (setq circe-reduce-lurker-spam t)
-  (setq circe-network-options
-        '(("ZNC"
-           :tls t
-           :host "jarmac.org"
-           :port 6697
-           :user "alphor"
-           ;; the param is needed otherwise error!
-           ;; read from minibuffer doesn't use named arguments, but has 7 of them.
-           :pass (lambda (server-name) (read-passwd "Password?: "))
-           ))))
+(setq circe-network-options
+      '(("ZNC/freenode"
+         :tls t
+         :host "jarmac.org"
+         :port 6697
+         :user "alphor/freenode"
+         ;; the param is needed otherwise error!
+         ;; read from minibuffer doesn't use named arguments, but has 7 of them.
+         :pass (lambda (server-name) (read-passwd "Password?: ")))
+         ("ZNC/mozilla"
+          :tls t
+          :host "jarmac.org"
+          :port 6697
+          :user "alphor/mozilla"
+          :pass (lambda (server-name) (read-passwd "Password?: ")))
+         ))
+
+;; enable nicks
+(enable-circe-color-nicks)
+
+(add-hook 'circe-mode-hook 'my/font-lock-ensure-function-nilify)
+
+(setq circe-fool-list
+      '("^7heo"))
+
+(setq circe-reduce-lurker-spam t)
+)
 
 (setq server-use-tcp t)
 
@@ -345,13 +360,11 @@
 (quelpa `monokai-theme)
 (use-package monokai-theme
   :config
+  (setq monokai-comments "#d3d3d3")
   (load-theme `monokai t))
 
 (quelpa 'try)
 (use-package try)
-
-(quelpa 'sml-mode)
-(use-package sml-mode)
 
 (quelpa 'ledger-mode)
 (use-package ledger-mode
@@ -360,6 +373,9 @@
   (add-to-list 'load-path
                (expand-file-name "/path/to/ledger/source/lisp/"))
   (add-to-list 'auto-mode-alist '("\\.ledger$" . ledger-mode)))
+
+(quelpa 'projectile)
+(use-package projectile)
 
 ;; something useful from the emacs wiki? No way.
 (defun my/smarter-move-beginning-of-line (arg)
@@ -443,7 +459,7 @@ point reaches the beginning or end of the buffer, stop there."
   (find-file "~/Documents/org/"))
 
 (defun my/font-lock-ensure-function-nilify ()
-  (setq font-lock-ensure-function
+  (setq-local font-lock-ensure-function
         'ignore))
 
 ;; if there are two letters commented after the definition, the second is reached by using shift AND mode shift. It's a lot, so don't expect there to be many
@@ -507,9 +523,12 @@ point reaches the beginning or end of the buffer, stop there."
 ;; shadows nothing that I know of.
 ;; (bind-key* "M-p" `my/find-projects)
 
-;; this leaves M-d free, for something. Although I use mode-d for colon/semicolon, so it's gotta be good.
+;; this leaves M-d free, for something. Although I use mode-d for colon/semicolon
 ;; shadows kill-sentence
 (bind-key* "M-k" `kill-word)
+
+;; shadows nothing
+(bind-key* "M-\"" `insert-pair)
 
 (add-hook `org-mode-hook `org-indent-mode)
 (add-hook `org-mode-hook `visual-line-mode)
