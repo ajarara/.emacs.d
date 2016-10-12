@@ -53,6 +53,8 @@
 (dolist (this-mode-hook my-hl-line-mode-hook-list)
   (add-hook this-mode-hook `hl-line-mode))
 
+(setq frame-title-format (concat "%b" " " invocation-name "@" (system-name)))
+
 ;; Making emacs snappier
 (fset `yes-or-no-p `y-or-n-p)
 (setq echo-keystrokes 0.1)
@@ -60,8 +62,7 @@
 
 (use-package dired
   :bind (:map dired-mode-map
-         (("i" . evil-insert-state))
-         )
+         (("i" . evil-insert-state)))
 )
 
 (quelpa `swiper) ; installs both swiper and ivy
@@ -75,8 +76,11 @@
 (use-package swiper
   :config
 
-  ;; almost required, I use search a lot for navigation, especially in this growing init file. Note that if multiple candidates are in a view moving between them does not recenter the buffer.
+  ;; almost required, I use search a lot for navigation, especially in
+  ;;   this growing init file. Note that if multiple candidates are in a
+  ;;   view moving between them does not recenter the buffer.
   (setq swiper-action-recenter t)
+
   ;; shadows isearch
   :bind* (("C-s" . swiper))
   )
@@ -84,15 +88,13 @@
 (quelpa 'ace-window)
 (use-package ace-window
   :bind*
-  ;; shadows fill-paragraph
-  (("M-q" . ace-window)
-   ;; despite quoted-insert growing on me, maybe that's better reserved for something to be used in evil-leader, <leader> q or something, as that's definitely something I'll use in normal mode often.
-   ;; shadows quoted-insert
-   ("C-q" . ace-window)
+  ;; shadows quoted-insert
+  (("C-q" . ace-window)
    ;; needs abo-abo's key config (search for "semimap")
    ;; U03A1
    ("Ρ" . ace-window))
   :config
+  (setq aw-scope 'frame)
   )
 
 (quelpa 'magit)
@@ -163,7 +165,10 @@
              ("'" . evil-goto-mark)
              ("C-e" . end-of-line)
              ("C-y" . yank)
-             ("C-d" . evil-scroll-down))
+             ("C-d" . evil-scroll-down)
+         :map evil-motion-state-map
+             ("C-f" . evil-scroll-down)
+             ("C-b" . evil-scroll-up))
 
 :bind-keymap*
   (("C-w" . evil-window-map))
@@ -174,9 +179,9 @@
   :init
   (setq org-directory "~/Documents/org/")
 
-  (setq org-default-notes-file (concat org-directory "/notes.org"))
+  (setq org-default-notes-file (concat org-directory "notes.org"))
 
-(setq my/org-capture-directory "~/Documents/org/capture/") ; will not be used this commit.
+(setq my/org-capture-directory "~/Documents/org/capture/")
 (setq org-capture-templates
       '(("t" "Todo" entry (file+headline "~/Documents/org/gtd-capture.org" "Tasks")
          "* TODO %?\n  %i\n  %a")
@@ -190,6 +195,8 @@
          "* %?\nEntered on %U\n %a")
         ("r" "track" entry (file+datetree "~/Documents/org/track.org")
          "* %?\nEntered on %U\n")
+        ("d" "dose" entry (file+datetree "~/Documents/org/dose.org")
+         "* %?\nEntered on %U\n")
         ("g" "grievances" entry (file+datetree "~/Documents/org/grievances.org")
          "* %?\nEntered on %U\n %i")
         ("p" "programming-lang" entry (file+datetree "~/Documents/org/pl.org")
@@ -200,6 +207,10 @@
          "* %?\nEntered on %U\n")
         )
       )
+
+(setq org-agenda-files (list "~/Documents/org/gtd-capture.org"
+                             ))
+
 :bind*
 (("<f5>" . org-capture))
 )
@@ -283,8 +294,11 @@
   ;; start
   (elpy-enable))
 
-(quelpa 'mingus)
-(use-package mingus)
+(quelpa 'ess)
+(use-package ess)
+
+(quelpa 'pdf-tools)
+(use-package pdf-tools)
 
 (quelpa 'slime)
 (use-package slime
@@ -326,8 +340,6 @@
 (setq circe-reduce-lurker-spam t)
 )
 
-(setq server-use-tcp t)
-
 ;; persistent bookmarks
 (setq bookmark-save-flag 1) ; so save after every bookmark made.
 
@@ -360,7 +372,7 @@
 (quelpa `monokai-theme)
 (use-package monokai-theme
   :config
-  (setq monokai-comments "#d3d3d3")
+  (setq monokai-comments "chocolate")
   (load-theme `monokai t))
 
 (quelpa 'try)
@@ -477,6 +489,8 @@ point reaches the beginning or end of the buffer, stop there."
 (define-key key-translation-map "κ" (kbd "M-k")) ;; [k]
 
 (bind-key* "C-h" `help-command)
+
+(bind-key* "M-q" `quoted-insert)
 
 ;; shadows universal arg, I think? Damn, I need to read the manual.
 (bind-key* "C-0" `text-scale-adjust)
