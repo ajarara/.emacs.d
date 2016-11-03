@@ -60,9 +60,13 @@
 (setq echo-keystrokes 0.1)
 (setq mouse-yank-at-point t)
 
+(quelpa 'general)
+(use-package general
+  :config
+  (setq general-default-prefix "SPC")
+  )
+
 (use-package dired
-  :bind (:map dired-mode-map
-         (("i" . evil-insert-state)))
 )
 
 (quelpa `swiper) ; installs both swiper and ivy
@@ -293,6 +297,17 @@
   
   ;; start
   (elpy-enable))
+
+;; todo: have this package installed from quelpa. for now, use use-package's ensure logic.
+(message "instead we're loading in shivs for the assignment. committing this is a sin.")
+
+(defun my-tmp-garbage ()
+  (interactive)
+  (call-process-shell-command
+ "$(cd ~/doc/college/ma534/hw3 && pdflatex submit.tex)"
+ nil "*Shell Command Output*" t
+ )
+  (message "compiled submit.pdf"))
 
 (quelpa 'ess)
 (use-package ess)

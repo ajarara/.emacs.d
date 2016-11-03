@@ -96,7 +96,6 @@ I don't know how I feel using hl-line-mode on EVERY buffer. Instead, let's just 
 #+END_SRC
 
 * Interface
-
 ** Fixing title bar
 I use this hack shell script called focus. It cycles through windows based on the contents of the title bar. Super useful. But emacs has the unfortunate behavior of breaking my script if there is more then one frame. So keep it consistent.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -116,14 +115,20 @@ and consolidate any interaction to minibuffers. These two options were brought t
 (setq echo-keystrokes 0.1)
 (setq mouse-yank-at-point t)
 #+END_SRC
-
+* General
+A package that aims to simplify and unify keybinding. Problems I have with letting bind-key handle it is that it's difficult to tailor. An example: in dired mode, I like having the ability to move by jk or having visual block/line selection. At the same time, I want dired mode bindings available. So I bind "i" to evil-insert-state.  However I have no idea how to do it with bind-key. Further, this allows me to get rid of evil-leader. The less packages I depend on for my output, the better.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (quelpa 'general)
+  (use-package general
+    :config
+    (setq general-default-prefix "SPC")
+    )
+#+END_SRC
 * dired
 Assuming you're reading this linearly, I haven't mentioned that I use evil-mode. Evil-mode is an implementation of vim's editing model in elisp. It's very complete, and very awesome.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (use-package dired
-  :bind (:map dired-mode-map
-         (("i" . evil-insert-state)))
 )    
 #+END_SRC
 
@@ -470,6 +475,23 @@ It was a little difficult figuring out how to change tests programmatically, so 
   (elpy-enable))
 #+END_SRC
 
+* AucTeX
+** Installation and configuration
+
+#+BEGIN_SRC emacs-lisp :tangle init.el
+;; todo: have this package installed from quelpa. for now, use use-package's ensure logic.
+(message "instead we're loading in shivs for the assignment. committing this is a sin.")
+
+(defun my-tmp-garbage ()
+  (interactive)
+  (call-process-shell-command
+ "$(cd ~/doc/college/ma534/hw3 && pdflatex submit.tex)"
+ nil "*Shell Command Output*" t
+ )
+  (message "compiled submit.pdf"))
+
+
+#+END_SRC
 * ess-mode
 Used for homework. Provides convenient commands to build and view changes to LateX files, but is designed for use with R.
 #+BEGIN_SRC emacs-lisp :tangle init.el
