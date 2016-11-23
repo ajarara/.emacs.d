@@ -60,13 +60,24 @@
 (setq echo-keystrokes 0.1)
 (setq mouse-yank-at-point t)
 
-(quelpa 'general)
-(use-package general
-  :config
-  (setq general-default-prefix "SPC")
-  )
-
 (use-package dired
+  :config
+  (define-key dired-mode-map (kbd "SPC") nil)
+  (define-key dired-mode-map (kbd "M-s") nil)
+  
+  ;; remove dired-mode-map definition
+  (define-key dired-mode-map (kbd "i") nil)
+  
+  (general-define-key :prefix nil
+                      :keymaps 'dired-mode-map
+                      :states '(normal)
+                      "i" 'evil-insert-state)
+                      
+  (general-define-key :prefix nil
+                      :keymaps 'dired-mode-map
+                      :states '(emacs)
+                      "i" 'dired-maybe-insert-subdir)
+
 )
 
 (quelpa `swiper) ; installs both swiper and ivy
@@ -102,40 +113,52 @@
   )
 
 (quelpa 'magit)
-(use-package magit)
+(use-package magit
+  :config
+(setq magit-popup-use-prefix-argument 'default))
 
 (use-package evil
-    ;; evil-leader is run before evil, so that leader keys work in scratch and messages
 
 :init
  (setq evil-toggle-key "C-`")
 
 (setq evil-want-fine-undo t)
 
-(quelpa 'evil-leader)
-(use-package evil-leader
+(quelpa 'general)
+(use-package general
   :config
-  (setq evil-leader/leader "<SPC>")
 
-  (evil-leader/set-key "g" `keyboard-quit)
-  (evil-leader/set-key "C-g" `keyboard-quit)
+  ;; leader key binds
+  (setq general-default-keymaps 'evil-normal-state-map)
 
-  (evil-leader/set-key "SPC" `ace-window)
+  (setq general-default-prefix "SPC")
+  (general-define-key
+                      
+   "g" 'keyboard-quit
+   "C-g" 'keyboard-quit
+   "SPC" 'ace-window
 
-  (evil-leader/set-key "w" `save-buffer)
-  (evil-leader/set-key "v" `visual-line-mode)
-  (evil-leader/set-key "t" `toggle-word-wrap)
-  (evil-leader/set-key "s" `magit-status)
+   "w" 'save-buffer
+   "v" 'visual-line-mode
+   "t" 'toggle-word-wrap
+   "s" 'magit-status
+   
+   "a" 'org-agenda-list
+   
+   "m" 'fill-region
 
-  (evil-leader/set-key "m" `fill-region)
+   "f" 'find-file
+   "p" 'my/find-projects
+   "o" 'my/find-org-files
 
-  (evil-leader/set-key "f" `find-file)
-  (evil-leader/set-key "p" `my/find-projects)
-  (evil-leader/set-key "o" `my/find-org-files)
+   "r" 'org-capture
 
-  (evil-leader/set-key "r" `org-capture)
-  (global-evil-leader-mode)
-  )
+  
+   ) ;; closes general-define-key block
+
+
+  
+) ;; closes use-package general block
 
 :config
 (evil-mode t)
@@ -160,23 +183,22 @@
 :demand t
 
 :bind* (:map evil-emacs-state-map
-             ("C-r" . evil-paste-from-register)
-             :map evil-normal-state-map
-             ("C-f" . evil-scroll-down)
-             ("C-b" . evil-scroll-up)
-             ("j" . evil-next-visual-line)
-             ("k" . evil-previous-visual-line)
-             ("'" . evil-goto-mark)
-             ("C-e" . end-of-line)
-             ("C-y" . yank)
-             ("C-d" . evil-scroll-down)
-         :map evil-motion-state-map
-             ("C-f" . evil-scroll-down)
-             ("C-b" . evil-scroll-up))
+               ("C-r" . evil-paste-from-register)
 
-:bind-keymap*
-  (("C-w" . evil-window-map))
-)
+               :map evil-normal-state-map
+               ("C-f" . evil-scroll-down)
+               ("C-b" . evil-scroll-up)
+               ("j" . evil-next-visual-line)
+               ("k" . evil-previous-visual-line)
+               ("'" . evil-goto-mark)
+               ("C-e" . end-of-line)
+               ("C-y" . yank)
+               ("C-d" . evil-scroll-down)
+
+               :map evil-motion-state-map
+               ("C-f" . evil-scroll-down)
+               ("C-b" . evil-scroll-up))
+) ;; closes use-package evil block
 
 ;; init or config? I never know.
 (use-package org
@@ -536,7 +558,7 @@ point reaches the beginning or end of the buffer, stop there."
 (bind-key* "M-1" `shell-command)
 
 ;; shadows prefix containing occur
-(bind-key* "M-s" `switch-to-buffer)
+(bind-key* "M-s" 'switch-to-buffer)
 
 ;; shadows tab-to-tab-stop
 (bind-key* "M-i" `my/find-init-file)

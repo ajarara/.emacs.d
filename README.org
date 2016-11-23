@@ -115,21 +115,29 @@ and consolidate any interaction to minibuffers. These two options were brought t
 (setq echo-keystrokes 0.1)
 (setq mouse-yank-at-point t)
 #+END_SRC
-* General
-A package that aims to simplify and unify keybinding. Problems I have with letting bind-key handle it is that it's difficult to tailor. An example: in dired mode, I like having the ability to move by jk or having visual block/line selection. At the same time, I want dired mode bindings available. So I bind "i" to evil-insert-state.  However I have no idea how to do it with bind-key. Further, this allows me to get rid of evil-leader. The less packages I depend on for my output, the better.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-  (quelpa 'general)
-  (use-package general
-    :config
-    (setq general-default-prefix "SPC")
-    )
-#+END_SRC
 * dired
-Assuming you're reading this linearly, I haven't mentioned that I use evil-mode. Evil-mode is an implementation of vim's editing model in elisp. It's very complete, and very awesome.
+Assuming you're reading this linearly, I haven't mentioned that I use evil-mode. Evil-mode is an implementation of vim's editing model in elisp. It's very complete, and very awesome. dired-mode-map redefines some things that I need very often.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(use-package dired
-)    
+  (use-package dired
+    :config
+    (define-key dired-mode-map (kbd "SPC") nil)
+    (define-key dired-mode-map (kbd "M-s") nil)
+    
+    ;; remove dired-mode-map definition
+    (define-key dired-mode-map (kbd "i") nil)
+    
+    (general-define-key :prefix nil
+                        :keymaps 'dired-mode-map
+                        :states '(normal)
+                        "i" 'evil-insert-state)
+                        
+    (general-define-key :prefix nil
+                        :keymaps 'dired-mode-map
+                        :states '(emacs)
+                        "i" 'dired-maybe-insert-subdir)
+
+  )
 #+END_SRC
 
 * swiper/ivy
@@ -178,7 +186,9 @@ C-x o is way too much to switch between windows (which is an operation I find my
 Tarsius is a god. I have no idea where my use-package declaration went, though.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'magit)
-(use-package magit)
+(use-package magit
+  :config
+(setq magit-popup-use-prefix-argument 'default))
 #+END_SRC
 
 * evil-mode
@@ -186,10 +196,9 @@ Yeah, sorry. Maybe if I fixed my keyboard so that I had meta on semicolon withou
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (use-package evil
-    ;; evil-leader is run before evil, so that leader keys work in scratch and messages
 #+END_SRC
 
-evil likes to override my C-z key with evil-toggle-state. Unfortunately, even with this config evil will still manage to do so unexpectedly, but as of now this works most of the time.
+evil likes to override my C-z key with evil-toggle-state. But if I set this before I load evil, it no longer gets overridden.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 
  :init
@@ -201,33 +210,45 @@ evil's undo is a little strong, especially since I'm staying in insert ("emacs",
   (setq evil-want-fine-undo t)
 #+END_SRC
 
-initially I had a lot of issues with evil-leader as evil-mode would simply be disabled in modes like ibuffer, dired, and what have you, for good reason! Fortunately, I found out a way to make emacs and evil play together nicely permanently, and that's getting rid of insert state altogether (again, later explained). I've started using it a lot now, but I'd like to move this config to [[https://github.com/noctuid/general.el][general.el]]. 
+[[https://github.com/noctuid/general.el][General]] is a package that aims to simplify and unify keybinding. Problems I have with letting bind-key handle it is that it's difficult to tailor. An example: in dired mode, I like having the ability to move by jk or having visual block/line selection. At the same time, I want dired mode bindings available. So I bind "i" to evil-insert-state.  However I have no idea how to do it with bind-key. Further, this allows me to get rid of evil-leader. The less packages I depend on for my output, the better.
 
+I might consider moving this out to its own section.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (quelpa 'evil-leader)
-  (use-package evil-leader
+  (quelpa 'general)
+  (use-package general
     :config
-    (setq evil-leader/leader "<SPC>")
 
-    (evil-leader/set-key "g" `keyboard-quit)
-    (evil-leader/set-key "C-g" `keyboard-quit)
+    ;; leader key binds
+    (setq general-default-keymaps 'evil-normal-state-map)
 
-    (evil-leader/set-key "SPC" `ace-window)
+    (setq general-default-prefix "SPC")
+    (general-define-key
+                        
+     "g" 'keyboard-quit
+     "C-g" 'keyboard-quit
+     "SPC" 'ace-window
 
-    (evil-leader/set-key "w" `save-buffer)
-    (evil-leader/set-key "v" `visual-line-mode)
-    (evil-leader/set-key "t" `toggle-word-wrap)
-    (evil-leader/set-key "s" `magit-status)
+     "w" 'save-buffer
+     "v" 'visual-line-mode
+     "t" 'toggle-word-wrap
+     "s" 'magit-status
+     
+     "a" 'org-agenda-list
+     
+     "m" 'fill-region
 
-    (evil-leader/set-key "m" `fill-region)
+     "f" 'find-file
+     "p" 'my/find-projects
+     "o" 'my/find-org-files
 
-    (evil-leader/set-key "f" `find-file)
-    (evil-leader/set-key "p" `my/find-projects)
-    (evil-leader/set-key "o" `my/find-org-files)
+     "r" 'org-capture
 
-    (evil-leader/set-key "r" `org-capture)
-    (global-evil-leader-mode)
-    )
+    
+     ) ;; closes general-define-key block
+
+
+    
+  ) ;; closes use-package general block
 #+END_SRC
 
 Turn evil mode on globally
@@ -239,7 +260,7 @@ Turn evil mode on globally
 the below is used to have emacs be the default state, but allow me to drop in (go up?) to evil if need be.
 more config is available in the URL contained within the progn
 
-there are significantly less context switches now. when I am in a new buffer, I know I am in emacs state, and can begin typing immediately. If I want to do anything evil, 
+there are significantly less context switches now. when I am in a new buffer, I know I am in emacs state, and can begin typing immediately. If I want to do anything evil, just hit esc to elevate to normal state.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (progn
     (defalias 'evil-insert-state 'evil-emacs-state) ; http://stackoverflow.com/a/27794225/2932728
@@ -268,7 +289,7 @@ inserts highly visible characters at marks. they go away upon entering visual mo
 Once you start binding keys, use-package will lazy-load the packages, that is, wait until you hit a key that is in the bind before loading.
 While a useful feature, in this case I want evil-mode on start asap.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-   :demand t
+  :demand t
 #+END_SRC
 
 
@@ -277,6 +298,7 @@ Even though I use emacs-state as my insert state, I still want certain things to
 #+BEGIN_SRC emacs-lisp :tangle init.el
   :bind* (:map evil-emacs-state-map
                ("C-r" . evil-paste-from-register)
+
                :map evil-normal-state-map
                ("C-f" . evil-scroll-down)
                ("C-b" . evil-scroll-up)
@@ -286,16 +308,11 @@ Even though I use emacs-state as my insert state, I still want certain things to
                ("C-e" . end-of-line)
                ("C-y" . yank)
                ("C-d" . evil-scroll-down)
-           :map evil-motion-state-map
+
+               :map evil-motion-state-map
                ("C-f" . evil-scroll-down)
                ("C-b" . evil-scroll-up))
-#+END_SRC
-
-Y'know I don't really use it all that often, but that's just because I came from tmux, and used that to manage most of my windowing. But I do use C-w C-o a lot.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-  :bind-keymap*
-  (("C-w" . evil-window-map))
-)
+) ;; closes use-package evil block
 #+END_SRC
 
 * org mode
@@ -842,7 +859,7 @@ These are largely personal preference so not going to explain them.
 (bind-key* "M-1" `shell-command)
 
 ;; shadows prefix containing occur
-(bind-key* "M-s" `switch-to-buffer)
+(bind-key* "M-s" 'switch-to-buffer)
 
 ;; shadows tab-to-tab-stop
 (bind-key* "M-i" `my/find-init-file)
