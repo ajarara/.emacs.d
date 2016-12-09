@@ -80,12 +80,16 @@
 
 )
 
-(quelpa `swiper) ; installs both swiper and ivy
+(quelpa '(swiper :repo "abo-abo/swiper" :fetcher github)) ; installs both swiper and ivy
 (use-package ivy
   :demand t
   :diminish ivy-mode
   :config
   (setq ivy-ignore-buffers `("\\` "))
+  
+  ;; i like completion in the minibuffer, completion in region is obnoxious when you have hl-line-mode active. This must be set before ivy-mode is called.
+  (setcdr (assoc 'ivy-completion-in-region ivy-display-functions-alist) nil)
+
   (ivy-mode t))
 
 (use-package swiper
@@ -129,7 +133,8 @@
   :config
 
   ;; leader key binds
-  (setq general-default-keymaps 'evil-normal-state-map)
+  (setq general-default-keymaps '(evil-normal-state-map
+                                  evil-visual-state-map))
 
   (setq general-default-prefix "SPC")
   (general-define-key
@@ -152,6 +157,8 @@
    "o" 'my/find-org-files
 
    "r" 'org-capture
+
+   "i" 'imenu
 
   
    ) ;; closes general-define-key block
@@ -206,6 +213,8 @@
   (setq org-directory "~/Documents/org/")
 
   (setq org-default-notes-file (concat org-directory "notes.org"))
+
+(quelpa 'htmlize)
 
 (setq my/org-capture-directory "~/Documents/org/capture/")
 (setq org-capture-templates
@@ -366,13 +375,49 @@
           :pass (lambda (server-name) (read-passwd "Password?: ")))
          ))
 
+(setq circe-znc-mutex nil)
+
 ;; enable nicks
 (enable-circe-color-nicks)
 
 (add-hook 'circe-mode-hook 'my/font-lock-ensure-function-nilify)
 
 (setq circe-fool-list
-      '("^7heo"))
+      '("^7heo"
+        "Alkjosair"
+        "RETAS"
+        "Gedalchieel"
+        "Aethonnon"
+        "Gratiutus"
+        "farmr"
+        "abellitis"
+        "WYNEDDLYN"
+        "heathobaas"
+        "ENSEOU"
+        "_SuChOr_"
+        "_Polynicne_"
+        "_friggne_79"
+        "Nout"
+        "pistiLlI"
+        "GlYnDyM"
+        "Eirinne"
+        "Posturiius"
+        "Aninoik"
+        "Querso"
+        "Snotrhar"
+        "HYGESTAS"
+        "ADASSIAS"
+        "PoSTor"
+        "Cassiofa"
+        "Artamononko"
+        "_ToSzEwSkKi_22"
+        "Eurydictle"
+        "akimovtok"
+        "ekkrlsi005"
+        "Brongar"
+        ))
+
+(setq tracking-ignored-buffers '(("#" circe-highlight-nick-face)))
 
 (setq circe-reduce-lurker-spam t)
 )
@@ -419,8 +464,6 @@
 (use-package ledger-mode
   :config
   (autoload 'ledger-mode "ledger-mode" "A major mode for Ledger" t)
-  (add-to-list 'load-path
-               (expand-file-name "/path/to/ledger/source/lisp/"))
   (add-to-list 'auto-mode-alist '("\\.ledger$" . ledger-mode)))
 
 (quelpa 'projectile)
@@ -526,6 +569,8 @@ point reaches the beginning or end of the buffer, stop there."
 (define-key key-translation-map "κ" (kbd "M-k")) ;; [k]
 
 (bind-key* "C-h" `help-command)
+(bind-key* "C-h C-h" (lambda ()
+    (interactive) (info "(emacs) Help Summary")))
 
 (bind-key* "M-q" `quoted-insert)
 
@@ -583,6 +628,12 @@ point reaches the beginning or end of the buffer, stop there."
 
 (add-hook `org-mode-hook `org-indent-mode)
 (add-hook `org-mode-hook `visual-line-mode)
+
+(add-hook 'apropos-mode-hook (lambda () (local-set-key (kbd "C-c f") 'apropos-follow))
+
+;; the <- shortcut is not helpful when you can't use hyphens in variable names
+
+(add-hook 'ess-mode-hook (lambda () (local-set-key (kbd "_" 'self-insert-command))))
 
 ;; disable debugging
 (toggle-debug-on-error)

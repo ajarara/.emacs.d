@@ -101,6 +101,7 @@ I use this hack shell script called focus. It cycles through windows based on th
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (setq frame-title-format (concat "%b" " " invocation-name "@" (system-name)))
 #+END_SRC
+
 ** Making emacs snappier
 any dialog that asks for confirmation requires that you type in the full yes or no (and ignores whatever is after it, but does not accept y/n. And you don't have to hit RET.
 
@@ -115,6 +116,7 @@ and consolidate any interaction to minibuffers. These two options were brought t
 (setq echo-keystrokes 0.1)
 (setq mouse-yank-at-point t)
 #+END_SRC
+
 * dired
 Assuming you're reading this linearly, I haven't mentioned that I use evil-mode. Evil-mode is an implementation of vim's editing model in elisp. It's very complete, and very awesome. dired-mode-map redefines some things that I need very often.
 
@@ -143,25 +145,29 @@ Assuming you're reading this linearly, I haven't mentioned that I use evil-mode.
 * swiper/ivy
 man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode globally gives most aspects of the minibuffer fuzzy typeahead (like ido-mode) but it further allows you to keep your search session if needed (especially useful when looking in help variables). Swiper is used to search buffers, and uses ivy as a backend. It is possible to use helm as a backend instead.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa `swiper) ; installs both swiper and ivy
-(use-package ivy
-  :demand t
-  :diminish ivy-mode
-  :config
-  (setq ivy-ignore-buffers `("\\` "))
-  (ivy-mode t))
+  (quelpa '(swiper :repo "abo-abo/swiper" :fetcher github)) ; installs both swiper and ivy
+  (use-package ivy
+    :demand t
+    :diminish ivy-mode
+    :config
+    (setq ivy-ignore-buffers `("\\` "))
+    
+    ;; i like completion in the minibuffer, completion in region is obnoxious when you have hl-line-mode active. This must be set before ivy-mode is called.
+    (setcdr (assoc 'ivy-completion-in-region ivy-display-functions-alist) nil)
 
-(use-package swiper
-  :config
+    (ivy-mode t))
 
-  ;; almost required, I use search a lot for navigation, especially in
-  ;;   this growing init file. Note that if multiple candidates are in a
-  ;;   view moving between them does not recenter the buffer.
-  (setq swiper-action-recenter t)
+  (use-package swiper
+    :config
 
-  ;; shadows isearch
-  :bind* (("C-s" . swiper))
-  )
+    ;; almost required, I use search a lot for navigation, especially in
+    ;;   this growing init file. Note that if multiple candidates are in a
+    ;;   view moving between them does not recenter the buffer.
+    (setq swiper-action-recenter t)
+
+    ;; shadows isearch
+    :bind* (("C-s" . swiper))
+    )
 
 #+END_SRC
 
@@ -214,41 +220,44 @@ evil's undo is a little strong, especially since I'm staying in insert ("emacs",
 
 I might consider moving this out to its own section.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (quelpa 'general)
-  (use-package general
-    :config
+    (quelpa 'general)
+    (use-package general
+      :config
 
-    ;; leader key binds
-    (setq general-default-keymaps 'evil-normal-state-map)
+      ;; leader key binds
+      (setq general-default-keymaps '(evil-normal-state-map
+                                      evil-visual-state-map))
 
-    (setq general-default-prefix "SPC")
-    (general-define-key
-                        
-     "g" 'keyboard-quit
-     "C-g" 'keyboard-quit
-     "SPC" 'ace-window
+      (setq general-default-prefix "SPC")
+      (general-define-key
+                          
+       "g" 'keyboard-quit
+       "C-g" 'keyboard-quit
+       "SPC" 'ace-window
 
-     "w" 'save-buffer
-     "v" 'visual-line-mode
-     "t" 'toggle-word-wrap
-     "s" 'magit-status
-     
-     "a" 'org-agenda-list
-     
-     "m" 'fill-region
+       "w" 'save-buffer
+       "v" 'visual-line-mode
+       "t" 'toggle-word-wrap
+       "s" 'magit-status
+       
+       "a" 'org-agenda-list
+       
+       "m" 'fill-region
 
-     "f" 'find-file
-     "p" 'my/find-projects
-     "o" 'my/find-org-files
+       "f" 'find-file
+       "p" 'my/find-projects
+       "o" 'my/find-org-files
 
-     "r" 'org-capture
+       "r" 'org-capture
 
-    
-     ) ;; closes general-define-key block
+       "i" 'imenu
+
+      
+       ) ;; closes general-define-key block
 
 
-    
-  ) ;; closes use-package general block
+      
+    ) ;; closes use-package general block
 #+END_SRC
 
 Turn evil mode on globally
@@ -327,6 +336,10 @@ Ah, org mode. Lovingly described as the crack of emacs, the thing that I absolut
   (setq org-default-notes-file (concat org-directory "notes.org"))
 #+END_SRC
 
+I'm using the org-export-to-html feature for sharing (eventually I'll output to jekyll)
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (quelpa 'htmlize)
+#+END_SRC
 
 org-capture is fantastic. if you're anything like me you have ideas that come and go like the wind. this allows you to easily capture those ideas without worrying about where to save them, whether or not context is necessary, the directory structure. It's a massively beefed up remember buffer. If you want something that just works without any previous configuration, then try '''M-x remember''', the file will be saved in your .emacs.d directory, and it's called notes.
 
@@ -509,6 +522,7 @@ It was a little difficult figuring out how to change tests programmatically, so 
 
 
 #+END_SRC
+
 * ess-mode
 Used for homework. Provides convenient commands to build and view changes to LateX files, but is designed for use with R.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -566,6 +580,11 @@ It's very simple to configure circe to connect to ZNC (a personal irc server, es
            ))
 #+END_SRC
 
+As mentioned before, I use ZNC. One of the modules I really like is *controlpanel, which allows you to edit ZNC configuration
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(setq circe-znc-mutex nil)
+
+#+END_SRC
 I have no idea why colored nicks are not enabled by default. Much prettier! (This is the default option I was complaining about earlier)
 #+BEGIN_SRC emacs-lisp :tangle init.el
   ;; enable nicks
@@ -580,9 +599,46 @@ Unfortunately, swiper calls font-lock-ensure-function which has the annoying hab
 It's rare that I need to update this list, but it's sometimes necessary.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (setq circe-fool-list
-        '("^7heo"))
+        '("^7heo"
+          "Alkjosair"
+          "RETAS"
+          "Gedalchieel"
+          "Aethonnon"
+          "Gratiutus"
+          "farmr"
+          "abellitis"
+          "WYNEDDLYN"
+          "heathobaas"
+          "ENSEOU"
+          "_SuChOr_"
+          "_Polynicne_"
+          "_friggne_79"
+          "Nout"
+          "pistiLlI"
+          "GlYnDyM"
+          "Eirinne"
+          "Posturiius"
+          "Aninoik"
+          "Querso"
+          "Snotrhar"
+          "HYGESTAS"
+          "ADASSIAS"
+          "PoSTor"
+          "Cassiofa"
+          "Artamononko"
+          "_ToSzEwSkKi_22"
+          "Eurydictle"
+          "akimovtok"
+          "ekkrlsi005"
+          "Brongar"
+          ))
 #+END_SRC
 
+Unfortunately spammers have hit hard recently, cluttering my mode line. I like having the ability to see activity but at the same time I need my mode line. One thing I'd like to have is the ability to see only mentions. Everything else can wait. (This still allows queries to get through)
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (setq tracking-ignored-buffers '(("#" circe-highlight-nick-face)))
+
+#+END_SRC
 don't bombard me with leaves if the leaver hasn't spoke in a while.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (setq circe-reduce-lurker-spam t)
@@ -673,8 +729,6 @@ Playing around with john wiegley's ledger mode
   (use-package ledger-mode
     :config
     (autoload 'ledger-mode "ledger-mode" "A major mode for Ledger" t)
-    (add-to-list 'load-path
-                 (expand-file-name "/path/to/ledger/source/lisp/"))
     (add-to-list 'auto-mode-alist '("\\.ledger$" . ledger-mode)))
     
 #+END_SRC
@@ -684,6 +738,7 @@ Seeing what the buzz is about.
   (quelpa 'projectile)
   (use-package projectile)
 #+END_SRC
+
 * "my-" functions
 Most of these are definitely not my code or my ideas. But they've definitely made a difference.
 
@@ -822,6 +877,8 @@ using semicolon as a modifier (see abo-abo's semimap post) is a little weird at 
 The emacs help system is absolutely fantastic. Unfortunately, in some cases, (looking at you, term-mode), it gets unbound. This keeps C-h bound to help.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (bind-key* "C-h" `help-command)
+(bind-key* "C-h C-h" (lambda ()
+    (interactive) (info "(emacs) Help Summary")))
 #+END_SRC
 
 Y'know, there are astonishingly a lot of times where I'd like to quoted insert.
@@ -890,6 +947,19 @@ org-mode hooks. Maybe these should go into package specific configuration. Meh.
 (add-hook `org-mode-hook `visual-line-mode)
 #+END_SRC
 
+apropos-mode hooks. Why does apropos not bind apropos-follow to anything easy?
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(add-hook 'apropos-mode-hook (lambda () (local-set-key (kbd "C-c f") 'apropos-follow))
+
+#+END_SRC
+
+ess-mode hooks
+#+BEGIN_SRC emacs-lisp :tangle init.el
+;; the <- shortcut is not helpful when you can't use hyphens in variable names
+
+(add-hook 'ess-mode-hook (lambda () (local-set-key (kbd "_" 'self-insert-command)))) 
+
+#+END_SRC
 * Goodbye
 Okay, we're done. Let's switch off debugging and send an OK.
 *** Disable debugging
