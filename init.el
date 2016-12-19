@@ -153,8 +153,8 @@
    "m" 'fill-region
 
    "f" 'find-file
-   "p" 'my/find-projects
-   "o" 'my/find-org-files
+   "p" 'my-find-projects
+   "o" 'my-find-org-files
 
    "r" 'org-capture
 
@@ -216,7 +216,7 @@
 
 (quelpa 'htmlize)
 
-(setq my/org-capture-directory "~/Documents/org/capture/")
+(setq my-org-capture-directory "~/Documents/org/capture/")
 (setq org-capture-templates
       '(("t" "Todo" entry (file+headline "~/Documents/org/gtd-capture.org" "Tasks")
          "* TODO %?\n  %i\n  %a")
@@ -380,7 +380,7 @@
 ;; enable nicks
 (enable-circe-color-nicks)
 
-(add-hook 'circe-mode-hook 'my/font-lock-ensure-function-nilify)
+(add-hook 'circe-mode-hook 'my-font-lock-ensure-function-nilify)
 
 (setq circe-fool-list
       '("^7heo"
@@ -417,10 +417,21 @@
         "Brongar"
         ))
 
-(setq tracking-ignored-buffers '(("#" circe-highlight-nick-face)))
+(setq tracking-ignored-buffers '(("#emacsr" circe-highlight-nick-face)
+                                 ("#" circe-highlight-nick-face)))
+
+;; (defadvice circe-command-SAY (after jjf-circe-unignore-target)
+;;   (let ((ignored (tracking-ignored-p (current-buffer) nil)))
+;;     (when ignored
+;;       (setq tracking-ignored-buffers
+;;             (remove ignored tracking-ignored-buffers))
+;;       (message "This buffer will now be tracked."))))
+;; (ad-activate 'circe-command-SAY)
 
 (setq circe-reduce-lurker-spam t)
 )
+
+(load-file "/home/ajarara/doc/projects/zncirce/zncirce.el")
 
 ;; persistent bookmarks
 (setq bookmark-save-flag 1) ; so save after every bookmark made.
@@ -450,6 +461,8 @@
 
 (setq x-select-enable-clipboard-manager nil)
 
+(setq custom-file "/dev/null")
+
 ;; (load-theme 'misterioso t)
 (quelpa `monokai-theme)
 (use-package monokai-theme
@@ -470,7 +483,7 @@
 (use-package projectile)
 
 ;; something useful from the emacs wiki? No way.
-(defun my/smarter-move-beginning-of-line (arg)
+(defun my-smarter-move-beginning-of-line (arg)
   "Move point back to indentation of beginning of line.
 
 Move point to the first non-whitespace character on this line.
@@ -494,9 +507,9 @@ point reaches the beginning or end of the buffer, stop there."
 
 ;; remap C-a to `smarter-move-beginning-of-line'
 (global-set-key [remap move-beginning-of-line]
-                'my/smarter-move-beginning-of-line)
+                'my-smarter-move-beginning-of-line)
 
-(defun my/kill-other-window ()
+(defun my-kill-other-window ()
   (interactive)
   (if (= (count-windows) 2)
       (progn
@@ -506,7 +519,7 @@ point reaches the beginning or end of the buffer, stop there."
     (error "This only works when there are two buffers!")))
 
 ;; not mine, found off of emacs-wiki. quickly switches orientation of two buffers.
-(defun my/toggle-window-split ()
+(defun my-toggle-window-split ()
   (interactive)
   (if (= (count-windows) 2)
       (let* ((this-win-buffer (window-buffer))
@@ -531,7 +544,7 @@ point reaches the beginning or end of the buffer, stop there."
           (select-window first-win)
           (if this-win-2nd (other-window 1))))))
 
-(defun my/find-init-file ()
+(defun my-find-init-file ()
   "Displays the contents of ~/.emacs.d/myinit.org, if already shown, revert to previous buffer"
   (interactive)
   (let ((init-file-location "/home/ajarara/.emacs.d/README.org"))
@@ -540,19 +553,29 @@ point reaches the beginning or end of the buffer, stop there."
       (find-file init-file-location)))
   )
 
-(defun my/find-projects ()
+(defun my-find-projects ()
   "navigates to ~/Documents/projects"
   (interactive)
   (find-file "~/Documents/projects/"))
 
-(defun my/find-org-files ()
+(defun my-find-org-files ()
   "navigates to ~/Documents/org"
   (interactive)
   (find-file "~/Documents/org/"))
 
-(defun my/font-lock-ensure-function-nilify ()
+(defun my-font-lock-ensure-function-nilify ()
   (setq-local font-lock-ensure-function
         'ignore))
+
+(defun my-github (query)
+  (interactive "sSearch Github: ")
+  (browse-url (format "https://github.com/search?q=%s" query)))
+
+;; non obtrusive version of helm-google-suggest. Although helm-google-suggest is more fun
+(defun my-google (query)
+  "It's mine! MIIIIIIINE!"
+  (interactive "sSearch the googs: ")
+  (browse-url (format "https://google.com/#q=%s" query)))
 
 ;; if there are two letters commented after the definition, the second is reached by using shift AND mode shift. It's a lot, so don't expect there to be many
 ;; movement
@@ -606,7 +629,7 @@ point reaches the beginning or end of the buffer, stop there."
 (bind-key* "M-s" 'switch-to-buffer)
 
 ;; shadows tab-to-tab-stop
-(bind-key* "M-i" `my/find-init-file)
+(bind-key* "M-i" `my-find-init-file)
 
 ;; instantly kills buffer (without deleting the window), unless unsaved content. this advices kill-buffer
 ;; shadows kill-sentence
@@ -617,7 +640,7 @@ point reaches the beginning or end of the buffer, stop there."
 (bind-key* "M-u" `bury-buffer)
 
 ;; shadows nothing that I know of.
-;; (bind-key* "M-p" `my/find-projects)
+;; (bind-key* "M-p" `my-find-projects)
 
 ;; this leaves M-d free, for something. Although I use mode-d for colon/semicolon
 ;; shadows kill-sentence

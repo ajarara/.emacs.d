@@ -245,8 +245,8 @@ I might consider moving this out to its own section.
        "m" 'fill-region
 
        "f" 'find-file
-       "p" 'my/find-projects
-       "o" 'my/find-org-files
+       "p" 'my-find-projects
+       "o" 'my-find-org-files
 
        "r" 'org-capture
 
@@ -366,7 +366,7 @@ and that's it! for more info, check out [[http://orgmode.org/manual/Template-ele
 Don't fret about the red lettering, the text as you see it here is correct.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-   (setq my/org-capture-directory "~/Documents/org/capture/")
+   (setq my-org-capture-directory "~/Documents/org/capture/")
    (setq org-capture-templates
          '(("t" "Todo" entry (file+headline "~/Documents/org/gtd-capture.org" "Tasks")
             "* TODO %?\n  %i\n  %a")
@@ -593,7 +593,7 @@ I have no idea why colored nicks are not enabled by default. Much prettier! (Thi
 
 Unfortunately, swiper calls font-lock-ensure-function which has the annoying habit of washing out all the color. I add a function to circe's mode hook that sets font-lock-ensure to the ignore function. 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (add-hook 'circe-mode-hook 'my/font-lock-ensure-function-nilify)
+  (add-hook 'circe-mode-hook 'my-font-lock-ensure-function-nilify)
 #+END_SRC
 
 It's rare that I need to update this list, but it's sometimes necessary.
@@ -636,13 +636,37 @@ It's rare that I need to update this list, but it's sometimes necessary.
 
 Unfortunately spammers have hit hard recently, cluttering my mode line. I like having the ability to see activity but at the same time I need my mode line. One thing I'd like to have is the ability to see only mentions. Everything else can wait. (This still allows queries to get through)
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (setq tracking-ignored-buffers '(("#" circe-highlight-nick-face)))
+  (setq tracking-ignored-buffers '(("#emacsr" circe-highlight-nick-face)
+                                   ("#" circe-highlight-nick-face)))
 
+#+END_SRC
+
+At the same time, I'd like tracking if I've talked. Someone's thought of that before and kindly put it in [[https://github.com/jorgenschaefer/circe/wiki/Configuration#auto-track-ignored-channels-on-talk][the docs]].
+
+Unfortunately doesn't work quite well with such a lax regex, it'll require you to set up the channels you want to track before hand. Ah well, I'll leave it here for... reasons, and try fixing it later.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  ;; (defadvice circe-command-SAY (after jjf-circe-unignore-target)
+  ;;   (let ((ignored (tracking-ignored-p (current-buffer) nil)))
+  ;;     (when ignored
+  ;;       (setq tracking-ignored-buffers
+  ;;             (remove ignored tracking-ignored-buffers))
+  ;;       (message "This buffer will now be tracked."))))
+  ;; (ad-activate 'circe-command-SAY)
 #+END_SRC
 don't bombard me with leaves if the leaver hasn't spoke in a while.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (setq circe-reduce-lurker-spam t)
 )
+#+END_SRC
+
+These definitions interface with znc's *controlpanel module. Rather then inline them here, I plan on releasing this if it ever gets to a usable state, so it's in another file, soon to be posted on github.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(load-file "/home/ajarara/doc/projects/zncirce/zncirce.el")
+#+END_SRC
+
+Don't mind this.
+#+BEGIN_SRC 
+(setq erc-server-auto-reconnect nil)
 #+END_SRC
 
 * Have emacs use tcp
@@ -703,6 +727,12 @@ To be honest I have no idea what this does, but I know that it causes emacs to h
 (setq x-select-enable-clipboard-manager nil)
 #+END_SRC
 
+I reject your reality and substitute my own.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(setq custom-file "/dev/null")
+#+END_SRC
+
+
 * Theme
 I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -745,7 +775,7 @@ Most of these are definitely not my code or my ideas. But they've definitely mad
 C-a C-k is again, the one emacs combo that I really like. But C-a pretends like whitespace isn't a thing. Found on the emacswiki:
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; something useful from the emacs wiki? No way.
-(defun my/smarter-move-beginning-of-line (arg)
+(defun my-smarter-move-beginning-of-line (arg)
   "Move point back to indentation of beginning of line.
 
 Move point to the first non-whitespace character on this line.
@@ -769,12 +799,12 @@ point reaches the beginning or end of the buffer, stop there."
 
 ;; remap C-a to `smarter-move-beginning-of-line'
 (global-set-key [remap move-beginning-of-line]
-                'my/smarter-move-beginning-of-line)
+                'my-smarter-move-beginning-of-line)
 #+END_SRC
 
 This is primarily for killing help buffers without deleting the frame. I would replace this with shackle, but this works for now.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(defun my/kill-other-window ()
+(defun my-kill-other-window ()
   (interactive)
   (if (= (count-windows) 2)
       (progn
@@ -789,7 +819,7 @@ in case something decides not to respect my "horizontal" preference.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 
 ;; not mine, found off of emacs-wiki. quickly switches orientation of two buffers.
-(defun my/toggle-window-split ()
+(defun my-toggle-window-split ()
   (interactive)
   (if (= (count-windows) 2)
       (let* ((this-win-buffer (window-buffer))
@@ -819,7 +849,7 @@ in case something decides not to respect my "horizontal" preference.
 invaluable for quick edits. 
 #+BEGIN_SRC emacs-lisp :tangle init.el
 
-(defun my/find-init-file ()
+(defun my-find-init-file ()
   "Displays the contents of ~/.emacs.d/myinit.org, if already shown, revert to previous buffer"
   (interactive)
   (let ((init-file-location "/home/ajarara/.emacs.d/README.org"))
@@ -832,14 +862,14 @@ invaluable for quick edits.
 
 90% of what I play around with is in this folder, so I can easily select one of these folders to quickly start an editing session.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(defun my/find-projects ()
+(defun my-find-projects ()
   "navigates to ~/Documents/projects"
   (interactive)
   (find-file "~/Documents/projects/"))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(defun my/find-org-files ()
+(defun my-find-org-files ()
   "navigates to ~/Documents/org"
   (interactive)
   (find-file "~/Documents/org/"))
@@ -847,10 +877,25 @@ invaluable for quick edits.
 
 Sometimes font-lock-ensure-function is called (whenever you invoke swiper). Sometimes I want to disable it. There is likely a better way to do this, but this works for now. To use this, simply call it in any hook, and you get to keep your colors and fonts!
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (defun my/font-lock-ensure-function-nilify ()
-    (setq-local font-lock-ensure-function
-          'ignore))
+(defun my-font-lock-ensure-function-nilify ()
+  (setq-local font-lock-ensure-function
+        'ignore))
 #+END_SRC
+
+Useful quick links.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (defun my-github (query)
+    (interactive "sSearch Github: ")
+    (browse-url (format "https://github.com/search?q=%s" query)))
+
+  ;; non obtrusive version of helm-google-suggest. Although helm-google-suggest is more fun
+  (defun my-google (query)
+    "It's mine! MIIIIIIINE!"
+    (interactive "sSearch the googs: ")
+    (browse-url (format "https://google.com/#q=%s" query)))
+#+END_SRC
+
+
 
 * Binds (that don't belong to specific packages)
 
@@ -919,7 +964,7 @@ These are largely personal preference so not going to explain them.
 (bind-key* "M-s" 'switch-to-buffer)
 
 ;; shadows tab-to-tab-stop
-(bind-key* "M-i" `my/find-init-file)
+(bind-key* "M-i" `my-find-init-file)
 
 ;; instantly kills buffer (without deleting the window), unless unsaved content. this advices kill-buffer
 ;; shadows kill-sentence
@@ -930,7 +975,7 @@ These are largely personal preference so not going to explain them.
 (bind-key* "M-u" `bury-buffer)
 
 ;; shadows nothing that I know of.
-;; (bind-key* "M-p" `my/find-projects)
+;; (bind-key* "M-p" `my-find-projects)
 
 ;; this leaves M-d free, for something. Although I use mode-d for colon/semicolon
 ;; shadows kill-sentence
