@@ -580,11 +580,6 @@ It's very simple to configure circe to connect to ZNC (a personal irc server, es
            ))
 #+END_SRC
 
-As mentioned before, I use ZNC. One of the modules I really like is *controlpanel, which allows you to edit ZNC configuration
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(setq circe-znc-mutex nil)
-
-#+END_SRC
 I have no idea why colored nicks are not enabled by default. Much prettier! (This is the default option I was complaining about earlier)
 #+BEGIN_SRC emacs-lisp :tangle init.el
   ;; enable nicks
@@ -661,7 +656,8 @@ don't bombard me with leaves if the leaver hasn't spoke in a while.
 
 These definitions interface with znc's *controlpanel module. Rather then inline them here, I plan on releasing this if it ever gets to a usable state, so it's in another file, soon to be posted on github.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(load-file "/home/ajarara/doc/projects/zncirce/zncirce.el")
+(quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions"))
+(use-package circe-actions)
 #+END_SRC
 
 Don't mind this.
@@ -731,7 +727,6 @@ I reject your reality and substitute my own.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (setq custom-file "/dev/null")
 #+END_SRC
-
 
 * Theme
 I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
@@ -895,8 +890,6 @@ Useful quick links.
     (browse-url (format "https://google.com/#q=%s" query)))
 #+END_SRC
 
-
-
 * Binds (that don't belong to specific packages)
 
 Abo-abo's had quite the influence on my config.
@@ -994,7 +987,7 @@ org-mode hooks. Maybe these should go into package specific configuration. Meh.
 
 apropos-mode hooks. Why does apropos not bind apropos-follow to anything easy?
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(add-hook 'apropos-mode-hook (lambda () (local-set-key (kbd "C-c f") 'apropos-follow))
+(add-hook 'apropos-mode-hook (lambda () (local-set-key (kbd "C-c f") 'apropos-follow)))
 
 #+END_SRC
 

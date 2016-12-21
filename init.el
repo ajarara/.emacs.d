@@ -375,8 +375,6 @@
           :pass (lambda (server-name) (read-passwd "Password?: ")))
          ))
 
-(setq circe-znc-mutex nil)
-
 ;; enable nicks
 (enable-circe-color-nicks)
 
@@ -431,7 +429,8 @@
 (setq circe-reduce-lurker-spam t)
 )
 
-(load-file "/home/ajarara/doc/projects/zncirce/zncirce.el")
+(quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions"))
+(use-package circe-actions)
 
 ;; persistent bookmarks
 (setq bookmark-save-flag 1) ; so save after every bookmark made.
@@ -652,7 +651,7 @@ point reaches the beginning or end of the buffer, stop there."
 (add-hook `org-mode-hook `org-indent-mode)
 (add-hook `org-mode-hook `visual-line-mode)
 
-(add-hook 'apropos-mode-hook (lambda () (local-set-key (kbd "C-c f") 'apropos-follow))
+(add-hook 'apropos-mode-hook (lambda () (local-set-key (kbd "C-c f") 'apropos-follow)))
 
 ;; the <- shortcut is not helpful when you can't use hyphens in variable names
 
