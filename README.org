@@ -117,90 +117,11 @@ and consolidate any interaction to minibuffers. These two options were brought t
 (setq mouse-yank-at-point t)
 #+END_SRC
 
-* dired
-Assuming you're reading this linearly, I haven't mentioned that I use evil-mode. Evil-mode is an implementation of vim's editing model in elisp. It's very complete, and very awesome. dired-mode-map redefines some things that I need very often.
-
-#+BEGIN_SRC emacs-lisp :tangle init.el
-  (use-package dired
-    :config
-    (define-key dired-mode-map (kbd "SPC") nil)
-    (define-key dired-mode-map (kbd "M-s") nil)
-    
-    ;; remove dired-mode-map definition
-    (define-key dired-mode-map (kbd "i") nil)
-    
-    (general-define-key :prefix nil
-                        :keymaps 'dired-mode-map
-                        :states '(normal)
-                        "i" 'evil-insert-state)
-                        
-    (general-define-key :prefix nil
-                        :keymaps 'dired-mode-map
-                        :states '(emacs)
-                        "i" 'dired-maybe-insert-subdir)
-
-  )
-#+END_SRC
-
-* swiper/ivy
-man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode globally gives most aspects of the minibuffer fuzzy typeahead (like ido-mode) but it further allows you to keep your search session if needed (especially useful when looking in help variables). Swiper is used to search buffers, and uses ivy as a backend. It is possible to use helm as a backend instead.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-  (quelpa '(swiper :repo "abo-abo/swiper" :fetcher github)) ; installs both swiper and ivy
-  (use-package ivy
-    :demand t
-    :diminish ivy-mode
-    :config
-    (setq ivy-ignore-buffers `("\\` "))
-    
-    ;; i like completion in the minibuffer, completion in region is obnoxious when you have hl-line-mode active. This must be set before ivy-mode is called.
-    (setcdr (assoc 'ivy-completion-in-region ivy-display-functions-alist) nil)
-
-    (ivy-mode t))
-
-  (use-package swiper
-    :config
-
-    ;; almost required, I use search a lot for navigation, especially in
-    ;;   this growing init file. Note that if multiple candidates are in a
-    ;;   view moving between them does not recenter the buffer.
-    (setq swiper-action-recenter t)
-
-    ;; shadows isearch
-    :bind* (("C-s" . swiper))
-    )
-
-#+END_SRC
-
-* ace-window
-C-x o is way too much to switch between windows (which is an operation I find myself doing near constantly). The "Ρ" you see below isn't actually a "Potato" P, it's a capital letter greek rho. Check out [[http://oremacs.com/2015/02/14/semi-xmodmap/][semimap]] for details.
-
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'ace-window)
-(use-package ace-window
-  :bind*
-  ;; shadows quoted-insert
-  (("C-q" . ace-window)
-   ;; needs abo-abo's key config (search for "semimap")
-   ;; U03A1
-   ("Ρ" . ace-window))
-  :config
-  (setq aw-scope 'frame)
-  )
-#+END_SRC
-
-* magit
-Tarsius is a god. I have no idea where my use-package declaration went, though.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'magit)
-(use-package magit
-  :config
-(setq magit-popup-use-prefix-argument 'default))
-#+END_SRC
-
 * evil-mode
 Yeah, sorry. Maybe if I fixed my keyboard so that I had meta on semicolon without having to muck about with xcape (my previous config) I would consider using just emacs keybinds (C-a C-k is awesome) But the way I have it set up right now means that I never have to deal with an abrupt context switch. Sometimes.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
+(quelpa 'evil)
 (use-package evil
 #+END_SRC
 
@@ -324,6 +245,88 @@ Even though I use emacs-state as my insert state, I still want certain things to
 ) ;; closes use-package evil block
 #+END_SRC
 
+* dired
+I didn't bother playing around with dired but the amount of built in functionality is kind of insane. Edit all files in directories that you can just open in the same buffer with the same regex kind of insane.
+
+Just.. don't play around with my keymaps.
+
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (use-package dired
+    :config
+    (define-key dired-mode-map (kbd "SPC") nil)
+    (define-key dired-mode-map (kbd "M-s") nil)
+    
+    ;; remove dired-mode-map definition
+    (define-key dired-mode-map (kbd "i") nil)
+    
+    (general-define-key :prefix nil
+                        :keymaps 'dired-mode-map
+                        :states '(normal)
+                        "i" 'evil-insert-state)
+                        
+    (general-define-key :prefix nil
+                        :keymaps 'dired-mode-map
+                        :states '(emacs)
+                        "i" 'dired-maybe-insert-subdir)
+
+  )
+#+END_SRC
+
+* swiper/ivy
+man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode globally gives most aspects of the minibuffer fuzzy typeahead (like ido-mode) but it further allows you to keep your search session if needed (especially useful when looking in help variables). Swiper is used to search buffers, and uses ivy as a backend. It is possible to use helm as a backend instead.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (quelpa '(swiper :repo "abo-abo/swiper" :fetcher github)) ; installs both swiper and ivy
+  (use-package ivy
+    :demand t
+    :diminish ivy-mode
+    :config
+    (setq ivy-ignore-buffers `("\\` "))
+    
+    ;; i like completion in the minibuffer, completion in region is obnoxious when you have hl-line-mode active. This must be set before ivy-mode is called.
+    (setcdr (assoc 'ivy-completion-in-region ivy-display-functions-alist) nil)
+
+    (ivy-mode t))
+
+  (use-package swiper
+    :config
+
+    ;; almost required, I use search a lot for navigation, especially in
+    ;;   this growing init file. Note that if multiple candidates are in a
+    ;;   view moving between them does not recenter the buffer.
+    (setq swiper-action-recenter t)
+
+    ;; shadows isearch
+    :bind* (("C-s" . swiper))
+    )
+
+#+END_SRC
+
+* ace-window
+C-x o is way too much to switch between windows (which is an operation I find myself doing near constantly). The "Ρ" you see below isn't actually a "Potato" P, it's a capital letter greek rho. Check out [[http://oremacs.com/2015/02/14/semi-xmodmap/][semimap]] for details.
+
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(quelpa 'ace-window)
+(use-package ace-window
+  :bind*
+  ;; shadows quoted-insert
+  (("C-q" . ace-window)
+   ;; needs abo-abo's key config (search for "semimap")
+   ;; U03A1
+   ("Ρ" . ace-window))
+  :config
+  (setq aw-scope 'frame)
+  )
+#+END_SRC
+
+* magit
+Tarsius is a god. I have no idea where my use-package declaration went, though.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(quelpa 'magit)
+(use-package magit
+  :config
+(setq magit-popup-use-prefix-argument 'default))
+#+END_SRC
+
 * org mode
 Ah, org mode. Lovingly described as the crack of emacs, the thing that I absolutely couldn't live without (at least that's what my package manager tells me).
 
@@ -384,12 +387,13 @@ Don't fret about the red lettering, the text as you see it here is correct.
             "* %?\nEntered on %U\n")
            ("g" "grievances" entry (file+datetree "~/Documents/org/grievances.org")
             "* %?\nEntered on %U\n %i")
-           ("p" "programming-lang" entry (file+datetree "~/Documents/org/pl.org")
+           ("p" "programming" entry (file+datetree "~/Documents/org/programming.org")
             "* %?\nEntered on %U\n  %i")
            ("m" "music" entry (file+datetree "~/Documents/org/music.org")
             "* %?\nEntered on %U\n %i")
            ("u" "uncategorized-mess" entry (file+datetree "~/Documents/org/u-mess.org")
             "* %?\nEntered on %U\n")
+
            )
          )
 #+END_SRC
@@ -577,6 +581,13 @@ It's very simple to configure circe to connect to ZNC (a personal irc server, es
             :port 6697
             :user "alphor/mozilla"
             :pass (lambda (server-name) (read-passwd "Password?: ")))
+           ;; doesn't look that interesting anymore. Maybe later.
+           ;; ("ZNC/rizon"
+           ;;  :tls t
+           ;;  :host "jarmac.org"
+           ;;  :port 6697
+           ;;  :user "alphor/rizon"
+           ;;  ):pass (lambda (server-name) (read-passwd "Password?: ")))
            ))
 #+END_SRC
 
@@ -725,7 +736,7 @@ To be honest I have no idea what this does, but I know that it causes emacs to h
 
 I reject your reality and substitute my own.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(setq custom-file "/dev/null")
+;; (setq custom-file "/dev/null")
 #+END_SRC
 
 * Theme
@@ -998,6 +1009,7 @@ ess-mode hooks
 (add-hook 'ess-mode-hook (lambda () (local-set-key (kbd "_" 'self-insert-command)))) 
 
 #+END_SRC
+
 * Goodbye
 Okay, we're done. Let's switch off debugging and send an OK.
 *** Disable debugging

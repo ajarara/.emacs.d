@@ -60,67 +60,7 @@
 (setq echo-keystrokes 0.1)
 (setq mouse-yank-at-point t)
 
-(use-package dired
-  :config
-  (define-key dired-mode-map (kbd "SPC") nil)
-  (define-key dired-mode-map (kbd "M-s") nil)
-  
-  ;; remove dired-mode-map definition
-  (define-key dired-mode-map (kbd "i") nil)
-  
-  (general-define-key :prefix nil
-                      :keymaps 'dired-mode-map
-                      :states '(normal)
-                      "i" 'evil-insert-state)
-                      
-  (general-define-key :prefix nil
-                      :keymaps 'dired-mode-map
-                      :states '(emacs)
-                      "i" 'dired-maybe-insert-subdir)
-
-)
-
-(quelpa '(swiper :repo "abo-abo/swiper" :fetcher github)) ; installs both swiper and ivy
-(use-package ivy
-  :demand t
-  :diminish ivy-mode
-  :config
-  (setq ivy-ignore-buffers `("\\` "))
-  
-  ;; i like completion in the minibuffer, completion in region is obnoxious when you have hl-line-mode active. This must be set before ivy-mode is called.
-  (setcdr (assoc 'ivy-completion-in-region ivy-display-functions-alist) nil)
-
-  (ivy-mode t))
-
-(use-package swiper
-  :config
-
-  ;; almost required, I use search a lot for navigation, especially in
-  ;;   this growing init file. Note that if multiple candidates are in a
-  ;;   view moving between them does not recenter the buffer.
-  (setq swiper-action-recenter t)
-
-  ;; shadows isearch
-  :bind* (("C-s" . swiper))
-  )
-
-(quelpa 'ace-window)
-(use-package ace-window
-  :bind*
-  ;; shadows quoted-insert
-  (("C-q" . ace-window)
-   ;; needs abo-abo's key config (search for "semimap")
-   ;; U03A1
-   ("Ρ" . ace-window))
-  :config
-  (setq aw-scope 'frame)
-  )
-
-(quelpa 'magit)
-(use-package magit
-  :config
-(setq magit-popup-use-prefix-argument 'default))
-
+(quelpa 'evil)
 (use-package evil
 
 :init
@@ -206,6 +146,67 @@
                ("C-f" . evil-scroll-down)
                ("C-b" . evil-scroll-up))
 ) ;; closes use-package evil block
+
+(use-package dired
+  :config
+  (define-key dired-mode-map (kbd "SPC") nil)
+  (define-key dired-mode-map (kbd "M-s") nil)
+  
+  ;; remove dired-mode-map definition
+  (define-key dired-mode-map (kbd "i") nil)
+  
+  (general-define-key :prefix nil
+                      :keymaps 'dired-mode-map
+                      :states '(normal)
+                      "i" 'evil-insert-state)
+                      
+  (general-define-key :prefix nil
+                      :keymaps 'dired-mode-map
+                      :states '(emacs)
+                      "i" 'dired-maybe-insert-subdir)
+
+)
+
+(quelpa '(swiper :repo "abo-abo/swiper" :fetcher github)) ; installs both swiper and ivy
+(use-package ivy
+  :demand t
+  :diminish ivy-mode
+  :config
+  (setq ivy-ignore-buffers `("\\` "))
+  
+  ;; i like completion in the minibuffer, completion in region is obnoxious when you have hl-line-mode active. This must be set before ivy-mode is called.
+  (setcdr (assoc 'ivy-completion-in-region ivy-display-functions-alist) nil)
+
+  (ivy-mode t))
+
+(use-package swiper
+  :config
+
+  ;; almost required, I use search a lot for navigation, especially in
+  ;;   this growing init file. Note that if multiple candidates are in a
+  ;;   view moving between them does not recenter the buffer.
+  (setq swiper-action-recenter t)
+
+  ;; shadows isearch
+  :bind* (("C-s" . swiper))
+  )
+
+(quelpa 'ace-window)
+(use-package ace-window
+  :bind*
+  ;; shadows quoted-insert
+  (("C-q" . ace-window)
+   ;; needs abo-abo's key config (search for "semimap")
+   ;; U03A1
+   ("Ρ" . ace-window))
+  :config
+  (setq aw-scope 'frame)
+  )
+
+(quelpa 'magit)
+(use-package magit
+  :config
+(setq magit-popup-use-prefix-argument 'default))
 
 ;; init or config? I never know.
 (use-package org
@@ -373,6 +374,13 @@
           :port 6697
           :user "alphor/mozilla"
           :pass (lambda (server-name) (read-passwd "Password?: ")))
+         ;; doesn't look that interesting anymore. Maybe later.
+         ;; ("ZNC/rizon"
+         ;;  :tls t
+         ;;  :host "jarmac.org"
+         ;;  :port 6697
+         ;;  :user "alphor/rizon"
+         ;;  ):pass (lambda (server-name) (read-passwd "Password?: ")))
          ))
 
 ;; enable nicks
@@ -460,7 +468,7 @@
 
 (setq x-select-enable-clipboard-manager nil)
 
-(setq custom-file "/dev/null")
+;; (setq custom-file "/dev/null")
 
 ;; (load-theme 'misterioso t)
 (quelpa `monokai-theme)
