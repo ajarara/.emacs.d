@@ -36,10 +36,18 @@
 (add-to-list 'default-frame-alist '(font . "-xos4-Terminus-normal-normal-normal-*-16-*-*-*-c-80-iso10646-1"))
 
 ;; Disabling 'helpful' visual goodies
+;; can be recovered with <F10>
 (tool-bar-mode -1)
+;; not needed, just look at the mode line for gauging where you are in the buffer
 (scroll-bar-mode -1)
+;; wait which one is which
 (menu-bar-mode -1)
+
+;; you can set this to some arbitrary number so that it will blink for that number of times.
 (blink-cursor-mode 0)
+
+;; pretty quotes can't be jumped to easily.
+(setq text-quoting-style 'grave)
 
 ;; enabling visual line mode
 (visual-line-mode 1)
@@ -235,12 +243,13 @@
          "* %?\nEntered on %U\n")
         ("g" "grievances" entry (file+datetree "~/Documents/org/grievances.org")
          "* %?\nEntered on %U\n %i")
-        ("p" "programming-lang" entry (file+datetree "~/Documents/org/pl.org")
+        ("p" "programming" entry (file+datetree "~/Documents/org/programming.org")
          "* %?\nEntered on %U\n  %i")
         ("m" "music" entry (file+datetree "~/Documents/org/music.org")
          "* %?\nEntered on %U\n %i")
         ("u" "uncategorized-mess" entry (file+datetree "~/Documents/org/u-mess.org")
          "* %?\nEntered on %U\n")
+
         )
       )
 
@@ -423,7 +432,7 @@
         "Brongar"
         ))
 
-(setq tracking-ignored-buffers '(("#emacsr" circe-highlight-nick-face)
+(setq tracking-ignored-buffers '(("#emacs" circe-highlight-nick-face)
                                  ("#" circe-highlight-nick-face)))
 
 ;; (defadvice circe-command-SAY (after jjf-circe-unignore-target)
@@ -669,3 +678,19 @@ point reaches the beginning or end of the buffer, stop there."
 (toggle-debug-on-error)
 
 (message "Emacs config successfully loaded!")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(menu-bar-mode nil)
+ '(package-selected-packages
+   (quote
+    (nix-mode which-key use-package try swiper slime quelpa projectile pdf-tools monokai-theme magit ledger-mode htmlize helm general expand-region evil-visual-mark-mode ess elpy circe-actions circe ace-window)))
+ '(tool-bar-mode nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

@@ -70,10 +70,18 @@ Uh, gohu works too.
 The only useful thing I lose here is the menubar, but typing <F10> gives you one at your cursor. And now I get all this real estate (it's free!)
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; Disabling 'helpful' visual goodies
+;; can be recovered with <F10>
 (tool-bar-mode -1)
+;; not needed, just look at the mode line for gauging where you are in the buffer
 (scroll-bar-mode -1)
+;; wait which one is which
 (menu-bar-mode -1)
+
+;; you can set this to some arbitrary number so that it will blink for that number of times.
 (blink-cursor-mode 0)
+
+;; pretty quotes can't be jumped to easily.
+(setq text-quoting-style 'grave)
 #+END_SRC
 
 ** Enabling 'helpful' visual goodies
@@ -301,6 +309,12 @@ man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode glo
 
 #+END_SRC
 
+Counsel-yank-pop is much easier to use than kill ring drive bys.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(use-package counsel
+  :bind* (("M-y" . counsel-yank-pop)))
+#+END_SRC
+
 * ace-window
 C-x o is way too much to switch between windows (which is an operation I find myself doing near constantly). The "Ρ" you see below isn't actually a "Potato" P, it's a capital letter greek rho. Check out [[http://oremacs.com/2015/02/14/semi-xmodmap/][semimap]] for details.
 
@@ -448,6 +462,8 @@ I use term instead of ansi-term (tried it in a previous iteration) because it's 
 
   (add-hook 'term-mode-hook 'goto-address-mode)
 
+  ;; 2048 lines of output is way too restrictive.
+  (setq term-buffer-maximum-size 8192)
   :bind*
   (("C-z" . term)
    :map term-raw-map
@@ -642,7 +658,7 @@ It's rare that I need to update this list, but it's sometimes necessary.
 
 Unfortunately spammers have hit hard recently, cluttering my mode line. I like having the ability to see activity but at the same time I need my mode line. One thing I'd like to have is the ability to see only mentions. Everything else can wait. (This still allows queries to get through)
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (setq tracking-ignored-buffers '(("#emacsr" circe-highlight-nick-face)
+  (setq tracking-ignored-buffers '(("#emacs" circe-highlight-nick-face)
                                    ("#" circe-highlight-nick-face)))
 
 #+END_SRC
@@ -669,6 +685,7 @@ These definitions interface with znc's *controlpanel module. Rather then inline 
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions"))
 (use-package circe-actions)
+(use-package zncirce)
 #+END_SRC
 
 Don't mind this.
@@ -676,6 +693,13 @@ Don't mind this.
 (setq erc-server-auto-reconnect nil)
 #+END_SRC
 
+* nix
+Soon enough I'll put up my working nix configuration.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(quelpa '(nix-mode :fetcher url :url "https://raw.githubusercontent.com/NixOS/nix/master/misc/emacs/nix-mode.el"))
+(use-package nix-mode)
+
+#+END_SRC
 * Have emacs use tcp
 I used to have this. Eventually, I wanted the ability to run emacs on a server (whether it be VPS, VM, or docker instance), but according to the [[http://stackoverflow.com/questions/12546722/using-emacs-server-and-emacsclient-on-other-machines-as-other-users][discussion found here]], it seems difficult. Would've been really neat to have a guile install emacs and a regular emacs side by side (although it is very likely still possible using sockets). 
 * persistent bookmarks
@@ -874,6 +898,7 @@ invaluable for quick edits.
   (find-file "~/Documents/projects/"))
 #+END_SRC
 
+ditto to the above.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (defun my-find-org-files ()
   "navigates to ~/Documents/org"
