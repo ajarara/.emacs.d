@@ -199,6 +199,9 @@
   :bind* (("C-s" . swiper))
   )
 
+(use-package counsel
+  :bind* (("M-y" . counsel-yank-pop)))
+
 (quelpa 'ace-window)
 (use-package ace-window
   :bind*
@@ -292,6 +295,8 @@
 
   (add-hook 'term-mode-hook 'goto-address-mode)
 
+  ;; 2048 lines of output is way too restrictive.
+  (setq term-buffer-maximum-size 8192)
   :bind*
   (("C-z" . term)
    :map term-raw-map
@@ -448,6 +453,10 @@
 
 (quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions"))
 (use-package circe-actions)
+(use-package zncirce)
+
+(quelpa '(nix-mode :fetcher url :url "https://raw.githubusercontent.com/NixOS/nix/master/misc/emacs/nix-mode.el"))
+(use-package nix-mode)
 
 ;; persistent bookmarks
 (setq bookmark-save-flag 1) ; so save after every bookmark made.
@@ -678,19 +687,3 @@ point reaches the beginning or end of the buffer, stop there."
 (toggle-debug-on-error)
 
 (message "Emacs config successfully loaded!")
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(menu-bar-mode nil)
- '(package-selected-packages
-   (quote
-    (nix-mode which-key use-package try swiper slime quelpa projectile pdf-tools monokai-theme magit ledger-mode htmlize helm general expand-region evil-visual-mark-mode ess elpy circe-actions circe ace-window)))
- '(tool-bar-mode nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

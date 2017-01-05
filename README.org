@@ -316,7 +316,7 @@ Counsel-yank-pop is much easier to use than kill ring drive bys.
 #+END_SRC
 
 * ace-window
-C-x o is way too much to switch between windows (which is an operation I find myself doing near constantly). The "Ρ" you see below isn't actually a "Potato" P, it's a capital letter greek rho. Check out [[http://oremacs.com/2015/02/14/semi-xmodmap/][semimap]] for details.
+C-x o is way too much to switch between windows (which is an operation I find myself doing near constantly). I used to use something like [[http://oremacs.com/2015/02/14/semi-xmodmap/][semimap]] for my keyboard configuration, but have fallen out of doing that (hence why you'll find unicode binds randomly dispersed. Eventually will get rid of these.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'ace-window)
@@ -342,7 +342,7 @@ Tarsius is a god. I have no idea where my use-package declaration went, though.
 #+END_SRC
 
 * org mode
-Ah, org mode. Lovingly described as the crack of emacs, the thing that I absolutely couldn't live without (at least that's what my package manager tells me).
+Ah, org mode. Lovingly described as the crack of emacs, the thing that I absolutely couldn't live without (at least until after I started using it).
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; init or config? I never know.
@@ -358,7 +358,7 @@ I'm using the org-export-to-html feature for sharing (eventually I'll output to 
   (quelpa 'htmlize)
 #+END_SRC
 
-org-capture is fantastic. if you're anything like me you have ideas that come and go like the wind. this allows you to easily capture those ideas without worrying about where to save them, whether or not context is necessary, the directory structure. It's a massively beefed up remember buffer. If you want something that just works without any previous configuration, then try '''M-x remember''', the file will be saved in your .emacs.d directory, and it's called notes.
+org-capture is fantastic. if you're anything like me you have ideas that come and go like the wind. this allows you to easily capture those ideas without worrying about where to save them, whether or not context is necessary, the directory structure. It's a massively beefed up remember buffer. If you want something that just works without any previous configuration, then try M-x remember, the file will be saved in your .emacs.d directory, and it's called notes.
 
 when you invoke org-capture interactively, a buffer pops up that waits for you to enter in a key. this key takes you to a special buffer that you can format beforehand with a template variable (customized below). this then saves it to the file you specify.
 
@@ -379,8 +379,6 @@ a quick primer: this is a listing, where each element is itself a list that foll
 #+END_SRC
 
 and that's it! for more info, check out [[http://orgmode.org/manual/Template-elements.html#Template-elements][the org mode manual for templates!]]
-
-Don't fret about the red lettering, the text as you see it here is correct.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
    (setq my-org-capture-directory "~/Documents/org/capture/")
