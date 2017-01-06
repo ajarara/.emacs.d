@@ -103,6 +103,14 @@ I don't know how I feel using hl-line-mode on EVERY buffer. Instead, let's just 
   (add-hook this-mode-hook `hl-line-mode))
 #+END_SRC
 
+* meta-packages
+** Buttercup
+Behavior driven development testing! Other powerpuff girls not included.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(quelpa 'buttercup)
+(use-package buttercup)
+
+#+END_SRC
 * Interface
 ** Fixing title bar
 I use this hack shell script called focus. It cycles through windows based on the contents of the title bar. Super useful. But emacs has the unfortunate behavior of breaking my script if there is more then one frame. So keep it consistent.
@@ -214,6 +222,11 @@ there are significantly less context switches now. when I am in a new buffer, I 
 a quick way to differentiate which state I'm in without looking at the mode line, may change this later.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (setq evil-emacs-state-cursor `(hbar . 2))
+#+END_SRC
+
+I highly value colors.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(setq evil-lookup-func (lambda () (call-interactively 'man)))
 #+END_SRC
 
 inserts highly visible characters at marks. they go away upon entering visual mode or 'insert' mode.
@@ -681,7 +694,7 @@ don't bombard me with leaves if the leaver hasn't spoke in a while.
 
 These definitions interface with znc's *controlpanel module. Rather then inline them here, I plan on releasing this if it ever gets to a usable state, so it's in another file, soon to be posted on github.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions"))
+(quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions") :upgrade t)
 (use-package circe-actions)
 (use-package zncirce)
 #+END_SRC

@@ -61,6 +61,9 @@
 (dolist (this-mode-hook my-hl-line-mode-hook-list)
   (add-hook this-mode-hook `hl-line-mode))
 
+(quelpa 'buttercup)
+(use-package buttercup)
+
 (setq frame-title-format (concat "%b" " " invocation-name "@" (system-name)))
 
 ;; Making emacs snappier
@@ -129,6 +132,8 @@
 ;; IDK about motion state, it blocks useful keys, like ? or h. (which I get to by typing "\" in normal mode)
 
 (setq evil-emacs-state-cursor `(hbar . 2))
+
+(setq evil-lookup-func (lambda () (call-interactively 'man)))
 
 (quelpa 'evil-visual-mark-mode)
 (use-package evil-visual-mark-mode
@@ -451,7 +456,7 @@
 (setq circe-reduce-lurker-spam t)
 )
 
-(quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions"))
+(quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions") :upgrade t)
 (use-package circe-actions)
 (use-package zncirce)
 
