@@ -441,48 +441,49 @@ I'm not exactly happy with term. There's a bunch of workarounds and keys get reb
 
 I use term instead of ansi-term (tried it in a previous iteration) because it's much clearer to configure. I still have no idea how to make ansi-term not insert line breaks.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(use-package term 
-  ;; ugh, I need a good terminal emulator. I only use an emacs term over real ones because I get to use evil (or emacs keys, if you're that kinda guy)
-  :config
-  ;; most of this config is from:
-  ;; http://echosa.github.io/blog/2012/06/06/improving-ansi-term/
+  (use-package term 
+    ;; ugh, I need a good terminal emulator. I only use an emacs term over real ones because I get to use evil (or emacs keys, if you're that kinda guy)
+    :config
+    ;; most of this config is from:
+    ;; http://echosa.github.io/blog/2012/06/06/improving-ansi-term/
 
-  ;; don't modify my output please
-  (setq term-suppress-hard-newline t)
+    ;; don't modify my output please (note this breaks displaying when
+    ;; multiline commands at the bottom of the buffer)
+    (setq term-suppress-hard-newline t)
 
-  ;; kill the buffer after finishing.
-  (defadvice term-sentinel (around my-advice-term-sentinel (proc msg))
-    (if (memq (process-status proc) '(signal exit))
-        (let ((buffer (process-buffer proc)))
-          ad-do-it
-          (kill-buffer buffer))
-      ad-do-it))
-  (ad-activate 'term-sentinel)
+    ;; kill the buffer after finishing.
+    (defadvice term-sentinel (around my-advice-term-sentinel (proc msg))
+      (if (memq (process-status proc) '(signal exit))
+          (let ((buffer (process-buffer proc)))
+            ad-do-it
+            (kill-buffer buffer))
+        ad-do-it))
+    (ad-activate 'term-sentinel)
 
-  ;; don't ask me about whether I want to use bash. I do.
-  ;; modified from ansi-term to term from source post
-  (defvar my-term-shell "/bin/bash")
-  (defadvice term (before force-bash)
-    (interactive (list my-term-shell)))
-  (ad-activate 'term)
+    ;; don't ask me about whether I want to use bash. I do.
+    ;; modified from ansi-term to term from source post
+    (defvar my-term-shell "/bin/bash")
+    (defadvice term (before force-bash)
+      (interactive (list my-term-shell)))
+    (ad-activate 'term)
 
-  ;; why is this not the default?
-  (defun my-term-use-utf8 ()
-    (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
-  (add-hook 'term-exec-hook 'my-term-use-utf8)
+    ;; why is this not the default? 
+    (defun my-term-use-utf8 ()
+      (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
+    (add-hook 'term-exec-hook 'my-term-use-utf8)
 
-  (add-hook 'term-mode-hook 'goto-address-mode)
+    (add-hook 'term-mode-hook 'goto-address-mode)
 
-  ;; 2048 lines of output is way too restrictive.
-  (setq term-buffer-maximum-size 8192)
-  :bind*
-  (("C-z" . term)
-   :map term-raw-map
-   ("C-y" . term-paste)
-   )
-  :bind-keymap*
-  (("C-x" . ctl-x-map))
-)
+    ;; 2048 lines of output is way too restrictive.
+    (setq term-buffer-maximum-size 8192)
+    :bind*
+    (("C-z" . term)
+     :map term-raw-map
+     ("C-y" . term-paste)
+     )
+    :bind-keymap*
+    (("C-x" . ctl-x-map))
+  )
 #+END_SRC
 
 * which-key
@@ -577,6 +578,13 @@ I've done all my swank config using ql, so all I gotta do is point it here.
   (setq inferior-lisp-program "/usr/bin/sbcl"))
 #+END_SRC
 
+* jade
+casual inspection of DOMS and JS objects on the fly
+
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (quelpa 'jade)
+  (use-package jade)
+#+END_SRC
 * circe
 
 Circe is described as an intermediary between erc and rcirc. It features pretty good default options (with one exception that's really not all that necessary), and default network configuration out of the box. It's written by jorgenschaefer, who also is one of the leads on elpy!
@@ -608,13 +616,19 @@ It's very simple to configure circe to connect to ZNC (a personal irc server, es
             :port 6697
             :user "alphor/mozilla"
             :pass (lambda (server-name) (read-passwd "Password?: ")))
+           ("ZNC/snoonet"
+            :tls t
+            :host "jarmac.org"
+            :port 6697
+            :user "alphor/snoonet"
+            :pass (lambda (server-name) (read-passwd "Password?: ")))
            ;; doesn't look that interesting anymore. Maybe later.
            ;; ("ZNC/rizon"
            ;;  :tls t
            ;;  :host "jarmac.org"
            ;;  :port 6697
            ;;  :user "alphor/rizon"
-           ;;  ):pass (lambda (server-name) (read-passwd "Password?: ")))
+           ;;  :pass (lambda (server-name) (read-passwd "Password?: ")))
            ))
 #+END_SRC
 
@@ -633,37 +647,6 @@ It's rare that I need to update this list, but it's sometimes necessary.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (setq circe-fool-list
         '("^7heo"
-          "Alkjosair"
-          "RETAS"
-          "Gedalchieel"
-          "Aethonnon"
-          "Gratiutus"
-          "farmr"
-          "abellitis"
-          "WYNEDDLYN"
-          "heathobaas"
-          "ENSEOU"
-          "_SuChOr_"
-          "_Polynicne_"
-          "_friggne_79"
-          "Nout"
-          "pistiLlI"
-          "GlYnDyM"
-          "Eirinne"
-          "Posturiius"
-          "Aninoik"
-          "Querso"
-          "Snotrhar"
-          "HYGESTAS"
-          "ADASSIAS"
-          "PoSTor"
-          "Cassiofa"
-          "Artamononko"
-          "_ToSzEwSkKi_22"
-          "Eurydictle"
-          "akimovtok"
-          "ekkrlsi005"
-          "Brongar"
           ))
 #+END_SRC
 

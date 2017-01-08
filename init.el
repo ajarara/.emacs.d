@@ -274,7 +274,8 @@
   ;; most of this config is from:
   ;; http://echosa.github.io/blog/2012/06/06/improving-ansi-term/
 
-  ;; don't modify my output please
+  ;; don't modify my output please (note this breaks displaying when
+  ;; multiline commands at the bottom of the buffer)
   (setq term-suppress-hard-newline t)
 
   ;; kill the buffer after finishing.
@@ -293,7 +294,7 @@
     (interactive (list my-term-shell)))
   (ad-activate 'term)
 
-  ;; why is this not the default?
+  ;; why is this not the default? 
   (defun my-term-use-utf8 ()
     (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
   (add-hook 'term-exec-hook 'my-term-use-utf8)
@@ -372,6 +373,9 @@
   (slime-setup)
   (setq inferior-lisp-program "/usr/bin/sbcl"))
 
+(quelpa 'jade)
+(use-package jade)
+
 (quelpa 'circe)
 (use-package circe
 
@@ -393,13 +397,19 @@
           :port 6697
           :user "alphor/mozilla"
           :pass (lambda (server-name) (read-passwd "Password?: ")))
+         ("ZNC/snoonet"
+          :tls t
+          :host "jarmac.org"
+          :port 6697
+          :user "alphor/snoonet"
+          :pass (lambda (server-name) (read-passwd "Password?: ")))
          ;; doesn't look that interesting anymore. Maybe later.
          ;; ("ZNC/rizon"
          ;;  :tls t
          ;;  :host "jarmac.org"
          ;;  :port 6697
          ;;  :user "alphor/rizon"
-         ;;  ):pass (lambda (server-name) (read-passwd "Password?: ")))
+         ;;  :pass (lambda (server-name) (read-passwd "Password?: ")))
          ))
 
 ;; enable nicks
@@ -409,37 +419,6 @@
 
 (setq circe-fool-list
       '("^7heo"
-        "Alkjosair"
-        "RETAS"
-        "Gedalchieel"
-        "Aethonnon"
-        "Gratiutus"
-        "farmr"
-        "abellitis"
-        "WYNEDDLYN"
-        "heathobaas"
-        "ENSEOU"
-        "_SuChOr_"
-        "_Polynicne_"
-        "_friggne_79"
-        "Nout"
-        "pistiLlI"
-        "GlYnDyM"
-        "Eirinne"
-        "Posturiius"
-        "Aninoik"
-        "Querso"
-        "Snotrhar"
-        "HYGESTAS"
-        "ADASSIAS"
-        "PoSTor"
-        "Cassiofa"
-        "Artamononko"
-        "_ToSzEwSkKi_22"
-        "Eurydictle"
-        "akimovtok"
-        "ekkrlsi005"
-        "Brongar"
         ))
 
 (setq tracking-ignored-buffers '(("#emacs" circe-highlight-nick-face)
