@@ -949,6 +949,10 @@ The emacs help system is absolutely fantastic. Unfortunately, in some cases, (lo
     (interactive) (info "(emacs) Help Summary")))
 #+END_SRC
 
+dabbrev doesn't read me like hippie-expand does.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(global-set-key (kbd "M-/") 'hippie-expand)
+#+END_SRC
 Y'know, there are astonishingly a lot of times where I'd like to quoted insert.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (bind-key* "M-q" `quoted-insert)

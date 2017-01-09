@@ -604,6 +604,8 @@ point reaches the beginning or end of the buffer, stop there."
 (bind-key* "C-h C-h" (lambda ()
     (interactive) (info "(emacs) Help Summary")))
 
+(global-set-key (kbd "M-/") 'hippie-expand)
+
 (bind-key* "M-q" `quoted-insert)
 
 ;; shadows universal arg, I think? Damn, I need to read the manual.
@@ -671,3 +673,17 @@ point reaches the beginning or end of the buffer, stop there."
 (toggle-debug-on-error)
 
 (message "Emacs config successfully loaded!")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (google-translate which-key use-package try swiper slime quelpa projectile pdf-tools nix-mode monokai-theme magit ledger-mode jade htmlize helm general expand-region evil-visual-mark-mode ess elpy circe-actions circe buttercup ace-window))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
