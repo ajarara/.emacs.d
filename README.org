@@ -213,6 +213,50 @@ Even though I use emacs-state as my insert state, I still want certain things to
 ) ;; closes use-package evil block
 #+END_SRC
 
+* general
+
+[[https://github.com/noctuid/general.el][General]] is a package that aims to simplify and unify keybinding. Problems I have with letting bind-key handle it is that it's difficult to tailor. An example: in dired mode, I like having the ability to move by jk or having visual block/line selection. At the same time, I want dired mode bindings available. So I bind "i" to evil-insert-state.  However I have no idea how to do it with bind-key. Further, this allows me to get rid of evil-leader. The less packages I depend on for my output, the better.
+
+#+BEGIN_SRC emacs-lisp :tangle init.el
+    (quelpa 'general)
+    (use-package general
+      ;; maybe in the future make this config evil agnostic?
+      :if (featurep 'evil)
+      :config
+
+      ;; leader key binds
+      (setq general-default-keymaps '(evil-normal-state-map
+                                      evil-visual-state-map))
+
+      (setq general-default-prefix "SPC")
+      (general-define-key
+                          
+       "g" 'keyboard-quit
+       "C-g" 'keyboard-quit
+       "SPC" 'ace-window
+
+       "w" 'save-buffer
+       "v" 'visual-line-mode
+       "t" 'toggle-word-wrap
+       "s" 'magit-status
+       
+       "a" 'org-agenda-list
+       
+       "m" 'fill-region
+
+       "f" 'find-file
+       "p" 'my-find-projects
+       "o" 'my-find-org-files
+
+       "r" 'org-capture
+
+       "i" 'imenu
+
+       ) ;; closes general-define-key block
+      
+    ) ;; closes use-package general block
+#+END_SRC
+
 * dired
 I didn't bother playing around with dired but the amount of built in functionality is kind of insane. Edit all files in directories that you can just open in the same buffer with the same regex kind of insane.
 
