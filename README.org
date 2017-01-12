@@ -7,14 +7,8 @@ Almost all of the code blocks you see below are placed into init.el. This has tw
 [[http://i.imgur.com/yQPukq6.png]]
 
 Further, I won't be going over what each package does, (the README files do a better job then I could do), but I will be going over configuration details.
-* Init
-** Enable debugging
-This allows us to immediately detect if something went wrong with loading the init file. At the end of this init, this is toggled off.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(toggle-debug-on-error)
-#+END_SRC
-
 * Package archive config
+Most of the stuff I install is through Quelpa. Quelpa pulls down a local version of the package I'm interested in, and installs it from there. This allows me to select individual branches, prune commits, and even browse logs. But I still have load in the package manager anyway.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; package-archive config
 (require 'package)
@@ -28,7 +22,7 @@ This allows us to immediately detect if something went wrong with loading the in
 #+END_SRC
 
 * Quelpa bootstrap
-"Quelpa" is like a personal melpa that doesn't automatically build from whatever the author feels like pushing to their repo. It is a little more involved then just using package.el, with the benefit that you can manage the source yourself, with the ability to choose branches, easily patch things (looking into whether this is better then borg is for pushing back upstream)
+"Quelpa" is like a personal melpa that doesn't automatically build from whatever the author feels like pushing to their repo. It is a little more involved then just using package.el, with the benefit that you can manage the source yourself, with the ability to choose branches, easily patch things, as described before.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; Quelpa bootstrap
   (package-initialize)
@@ -105,19 +99,17 @@ I don't know how I feel using hl-line-mode on EVERY buffer. Instead, let's just 
 
 * meta-packages
 ** Buttercup
-Behavior driven development testing! Other powerpuff girls not included.
+A BDD testing framework. Other powerpuff girls not included.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'buttercup)
 (use-package buttercup)
-
 #+END_SRC
 * Interface
 ** Fixing title bar
-I use this hack shell script called focus. It cycles through windows based on the contents of the title bar. Super useful. But emacs has the unfortunate behavior of breaking my script if there is more then one frame. So keep it consistent.
+I use this hack shell script called focus. It cycles through windows based on the contents of the title bar. But emacs has the unfortunate behavior of breaking my script if there is more then one frame. So keep it consistent.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (setq frame-title-format (concat "%b" " " invocation-name "@" (system-name)))
 #+END_SRC
-
 ** Making emacs snappier
 any dialog that asks for confirmation requires that you type in the full yes or no (and ignores whatever is after it, but does not accept y/n. And you don't have to hit RET.
 
@@ -143,7 +135,6 @@ Yeah, sorry. Maybe if I fixed my keyboard so that I had meta on semicolon withou
 
 evil likes to override my C-z key with evil-toggle-state. But if I set this before I load evil, it no longer gets overridden.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-
  :init
   (setq evil-toggle-key "C-`")
 #+END_SRC
@@ -151,50 +142,6 @@ evil likes to override my C-z key with evil-toggle-state. But if I set this befo
 evil's undo is a little strong, especially since I'm staying in insert ("emacs", later explained) mode more often.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (setq evil-want-fine-undo t)
-#+END_SRC
-
-[[https://github.com/noctuid/general.el][General]] is a package that aims to simplify and unify keybinding. Problems I have with letting bind-key handle it is that it's difficult to tailor. An example: in dired mode, I like having the ability to move by jk or having visual block/line selection. At the same time, I want dired mode bindings available. So I bind "i" to evil-insert-state.  However I have no idea how to do it with bind-key. Further, this allows me to get rid of evil-leader. The less packages I depend on for my output, the better.
-
-I might consider moving this out to its own section.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-    (quelpa 'general)
-    (use-package general
-      :config
-
-      ;; leader key binds
-      (setq general-default-keymaps '(evil-normal-state-map
-                                      evil-visual-state-map))
-
-      (setq general-default-prefix "SPC")
-      (general-define-key
-                          
-       "g" 'keyboard-quit
-       "C-g" 'keyboard-quit
-       "SPC" 'ace-window
-
-       "w" 'save-buffer
-       "v" 'visual-line-mode
-       "t" 'toggle-word-wrap
-       "s" 'magit-status
-       
-       "a" 'org-agenda-list
-       
-       "m" 'fill-region
-
-       "f" 'find-file
-       "p" 'my-find-projects
-       "o" 'my-find-org-files
-
-       "r" 'org-capture
-
-       "i" 'imenu
-
-      
-       ) ;; closes general-define-key block
-
-
-      
-    ) ;; closes use-package general block
 #+END_SRC
 
 Turn evil mode on globally
@@ -238,7 +185,7 @@ inserts highly visible characters at marks. they go away upon entering visual mo
 #+END_SRC
 
 Once you start binding keys, use-package will lazy-load the packages, that is, wait until you hit a key that is in the bind before loading.
-While a useful feature, in this case I want evil-mode on start asap.
+While a useful feature, in this case I want evil-mode active on start.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   :demand t
 #+END_SRC
@@ -395,6 +342,7 @@ and that's it! for more info, check out [[http://orgmode.org/manual/Template-ele
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
    (setq my-org-capture-directory "~/Documents/org/capture/")
+   
    (setq org-capture-templates
          '(("t" "Todo" entry (file+headline "~/Documents/org/gtd-capture.org" "Tasks")
             "* TODO %?\n  %i\n  %a")
@@ -414,6 +362,8 @@ and that's it! for more info, check out [[http://orgmode.org/manual/Template-ele
             "* %?\nEntered on %U\n %i")
            ("p" "programming" entry (file+datetree "~/Documents/org/programming.org")
             "* %?\nEntered on %U\n  %i")
+           ("l" "laptop" entry (file+datetree "~/Documents/org/laptop.org")
+            "* %?\nEntered on %U\n %i")
            ("m" "music" entry (file+datetree "~/Documents/org/music.org")
             "* %?\nEntered on %U\n %i")
            ("u" "uncategorized-mess" entry (file+datetree "~/Documents/org/u-mess.org")
@@ -922,6 +872,8 @@ Useful quick links.
 
 * Binds (that don't belong to specific packages)
 
+Phasing abo-abo's semimap config out. :(
+
 Abo-abo's had quite the influence on my config.
 
 using semicolon as a modifier (see abo-abo's semimap post) is a little weird at first, but works quite well. I used to use it as meta, and then xcape to insert an actual semicolon, but if I ever used vim/evil's extended command mode it was so annoying. This solution works well, but I want to emulate certain things I missed.
@@ -948,6 +900,13 @@ The emacs help system is absolutely fantastic. Unfortunately, in some cases, (lo
 (bind-key* "C-h C-h" (lambda ()
     (interactive) (info "(emacs) Help Summary")))
 #+END_SRC
+
+In case I hit escape, but still want to quit. Binding some other functionality to this key is pretty risky anyway, so no loss there.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (define-key key-translation-map (kbd "C-M-g") (kbd "C-g"))
+#+END_SRC
+
+
 
 dabbrev doesn't read me like hippie-expand does.
 #+BEGIN_SRC emacs-lisp :tangle init.el

@@ -1,6 +1,4 @@
 
-(toggle-debug-on-error)
-
 ;; package-archive config
 (require 'package)
 (package-initialize)
@@ -79,45 +77,6 @@
 
 (setq evil-want-fine-undo t)
 
-(quelpa 'general)
-(use-package general
-  :config
-
-  ;; leader key binds
-  (setq general-default-keymaps '(evil-normal-state-map
-                                  evil-visual-state-map))
-
-  (setq general-default-prefix "SPC")
-  (general-define-key
-                      
-   "g" 'keyboard-quit
-   "C-g" 'keyboard-quit
-   "SPC" 'ace-window
-
-   "w" 'save-buffer
-   "v" 'visual-line-mode
-   "t" 'toggle-word-wrap
-   "s" 'magit-status
-   
-   "a" 'org-agenda-list
-   
-   "m" 'fill-region
-
-   "f" 'find-file
-   "p" 'my-find-projects
-   "o" 'my-find-org-files
-
-   "r" 'org-capture
-
-   "i" 'imenu
-
-  
-   ) ;; closes general-define-key block
-
-
-  
-) ;; closes use-package general block
-
 :config
 (evil-mode t)
 
@@ -159,6 +118,45 @@
                ("C-f" . evil-scroll-down)
                ("C-b" . evil-scroll-up))
 ) ;; closes use-package evil block
+
+(quelpa 'general)
+(use-package general
+  :config
+
+  ;; leader key binds
+  (setq general-default-keymaps '(evil-normal-state-map
+                                  evil-visual-state-map))
+
+  (setq general-default-prefix "SPC")
+  (general-define-key
+                      
+   "g" 'keyboard-quit
+   "C-g" 'keyboard-quit
+   "SPC" 'ace-window
+
+   "w" 'save-buffer
+   "v" 'visual-line-mode
+   "t" 'toggle-word-wrap
+   "s" 'magit-status
+   
+   "a" 'org-agenda-list
+   
+   "m" 'fill-region
+
+   "f" 'find-file
+   "p" 'my-find-projects
+   "o" 'my-find-org-files
+
+   "r" 'org-capture
+
+   "i" 'imenu
+
+  
+   ) ;; closes general-define-key block
+
+
+  
+) ;; closes use-package general block
 
 (use-package dired
   :config
@@ -234,6 +232,7 @@
 (quelpa 'htmlize)
 
 (setq my-org-capture-directory "~/Documents/org/capture/")
+
 (setq org-capture-templates
       '(("t" "Todo" entry (file+headline "~/Documents/org/gtd-capture.org" "Tasks")
          "* TODO %?\n  %i\n  %a")
@@ -253,6 +252,8 @@
          "* %?\nEntered on %U\n %i")
         ("p" "programming" entry (file+datetree "~/Documents/org/programming.org")
          "* %?\nEntered on %U\n  %i")
+        ("l" "laptop" entry (file+datetree "~/Documents/org/laptop.org")
+         "* %?\nEntered on %U\n %i")
         ("m" "music" entry (file+datetree "~/Documents/org/music.org")
          "* %?\nEntered on %U\n %i")
         ("u" "uncategorized-mess" entry (file+datetree "~/Documents/org/u-mess.org")
@@ -604,6 +605,8 @@ point reaches the beginning or end of the buffer, stop there."
 (bind-key* "C-h C-h" (lambda ()
     (interactive) (info "(emacs) Help Summary")))
 
+(define-key key-translation-map (kbd "C-M-g") (kbd "C-g"))
+
 (global-set-key (kbd "M-/") 'hippie-expand)
 
 (bind-key* "M-q" `quoted-insert)
@@ -680,7 +683,7 @@ point reaches the beginning or end of the buffer, stop there."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (google-translate which-key use-package try swiper slime quelpa projectile pdf-tools nix-mode monokai-theme magit ledger-mode jade htmlize helm general expand-region evil-visual-mark-mode ess elpy circe-actions circe buttercup ace-window))))
+    (which-key use-package try swiper slime quelpa projectile pdf-tools nix-mode monokai-theme magit ledger-mode jade htmlize helm general expand-region evil-visual-mark-mode ess elpy circe-actions circe buttercup ace-window))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
