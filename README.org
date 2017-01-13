@@ -7,6 +7,8 @@ Almost all of the code blocks you see below are placed into init.el. This has tw
 [[http://i.imgur.com/yQPukq6.png]]
 
 Further, I won't be going over what each package does, (the README files do a better job then I could do), but I will be going over configuration details.
+
+One goal of this config is to be able to nuke .emacs.d and clone it back in with no user interaction whatsoever.
 * Package archive config
 Most of the stuff I install is through Quelpa. Quelpa pulls down a local version of the package I'm interested in, and installs it from there. This allows me to select individual branches, prune commits, and even browse logs. But I still have load in the package manager anyway.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -104,6 +106,7 @@ A BDD testing framework. Other powerpuff girls not included.
 (quelpa 'buttercup)
 (use-package buttercup)
 #+END_SRC
+
 * Interface
 ** Fixing title bar
 I use this hack shell script called focus. It cycles through windows based on the contents of the title bar. But emacs has the unfortunate behavior of breaking my script if there is more then one frame. So keep it consistent.
@@ -579,6 +582,7 @@ casual inspection of DOMS and JS objects on the fly
   (quelpa 'jade)
   (use-package jade)
 #+END_SRC
+
 * circe
 
 Circe is described as an intermediary between erc and rcirc. It features pretty good default options (with one exception that's really not all that necessary), and default network configuration out of the box. It's written by jorgenschaefer, who also is one of the leads on elpy!
@@ -686,8 +690,8 @@ Soon enough I'll put up my working nix configuration.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa '(nix-mode :fetcher url :url "https://raw.githubusercontent.com/NixOS/nix/master/misc/emacs/nix-mode.el"))
 (use-package nix-mode)
-
 #+END_SRC
+
 * Have emacs use tcp
 I used to have this. Eventually, I wanted the ability to run emacs on a server (whether it be VPS, VM, or docker instance), but according to the [[http://stackoverflow.com/questions/12546722/using-emacs-server-and-emacsclient-on-other-machines-as-other-users][discussion found here]], it seems difficult. Would've been really neat to have a guile install emacs and a regular emacs side by side (although it is very likely still possible using sockets). 
 * persistent bookmarks
