@@ -671,7 +671,4 @@ point reaches the beginning or end of the buffer, stop there."
 
 (add-hook 'ess-mode-hook (lambda () (local-set-key (kbd "_" 'self-insert-command))))
 
-;; disable debugging
-(toggle-debug-on-error)
-
 (message "Emacs config successfully loaded!")

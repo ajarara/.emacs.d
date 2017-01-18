@@ -129,14 +129,14 @@ and consolidate any interaction to minibuffers. These two options were brought t
 #+END_SRC
 
 * evil-mode
-Yeah, sorry. Maybe if I fixed my keyboard so that I had meta on semicolon without having to muck about with xcape (my previous config) I would consider using just emacs keybinds (C-a C-k is awesome) But the way I have it set up right now means that I never have to deal with an abrupt context switch. Sometimes.
+My relationship with evil is a healthy one. I can navigate fine without the keybinds but a lot of the constructs are already ingrained, and bound for me conveniently. Take #. The emacs alternative is word-search-backward, but I would have to bind it myself. I'd also have to write advice to provide the default word at point for equivalent functionality. Why do I have to ditch #? We have a good thing going. Let's keep it that way.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'evil)
 (use-package evil
 #+END_SRC
 
-evil likes to override my C-z key with evil-toggle-state. But if I set this before I load evil, it no longer gets overridden.
+evil likes to override my C-z key with evil-toggle-state. But if I set this before I load evil, it no longer gets overridden. 
 #+BEGIN_SRC emacs-lisp :tangle init.el
  :init
   (setq evil-toggle-key "C-`")
@@ -1042,12 +1042,6 @@ ess-mode hooks
 
 * Goodbye
 Okay, we're done. Let's switch off debugging and send an OK.
-*** Disable debugging
-#+BEGIN_SRC emacs-lisp :tangle init.el
-;; disable debugging
-(toggle-debug-on-error)
-#+END_SRC
-
 *** Message "loaded successfully"
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (message "Emacs config successfully loaded!")
