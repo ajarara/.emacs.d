@@ -433,6 +433,15 @@
 ;; (ad-activate 'circe-command-SAY)
 
 (setq circe-reduce-lurker-spam t)
+
+(defun my-circe-intersect-nicks (buf1 buf2)
+    "Does what you think it does. It would make a little sense to remove your own nick from this list, but meh"
+    (interactive "b\nb")
+    (let ((names1 (with-current-buffer (set-buffer buf1)
+                    (circe-channel-nicks)))
+          (names2 (with-current-buffer (set-buffer buf2)
+                    (circe-channel-nicks))))
+      (message (prin1-to-string (-intersection names1 names2)))))
 )
 
 (quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions") :upgrade t)

@@ -585,7 +585,7 @@ casual inspection of DOMS and JS objects on the fly
 
 * circe
 
-Circe is described as an intermediary between erc and rcirc. It features pretty good default options (with one exception that's really not all that necessary), and default network configuration out of the box. It's written by jorgenschaefer, who also is one of the leads on elpy!
+[[https://github.com/jorgenschaefer/circe][Circe]] is described as an IRC client that is an intermediary between erc and rcirc. It features pretty good default options (with one exception that's really not all that important), and default network configuration out of the box. It's written by jorgenschaefer, who also is one of the leads on elpy!
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'circe)
 (use-package circe
@@ -657,7 +657,7 @@ Unfortunately spammers have hit hard recently, cluttering my mode line. I like h
 
 At the same time, I'd like tracking if I've talked. Someone's thought of that before and kindly put it in [[https://github.com/jorgenschaefer/circe/wiki/Configuration#auto-track-ignored-channels-on-talk][the docs]].
 
-Unfortunately doesn't work quite well with such a lax regex, it'll require you to set up the channels you want to track before hand. Ah well, I'll leave it here for... reasons, and try fixing it later.
+Unfortunately doesn't work quite well with such a lax regex, it'll require you to set up the channels you want to track before hand. Ah well, I'll leave it here for... some reason, and try fixing it later.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   ;; (defadvice circe-command-SAY (after jjf-circe-unignore-target)
   ;;   (let ((ignored (tracking-ignored-p (current-buffer) nil)))
@@ -670,15 +670,28 @@ Unfortunately doesn't work quite well with such a lax regex, it'll require you t
 don't bombard me with leaves if the leaver hasn't spoke in a while.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (setq circe-reduce-lurker-spam t)
+#+END_SRC
+
+fun fact: the only other person that is also on both #freenode and ##wikimedia-kawaii is ChanServ
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (defun my-circe-intersect-nicks (buf1 buf2)
+    "Does what you think it does. It would make a little sense to remove your own nick from this list, but meh"
+    (interactive "b\nb")
+    (let ((names1 (with-current-buffer (set-buffer buf1)
+                    (circe-channel-nicks)))
+          (names2 (with-current-buffer (set-buffer buf2)
+                    (circe-channel-nicks))))
+      (message (prin1-to-string (-intersection names1 names2)))))
 )
 #+END_SRC
 
-These definitions interface with znc's *controlpanel module. Rather then inline them here, I plan on releasing this if it ever gets to a usable state, so it's in another file, soon to be posted on github.
+Hey I did it! Check out [[https://github.com/alphor/circe-actions][circe-actions]]!
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions") :upgrade t)
 (use-package circe-actions)
 (use-package zncirce)
 #+END_SRC
+
 
 Don't mind this.
 #+BEGIN_SRC 
@@ -1041,7 +1054,7 @@ ess-mode hooks
 #+END_SRC
 
 * Goodbye
-Okay, we're done. Let's switch off debugging and send an OK.
+Okay, we're done. Let's send an OK.
 *** Message "loaded successfully"
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (message "Emacs config successfully loaded!")
