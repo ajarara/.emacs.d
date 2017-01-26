@@ -318,8 +318,7 @@ man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode glo
 
 Counsel-yank-pop is much easier to use than kill ring drive bys.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(use-package counsel
-  :bind* (("M-y" . counsel-yank-pop)))
+(use-package counsel)
 #+END_SRC
 
 * ace-window
@@ -522,9 +521,6 @@ It was a little difficult figuring out how to change tests programmatically, so 
   ;; silences completion warning. found on ob-python's issue pages, strangely enough.
   (setq python-shell-completion-native-enable nil) 
 
-  ;; convenience
-  (defalias 'workon 'pyvenv-workon)
-  
   ;; preference
   (setq elpy-rpc-backend "jedi")
   (setq elpy-rpc-python-command "python3")
@@ -552,6 +548,20 @@ It was a little difficult figuring out how to change tests programmatically, so 
 
 #+END_SRC
 
+* markdown-mode
+For authoring pelican posts, and for README's that aren't in org.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(quelpa 'markdown-mode)
+(use-package markdown-mode)
+#+END_SRC
+
+** pelican mode
+Can't be found on melpa, but is on github:
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(quelpa '(pelican-mode :fetcher github :repo "qdot/pelican-mode"))
+(use-package pelican-mode)
+
+#+END_SRC
 * ess-mode
 Used for homework. Provides convenient commands to build and view changes to LateX files, but is designed for use with R.
 #+BEGIN_SRC emacs-lisp :tangle init.el

@@ -201,8 +201,7 @@
   :bind* (("C-s" . swiper))
   )
 
-(use-package counsel
-  :bind* (("M-y" . counsel-yank-pop)))
+(use-package counsel)
 
 (quelpa 'ace-window)
 (use-package ace-window
@@ -360,6 +359,9 @@
  nil "*Shell Command Output*" t
  )
   (message "compiled submit.pdf"))
+
+(quelpa 'markdown-mode)
+(use-package markdown-mode)
 
 (quelpa 'ess)
 (use-package ess)
@@ -681,3 +683,15 @@ point reaches the beginning or end of the buffer, stop there."
 (add-hook 'ess-mode-hook (lambda () (local-set-key (kbd "_" 'self-insert-command))))
 
 (message "Emacs config successfully loaded!")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages (quote (pelican-mode markdown-mode markdown-mode+))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
