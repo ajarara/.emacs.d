@@ -544,13 +544,6 @@ Can't be found on melpa, but is on github:
 (use-package pelican-mode)
 
 #+END_SRC
-* ess-mode
-Used for homework. Provides convenient commands to build and view changes to LateX files, but is designed for use with R.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-  (quelpa 'ess)
-  (use-package ess)
-#+END_SRC
-
 * pdf tools
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'pdf-tools)
