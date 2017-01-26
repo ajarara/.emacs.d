@@ -530,24 +530,6 @@ It was a little difficult figuring out how to change tests programmatically, so 
   (elpy-enable))
 #+END_SRC
 
-* AucTeX
-** Installation and configuration
-
-#+BEGIN_SRC emacs-lisp :tangle init.el
-;; todo: have this package installed from quelpa. for now, use use-package's ensure logic.
-(message "instead we're loading in shivs for the assignment. committing this is a sin.")
-
-(defun my-tmp-garbage ()
-  (interactive)
-  (call-process-shell-command
- "$(cd ~/doc/college/ma534/hw3 && pdflatex submit.tex)"
- nil "*Shell Command Output*" t
- )
-  (message "compiled submit.pdf"))
-
-
-#+END_SRC
-
 * markdown-mode
 For authoring pelican posts, and for README's that aren't in org.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -1042,6 +1024,12 @@ These are largely personal preference so not going to explain them.
 (bind-key* "M-\"" `insert-pair)
 #+END_SRC
 
+* Advice
+Info-copy-current-node-name is useful, but the arg for it is... 0? Why?
+
+#+BEGIN_SRC 
+
+#+END_SRC
 * Hooks
 org-mode hooks. Maybe these should go into package specific configuration. Meh.
 #+BEGIN_SRC emacs-lisp :tangle init.el
