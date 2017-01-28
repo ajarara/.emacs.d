@@ -338,9 +338,6 @@
   ;; silences completion warning. found on ob-python's issue pages, strangely enough.
   (setq python-shell-completion-native-enable nil) 
 
-  ;; convenience
-  (defalias 'workon 'pyvenv-workon)
-  
   ;; preference
   (setq elpy-rpc-backend "jedi")
   (setq elpy-rpc-python-command "python3")
@@ -349,22 +346,11 @@
   ;; start
   (elpy-enable))
 
-;; todo: have this package installed from quelpa. for now, use use-package's ensure logic.
-(message "instead we're loading in shivs for the assignment. committing this is a sin.")
-
-(defun my-tmp-garbage ()
-  (interactive)
-  (call-process-shell-command
- "$(cd ~/doc/college/ma534/hw3 && pdflatex submit.tex)"
- nil "*Shell Command Output*" t
- )
-  (message "compiled submit.pdf"))
-
 (quelpa 'markdown-mode)
 (use-package markdown-mode)
 
-(quelpa 'ess)
-(use-package ess)
+(quelpa '(pelican-mode :fetcher github :repo "qdot/pelican-mode"))
+(use-package pelican-mode)
 
 (quelpa 'pdf-tools)
 (use-package pdf-tools)
@@ -404,6 +390,12 @@
           :host "jarmac.org"
           :port 6697
           :user "alphor/snoonet"
+          :pass (lambda (server-name) (read-passwd "Password?: ")))
+         ("ZNC/gitter"
+          :tls t
+          :host "jarmac.org"
+          :port 6697
+          :user "alphor/gitter"
           :pass (lambda (server-name) (read-passwd "Password?: ")))
          ;; doesn't look that interesting anymore. Maybe later.
          ;; ("ZNC/rizon"
@@ -683,15 +675,3 @@ point reaches the beginning or end of the buffer, stop there."
 (add-hook 'ess-mode-hook (lambda () (local-set-key (kbd "_" 'self-insert-command))))
 
 (message "Emacs config successfully loaded!")
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (pelican-mode markdown-mode markdown-mode+))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
