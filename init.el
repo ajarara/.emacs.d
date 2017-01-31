@@ -10,12 +10,12 @@
 (setq package-enable-at-startup nil)
 
 ;; Quelpa bootstrap
-  (package-initialize)
-  (if (require 'quelpa nil t)
-      (quelpa-self-upgrade)
-    (with-temp-buffer
-      (url-insert-file-contents "https://raw.github.com/quelpa/quelpa/master/bootstrap.el")
-      (eval-buffer)))
+(package-initialize)
+(if (require 'quelpa nil t)
+    (quelpa-self-upgrade)
+  (with-temp-buffer
+    (url-insert-file-contents "https://raw.github.com/quelpa/quelpa/master/bootstrap.el")
+    (eval-buffer)))
 
 ;; Use-package bootstrap
 (quelpa 'use-package :stable t)
@@ -209,8 +209,6 @@
   ;; shadows quoted-insert
   (("C-q" . ace-window)
    ;; needs abo-abo's key config (search for "semimap")
-   ;; U03A1
-   ("Ρ" . ace-window))
   :config
   (setq aw-scope 'frame)
   )
@@ -415,8 +413,9 @@
       '("^7heo"
         ))
 
-(setq tracking-ignored-buffers '(("#emacs" circe-highlight-nick-face)
-                                 ("#" circe-highlight-nick-face)))
+(setq tracking-ignored-buffers '(((lambda (buf-name)
+                                    (not (string-prefix-p "#emacs" buf-name)))
+                                  circe-highlight-nick-face)))
 
 ;; (defadvice circe-command-SAY (after jjf-circe-unignore-target)
 ;;   (let ((ignored (tracking-ignored-p (current-buffer) nil)))
@@ -588,6 +587,13 @@ point reaches the beginning or end of the buffer, stop there."
   "It's mine! MIIIIIIINE!"
   (interactive "sSearch the googs: ")
   (browse-url (format "https://google.com/#q=%s" query)))
+
+(defun pelican-now (&optional arg)
+  (interactive "P")
+  (let ((date (format-time-string "%Y-%m-%d %H:%M:%S %z")))
+    (if arg
+        (insert date)
+      (message date))))
 
 ;; if there are two letters commented after the definition, the second is reached by using shift AND mode shift. It's a lot, so don't expect there to be many
 ;; movement

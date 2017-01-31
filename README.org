@@ -26,7 +26,7 @@ Most of the stuff I install is through Quelpa. Quelpa pulls down a local version
 * Quelpa bootstrap
 "Quelpa" is like a personal melpa that doesn't automatically build from whatever the author feels like pushing to their repo. It is a little more involved then just using package.el, with the benefit that you can manage the source yourself, with the ability to choose branches, easily patch things, as described before.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-;; Quelpa bootstrap
+  ;; Quelpa bootstrap
   (package-initialize)
   (if (require 'quelpa nil t)
       (quelpa-self-upgrade)
@@ -322,7 +322,7 @@ Counsel-yank-pop is much easier to use than kill ring drive bys.
 #+END_SRC
 
 * ace-window
-C-x o is way too much to switch between windows (which is an operation I find myself doing near constantly). I used to use something like [[http://oremacs.com/2015/02/14/semi-xmodmap/][semimap]] for my keyboard configuration, but have fallen out of doing that (hence why you'll find unicode binds randomly dispersed. Eventually will get rid of these.
+C-x o is way too much to switch between windows (which is an operation I find myself doing near constantly). I used to use something like [[http://oremacs.com/2015/02/14/semi-xmodmap/][semimap]] for my keyboard configuration, but have fallen out of doing that (hence why you'll find unicode binds randomly dispersed).
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'ace-window)
@@ -331,8 +331,6 @@ C-x o is way too much to switch between windows (which is an operation I find my
   ;; shadows quoted-insert
   (("C-q" . ace-window)
    ;; needs abo-abo's key config (search for "semimap")
-   ;; U03A1
-   ("Ρ" . ace-window))
   :config
   (setq aw-scope 'frame)
   )
@@ -544,6 +542,7 @@ Can't be found on melpa, but is on github:
 (use-package pelican-mode)
 
 #+END_SRC
+
 * pdf tools
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'pdf-tools)
@@ -641,9 +640,9 @@ It's rare that I need to update this list, but it's sometimes necessary.
 
 Unfortunately spammers have hit hard recently, cluttering my mode line. I like having the ability to see activity but at the same time I need my mode line. One thing I'd like to have is the ability to see only mentions. Everything else can wait. (This still allows queries to get through)
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (setq tracking-ignored-buffers '(("#emacs" circe-highlight-nick-face)
-                                   ("#" circe-highlight-nick-face)))
-
+  (setq tracking-ignored-buffers '(((lambda (buf-name)
+                                      (not (string-prefix-p "#emacs" buf-name)))
+                                    circe-highlight-nick-face)))
 #+END_SRC
 
 At the same time, I'd like tracking if I've talked. Someone's thought of that before and kindly put it in [[https://github.com/jorgenschaefer/circe/wiki/Configuration#auto-track-ignored-channels-on-talk][the docs]].
@@ -922,6 +921,17 @@ Useful quick links.
     (browse-url (format "https://google.com/#q=%s" query)))
 #+END_SRC
 
+
+The help string for format-time-string is quite helpful.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (defun pelican-now (&optional arg)
+    (interactive "P")
+    (let ((date (format-time-string "%Y-%m-%d %H:%M:%S %z")))
+      (if arg
+          (insert date)
+        (message date))))
+#+END_SRC
+
 * Binds (that don't belong to specific packages)
 
 Phasing abo-abo's semimap config out. :(
@@ -1023,12 +1033,6 @@ These are largely personal preference so not going to explain them.
 (bind-key* "M-\"" `insert-pair)
 #+END_SRC
 
-* Advice
-Info-copy-current-node-name is useful, but the arg for it is... 0? Why?
-
-#+BEGIN_SRC 
-
-#+END_SRC
 * Hooks
 org-mode hooks. Maybe these should go into package specific configuration. Meh.
 #+BEGIN_SRC emacs-lisp :tangle init.el
