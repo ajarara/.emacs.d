@@ -207,7 +207,7 @@
 (use-package ace-window
   :bind*
   ;; shadows quoted-insert
-  (("C-q" . ace-window)
+  (("C-q" . ace-window))
    ;; needs abo-abo's key config (search for "semimap")
   :config
   (setq aw-scope 'frame)
@@ -326,7 +326,7 @@
   :ensure t
   :bind* (("M-x" . helm-M-x)))
 
-(quelpa 'elpy)
+(quelpa 'elpy :upgrade t)
 (use-package elpy
   :config
 

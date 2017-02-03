@@ -329,7 +329,7 @@ C-x o is way too much to switch between windows (which is an operation I find my
 (use-package ace-window
   :bind*
   ;; shadows quoted-insert
-  (("C-q" . ace-window)
+  (("C-q" . ace-window))
    ;; needs abo-abo's key config (search for "semimap")
   :config
   (setq aw-scope 'frame)
@@ -509,7 +509,7 @@ I only use it for M-x invocations (in case I forget keybinds). Counsel-M-x does 
 * elpy
 It was a little difficult figuring out how to change tests programmatically, so if you want to use something else, first M-x elpy-set-test-runner , and then query elpy-test-runner. For py.test, I had to use the symbol elpy-test-pytest-runner.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'elpy)
+(quelpa 'elpy :upgrade t)
 (use-package elpy
   :config
 
@@ -756,7 +756,10 @@ To be honest I have no idea what this does, but I know that it causes emacs to h
 I reject your reality and substitute my own.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; (setq custom-file "/dev/null")
+
+(setq-default indent-tabs-mode nil)
 #+END_SRC
+
 
 * Theme
 I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
