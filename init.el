@@ -414,7 +414,8 @@
         ))
 
 (setq tracking-ignored-buffers '(((lambda (buf-name)
-                                    (not (string-prefix-p "#emacs" buf-name)))
+                                    (not (or (string-prefix-p "#emacs" buf-name)
+                                             (not (string-prefix-p "#" buf-name)))))
                                   circe-highlight-nick-face)))
 
 ;; (defadvice circe-command-SAY (after jjf-circe-unignore-target)
@@ -473,6 +474,8 @@
 (setq x-select-enable-clipboard-manager nil)
 
 ;; (setq custom-file "/dev/null")
+
+(setq-default indent-tabs-mode nil)
 
 ;; (load-theme 'misterioso t)
 (quelpa `monokai-theme)

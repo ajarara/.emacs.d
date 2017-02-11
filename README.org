@@ -528,6 +528,22 @@ It was a little difficult figuring out how to change tests programmatically, so 
   (elpy-enable))
 #+END_SRC
 
+This section quickly allows me to emacs -q and load in elpy, allowing me to test changes or reproduce bugs quickly. All I have to evaluate is (load-file "~/.emacs.d/elpy-conf.el") and I'm set up.
+
+#+BEGIN_SRC emacs-lisp :tangle elpy-conf.el
+  (package-initialize)
+  (require 'subr)
+  (require 'elpy)
+  (let ((preference (y-or-n-p "Emulate custom elpy environment?")))
+    (when preference
+      (elpy-set-test-runner 'elpy-test-pytest-runner)
+      (setq python-shell-completion-native-enable nil)
+      (setq elpy-rpc-backend "jedi")
+      (setq elpy-rpc-python-command "python3")
+      (setq python-shell-interpreter "python3")))
+  (elpy-enable)
+#+END_SRC
+
 * markdown-mode
 For authoring pelican posts, and for README's that aren't in org.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -641,7 +657,8 @@ It's rare that I need to update this list, but it's sometimes necessary.
 Unfortunately spammers have hit hard recently, cluttering my mode line. I like having the ability to see activity but at the same time I need my mode line. One thing I'd like to have is the ability to see only mentions. Everything else can wait. (This still allows queries to get through)
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (setq tracking-ignored-buffers '(((lambda (buf-name)
-                                      (not (string-prefix-p "#emacs" buf-name)))
+                                      (not (or (string-prefix-p "#emacs" buf-name)
+                                               (not (string-prefix-p "#" buf-name)))))
                                     circe-highlight-nick-face)))
 #+END_SRC
 

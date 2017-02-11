@@ -3,3 +3,4 @@
 !.gitignore
 !init.el
 !README.org
+!elpy-conf.el
