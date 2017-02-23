@@ -438,9 +438,25 @@
       (message (prin1-to-string (-intersection names1 names2)))))
 )
 
-(quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions") :upgrade t)
-(use-package circe-actions)
-(use-package zncirce)
+;; (quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions") :upgrade t)
+(quelpa '(circe-actions :fetcher file :path "~/proj/circe-znc/circe-actions.el") :upgrade t)
+(quelpa '(circe-znc :fetcher file :path "~/proj/circe-znc/circe-znc.el") :upgrade t)
+(use-package circe-znc)
+
+(defvar circe-actions-inspect-arg-list '()
+  "A list of variables that were passed to circe-actions-inspect-args.")
+(defun circe-actions-inspect-args (&rest args)
+  "A utility function designed to show you what is passed to an
+  arbitrary handler. Was very useful when inspecting, so I thought
+  I'd leave it in here. Be warned with 30+ channels
+  circe-actions-inspect-arg-list grows mighty fast, if you're crazy
+  and use circe-actions-t as a condition-function-p"
+  (setq circe-actions-inspect-arg-list (cons args circe-actions-inspect-arg-list))
+  (message
+   (with-temp-buffer
+     (cl-prettyprint args)
+     (buffer-string)
+     )))
 
 (quelpa '(nix-mode :fetcher url :url "https://raw.githubusercontent.com/NixOS/nix/master/misc/emacs/nix-mode.el"))
 (use-package nix-mode)
@@ -684,3 +700,17 @@ point reaches the beginning or end of the buffer, stop there."
 (add-hook 'ess-mode-hook (lambda () (local-set-key (kbd "_" 'self-insert-command))))
 
 (message "Emacs config successfully loaded!")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (pydoc projectile pkg-info epl ledger-mode try monokai-theme expand-region nix-mode circe-znc circe-actions circe jade which-key use-package swiper slime quelpa pelican-mode pdf-tools markdown-mode magit htmlize helm general evil-visual-mark-mode elpy buttercup ace-window))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

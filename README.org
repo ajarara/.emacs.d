@@ -532,17 +532,22 @@ This section quickly allows me to emacs -q and load in elpy, allowing me to test
 
 #+BEGIN_SRC emacs-lisp :tangle elpy-conf.el
   (package-initialize)
-  (require 'subr)
   (require 'elpy)
   (let ((preference (y-or-n-p "Emulate custom elpy environment?")))
     (when preference
-      (elpy-set-test-runner 'elpy-test-pytest-runner)
-      (setq python-shell-completion-native-enable nil)
       (setq elpy-rpc-backend "jedi")
-      (setq elpy-rpc-python-command "python3")
-      (setq python-shell-interpreter "python3")))
+      (setq elpy-rpc-python-command "python3")))
   (elpy-enable)
 #+END_SRC
+
+Just taking this down, no need to commit.
+#+BEGIN_SRC debug
+error in process sentinel: elpy-rpc--default-error-callback: peculiar error: "segmentation fault (core dumped)"
+error in process sentinel: peculiar error: "segmentation fault (core dumped)"
+#+END_SRC
+
+error in process sentinel: elpy-rpc--default-error-callback: peculiar error: "segmentation fault (core dumped)"
+error in process sentinel: peculiar error: "segmentation fault (core dumped)"
 
 * markdown-mode
 For authoring pelican posts, and for README's that aren't in org.
@@ -693,12 +698,31 @@ fun fact: the only other person that is also on both #freenode and ##wikimedia-k
 #+END_SRC
 
 Hey I did it! Check out [[https://github.com/alphor/circe-actions][circe-actions]]!
+
+Since this is now in active development, I build it directly from file. Maybe once it is published I'll build it back from github.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions") :upgrade t)
-(use-package circe-actions)
-(use-package zncirce)
+;; (quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions") :upgrade t)
+(quelpa '(circe-actions :fetcher file :path "~/proj/circe-znc/circe-actions.el") :upgrade t)
+(quelpa '(circe-znc :fetcher file :path "~/proj/circe-znc/circe-znc.el") :upgrade t)
+(use-package circe-znc)
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (defvar circe-actions-inspect-arg-list '()
+    "A list of variables that were passed to circe-actions-inspect-args.")
+  (defun circe-actions-inspect-args (&rest args)
+    "A utility function designed to show you what is passed to an
+    arbitrary handler. Was very useful when inspecting, so I thought
+    I'd leave it in here. Be warned with 30+ channels
+    circe-actions-inspect-arg-list grows mighty fast, if you're crazy
+    and use circe-actions-t as a condition-function-p"
+    (setq circe-actions-inspect-arg-list (cons args circe-actions-inspect-arg-list))
+    (message
+     (with-temp-buffer
+       (cl-prettyprint args)
+       (buffer-string)
+       )))
+#+END_SRC
 
 Don't mind this.
 #+BEGIN_SRC 
