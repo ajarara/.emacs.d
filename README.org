@@ -114,7 +114,7 @@ I use this hack shell script called focus. It cycles through windows based on th
 (setq frame-title-format (concat "%b" " " invocation-name "@" (system-name)))
 #+END_SRC
 ** Making emacs snappier
-any dialog that asks for confirmation requires that you type in the full yes or no (and ignores whatever is after it, but does not accept y/n. And you don't have to hit RET.
+any dialog that asks for confirmation requires that you type in the full yes or no (and ignores whatever is after it, but does not accept y/n). Setting it to y-or-n-p allows you to do this. And you don't have to hit RET.
 
 Echoing keystrokes allows you to see exactly what you've typed almost immediately. Doesn't sound useful, but it is appreciated often.
 
@@ -506,10 +506,18 @@ I only use it for M-x invocations (in case I forget keybinds). Counsel-M-x does 
   :bind* (("M-x" . helm-M-x)))
 #+END_SRC
 
+* ibuffer
+buffer filtering wrought from Mount Olympus
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(use-package ibuffer
+  :bind* (("C-x C-b" . ibuffer)))
+
+#+END_SRC
+
 * elpy
 It was a little difficult figuring out how to change tests programmatically, so if you want to use something else, first M-x elpy-set-test-runner , and then query elpy-test-runner. For py.test, I had to use the symbol elpy-test-pytest-runner.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'elpy :upgrade t)
+(quelpa 'elpy :stable t)
 (use-package elpy
   :config
 
@@ -558,10 +566,11 @@ For authoring pelican posts, and for README's that aren't in org.
 
 ** pelican mode
 Can't be found on melpa, but is on github:
+
+Pelican-mode automatically adds an enabler to markdown-mode-hook, which enables itself if it determines that it is indeed a site. Alternatively, this can be done with a dir-local, so as to strip out the magic of how pelican determines something is a pelican site.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa '(pelican-mode :fetcher github :repo "qdot/pelican-mode"))
 (use-package pelican-mode)
-
 #+END_SRC
 
 * pdf tools
@@ -583,9 +592,11 @@ I've done all my swank config using ql, so all I gotta do is point it here.
 * jade
 casual inspection of DOMS and JS objects on the fly
 
-#+BEGIN_SRC emacs-lisp :tangle init.el
-  (quelpa 'jade)
-  (use-package jade)
+currently disabled
+
+#+BEGIN_SRC emacs-lisp
+;;  (quelpa 'jade)
+;;  (use-package jade)
 #+END_SRC
 
 * circe
@@ -801,7 +812,6 @@ I reject your reality and substitute my own.
 (setq-default indent-tabs-mode nil)
 #+END_SRC
 
-
 * Theme
 I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -832,10 +842,11 @@ Playing around with john wiegley's ledger mode
     
 #+END_SRC
 
-Seeing what the buzz is about.
+projectile-compile-project shaves seconds off my builds. SECONDS!
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (quelpa 'projectile)
   (use-package projectile)
+
 #+END_SRC
 
 * "my-" functions

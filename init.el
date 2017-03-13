@@ -326,7 +326,10 @@
   :ensure t
   :bind* (("M-x" . helm-M-x)))
 
-(quelpa 'elpy :upgrade t)
+(use-package ibuffer
+  :bind* (("C-x C-b" . ibuffer)))
+
+(quelpa 'elpy :stable t)
 (use-package elpy
   :config
 
@@ -358,9 +361,6 @@
   :config
   (slime-setup)
   (setq inferior-lisp-program "/usr/bin/sbcl"))
-
-(quelpa 'jade)
-(use-package jade)
 
 (quelpa 'circe)
 (use-package circe
@@ -700,17 +700,3 @@ point reaches the beginning or end of the buffer, stop there."
 (add-hook 'ess-mode-hook (lambda () (local-set-key (kbd "_" 'self-insert-command))))
 
 (message "Emacs config successfully loaded!")
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (pydoc projectile pkg-info epl ledger-mode try monokai-theme expand-region nix-mode circe-znc circe-actions circe jade which-key use-package swiper slime quelpa pelican-mode pdf-tools markdown-mode magit htmlize helm general evil-visual-mark-mode elpy buttercup ace-window))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
