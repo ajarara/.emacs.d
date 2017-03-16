@@ -642,6 +642,10 @@ It's very simple to configure circe to connect to ZNC (a personal irc server, es
             :port 6697
             :user "alphor/gitter"
             :pass (lambda (server-name) (read-passwd "Password?: ")))
+           ("local/i2p"
+            :tls t
+            :host "localhost"
+            :port 6668)
            ;; doesn't look that interesting anymore. Maybe later.
            ;; ("ZNC/rizon"
            ;;  :tls t
@@ -799,6 +803,15 @@ By horizontal I mean vim's (and the rest of the world's) notion of vertical. You
 (setq split-width-threshold 140)
 #+END_SRC
 
+* Can I do it from emacs?
+One reason I love using terminals in emacs is because of text manipulation. It's so flipping good at it! But I spend a lot of time editing email, or using stackoverflow. Bringing it into emacs would be great.
+
+** stackoverflow
+This makes me so happy. Ootb it works, then it asks you for authentication and handles all the secrets itself. I've symlinked .sx (stored in .emacs.d) into docs so that I can nuke .emacs.d, which I do every so often.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(quelpa 'sx)
+(use-package sx)
+#+END_SRC
 * QOL fixes
 To be honest I have no idea what this does, but I know that it causes emacs to hang on exit. Setting it to nil disables it, and there's no apparent loss of functionality of my clipboard interaction with emacs.. so... :|
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -846,7 +859,6 @@ projectile-compile-project shaves seconds off my builds. SECONDS!
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (quelpa 'projectile)
   (use-package projectile)
-
 #+END_SRC
 
 * "my-" functions

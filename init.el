@@ -395,6 +395,10 @@
           :port 6697
           :user "alphor/gitter"
           :pass (lambda (server-name) (read-passwd "Password?: ")))
+         ("local/i2p"
+          :tls t
+          :host "localhost"
+          :port 6668)
          ;; doesn't look that interesting anymore. Maybe later.
          ;; ("ZNC/rizon"
          ;;  :tls t
@@ -486,6 +490,9 @@
 (setq split-height-threshold nil)
 ;; tried 150, I'm using xfwm4 if that makes any difference, but it did not work.
 (setq split-width-threshold 140)
+
+(quelpa 'sx)
+(use-package sx)
 
 (setq x-select-enable-clipboard-manager nil)
 
