@@ -10,7 +10,7 @@ Further, I won't be going over what each package does, (the README files do a be
 
 One goal of this config is to be able to nuke .emacs.d and clone it back in with no user interaction whatsoever.
 * Package archive config
-Most of the stuff I install is through Quelpa. Quelpa pulls down a local version of the package I'm interested in, and installs it from there. This allows me to select individual branches, prune commits, and even browse logs. But I still have load in the package manager anyway.
+Most of the stuff I install is through Quelpa. Quelpa pulls down a local version of the package I'm interested in, and installs it from there. This allows me to select individual branches, prune commits, and even browse logs. But I still have to load in the package manager anyway.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; package-archive config
 (require 'package)
@@ -436,12 +436,11 @@ I'm not exactly happy with term. There's a bunch of workarounds and keys get reb
 I use term instead of ansi-term (tried it in a previous iteration) because it's much clearer to configure. I still have no idea how to make ansi-term not insert line breaks.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (use-package term 
-    ;; ugh, I need a good terminal emulator. I only use an emacs term over real ones because I get to use evil (or emacs keys, if you're that kinda guy)
     :config
     ;; most of this config is from:
     ;; http://echosa.github.io/blog/2012/06/06/improving-ansi-term/
 
-    ;; don't modify my output please (note this breaks displaying when
+    ;; don't modify my output please (note this breaks when displaying
     ;; multiline commands at the bottom of the buffer)
     (setq term-suppress-hard-newline t)
 
@@ -474,6 +473,7 @@ I use term instead of ansi-term (tried it in a previous iteration) because it's 
     (("C-z" . term)
      :map term-raw-map
      ("C-y" . term-paste)
+;;     ("<C-backspace>" . (lambda () (message "backward-kill-word is disabled here, use C-w")))
      )
     :bind-keymap*
     (("C-x" . ctl-x-map))
@@ -510,15 +510,19 @@ I only use it for M-x invocations (in case I forget keybinds). Counsel-M-x does 
 buffer filtering wrought from Mount Olympus
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (use-package ibuffer
-  :bind* (("C-x C-b" . ibuffer)))
+  :config
+  (global-set-key (kbd "C-x C-b") 'ibuffer))
 
 #+END_SRC
 
 * elpy
+Disabled for now, until I figure out where these segfaults are coming from.
+
 It was a little difficult figuring out how to change tests programmatically, so if you want to use something else, first M-x elpy-set-test-runner , and then query elpy-test-runner. For py.test, I had to use the symbol elpy-test-pytest-runner.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa 'elpy :stable t)
 (use-package elpy
+  :disabled ;; until I figure out where these seg faults are coming from
   :config
 
   ;; py.test is actively developed. 
@@ -610,15 +614,17 @@ currently disabled
 I use ZNC to connect to my networks. So far, I only really fool around in #emacs, and some other dev-related channels. But this means I don't really care about circe's default channels, so I clear it here.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   :config
+  ;; one of the things I love about emacs are how packages are 
   (setq circe-network-defaults nil)
 #+END_SRC
+
 
 It's very simple to configure circe to connect to ZNC (a personal irc server, essentially, that optionally saves the last 50 lines of chats so you have context upon logging in, amongst a whole slew of other features).
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (setq circe-network-options
         '(("ZNC/freenode"
            :tls t
-           :host "jarmac.org"
+           :host "107.191.96.59"
            :port 6697
            :user "alphor/freenode"
            ;; the param is needed otherwise error!
@@ -674,7 +680,7 @@ It's rare that I need to update this list, but it's sometimes necessary.
           ))
 #+END_SRC
 
-Unfortunately spammers have hit hard recently, cluttering my mode line. I like having the ability to see activity but at the same time I need my mode line. One thing I'd like to have is the ability to see only mentions. Everything else can wait. (This still allows queries to get through)
+Spammers have hit hard recently, cluttering my mode line. I like having the ability to see activity but at the same time I need my mode line. One thing I'd like to have is the ability to see only mentions. Everything else can wait. (This still allows queries to get through)
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (setq tracking-ignored-buffers '(((lambda (buf-name)
                                       (not (or (string-prefix-p "#emacs" buf-name)
@@ -694,6 +700,7 @@ Unfortunately doesn't work quite well with such a lax regex, it'll require you t
   ;;       (message "This buffer will now be tracked."))))
   ;; (ad-activate 'circe-command-SAY)
 #+END_SRC
+
 don't bombard me with leaves if the leaver hasn't spoke in a while.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (setq circe-reduce-lurker-spam t)
@@ -722,6 +729,7 @@ Since this is now in active development, I build it directly from file. Maybe on
 (use-package circe-znc)
 #+END_SRC
 
+Useful for debugging interactively.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (defvar circe-actions-inspect-arg-list '()
     "A list of variables that were passed to circe-actions-inspect-args.")
@@ -739,20 +747,44 @@ Since this is now in active development, I build it directly from file. Maybe on
        )))
 #+END_SRC
 
+Using ZNC, I'm on 80 channels. Everytime I connect to the server I get absolutely flooded, because it sends the name list for each channel.
+
+So, what I want to do is ignore the first 
+#+BEGIN_SRC emacs-lisp :tangle init.el
+
+
+#+END_SRC
+
 Don't mind this.
 #+BEGIN_SRC 
 (setq erc-server-auto-reconnect nil)
 #+END_SRC
 
 * nix
-Soon enough I'll put up my working nix configuration.
+Problem: indenting
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (quelpa '(nix-mode :fetcher url :url "https://raw.githubusercontent.com/NixOS/nix/master/misc/emacs/nix-mode.el"))
 (use-package nix-mode)
 #+END_SRC
 
+
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(quelpa 'helm-nixos-options)
+(use-package helm-nixos-options)
+
+(use-package nixos-packages)
+
+#+END_SRC
+
 * Have emacs use tcp
 I used to have this. Eventually, I wanted the ability to run emacs on a server (whether it be VPS, VM, or docker instance), but according to the [[http://stackoverflow.com/questions/12546722/using-emacs-server-and-emacsclient-on-other-machines-as-other-users][discussion found here]], it seems difficult. Would've been really neat to have a guile install emacs and a regular emacs side by side (although it is very likely still possible using sockets). 
+* regexp
+
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(require 're-builder) ;; not necessary, all the useful functions are autoloaded
+(setq reb-re-syntax 'string) ;; very necessary.
+#+END_SRC
+
 * persistent bookmarks
 registers are neat. let's try using them more often. If I bother creating a register, I want it to be persistent. Emacs calls persistent registers bookmarks, and to save them, you must either call `bookmark-save or configure it to save after x amount of bookmarks created
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -806,6 +838,12 @@ By horizontal I mean vim's (and the rest of the world's) notion of vertical. You
 * Can I do it from emacs?
 One reason I love using terminals in emacs is because of text manipulation. It's so flipping good at it! But I spend a lot of time editing email, or using stackoverflow. Bringing it into emacs would be great.
 
+** mingus
+connected to an MPD instance. One of the reasons I like it is because it has a development branch for mopidy. I think the switch is inevitable, but the priority isn't high.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(quelpa 'mingus)
+;; (use-package mingus)
+#+END_SRC
 ** stackoverflow
 This makes me so happy. Ootb it works, then it asks you for authentication and handles all the secrets itself. I've symlinked .sx (stored in .emacs.d) into docs so that I can nuke .emacs.d, which I do every so often.
 #+BEGIN_SRC emacs-lisp :tangle init.el

@@ -266,48 +266,48 @@
 )
 
 (use-package term 
-  ;; ugh, I need a good terminal emulator. I only use an emacs term over real ones because I get to use evil (or emacs keys, if you're that kinda guy)
-  :config
-  ;; most of this config is from:
-  ;; http://echosa.github.io/blog/2012/06/06/improving-ansi-term/
+    :config
+    ;; most of this config is from:
+    ;; http://echosa.github.io/blog/2012/06/06/improving-ansi-term/
 
-  ;; don't modify my output please (note this breaks displaying when
-  ;; multiline commands at the bottom of the buffer)
-  (setq term-suppress-hard-newline t)
+    ;; don't modify my output please (note this breaks when displaying
+    ;; multiline commands at the bottom of the buffer)
+    (setq term-suppress-hard-newline t)
 
-  ;; kill the buffer after finishing.
-  (defadvice term-sentinel (around my-advice-term-sentinel (proc msg))
-    (if (memq (process-status proc) '(signal exit))
-        (let ((buffer (process-buffer proc)))
-          ad-do-it
-          (kill-buffer buffer))
-      ad-do-it))
-  (ad-activate 'term-sentinel)
+    ;; kill the buffer after finishing.
+    (defadvice term-sentinel (around my-advice-term-sentinel (proc msg))
+      (if (memq (process-status proc) '(signal exit))
+          (let ((buffer (process-buffer proc)))
+            ad-do-it
+            (kill-buffer buffer))
+        ad-do-it))
+    (ad-activate 'term-sentinel)
 
-  ;; don't ask me about whether I want to use bash. I do.
-  ;; modified from ansi-term to term from source post
-  (defvar my-term-shell "/bin/bash")
-  (defadvice term (before force-bash)
-    (interactive (list my-term-shell)))
-  (ad-activate 'term)
+    ;; don't ask me about whether I want to use bash. I do.
+    ;; modified from ansi-term to term from source post
+    (defvar my-term-shell "/bin/bash")
+    (defadvice term (before force-bash)
+      (interactive (list my-term-shell)))
+    (ad-activate 'term)
 
-  ;; why is this not the default? 
-  (defun my-term-use-utf8 ()
-    (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
-  (add-hook 'term-exec-hook 'my-term-use-utf8)
+    ;; why is this not the default? 
+    (defun my-term-use-utf8 ()
+      (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
+    (add-hook 'term-exec-hook 'my-term-use-utf8)
 
-  (add-hook 'term-mode-hook 'goto-address-mode)
+    (add-hook 'term-mode-hook 'goto-address-mode)
 
-  ;; 2048 lines of output is way too restrictive.
-  (setq term-buffer-maximum-size 8192)
-  :bind*
-  (("C-z" . term)
-   :map term-raw-map
-   ("C-y" . term-paste)
-   )
-  :bind-keymap*
-  (("C-x" . ctl-x-map))
-)
+    ;; 2048 lines of output is way too restrictive.
+    (setq term-buffer-maximum-size 8192)
+    :bind*
+    (("C-z" . term)
+     :map term-raw-map
+     ("C-y" . term-paste)
+;;     ("<C-backspace>" . (lambda () (message "backward-kill-word is disabled here, use C-w")))
+     )
+    :bind-keymap*
+    (("C-x" . ctl-x-map))
+  )
 
 (quelpa 'which-key)
 (use-package which-key
@@ -327,10 +327,12 @@
   :bind* (("M-x" . helm-M-x)))
 
 (use-package ibuffer
-  :bind* (("C-x C-b" . ibuffer)))
+  :config
+  (global-set-key (kbd "C-x C-b") 'ibuffer))
 
 (quelpa 'elpy :stable t)
 (use-package elpy
+  :disabled ;; until I figure out where these seg faults are coming from
   :config
 
   ;; py.test is actively developed. 
@@ -366,12 +368,13 @@
 (use-package circe
 
 :config
+;; one of the things I love about emacs are how packages are 
 (setq circe-network-defaults nil)
 
 (setq circe-network-options
       '(("ZNC/freenode"
          :tls t
-         :host "jarmac.org"
+         :host "107.191.96.59"
          :port 6697
          :user "alphor/freenode"
          ;; the param is needed otherwise error!
@@ -462,8 +465,18 @@
      (buffer-string)
      )))
 
+
+
 (quelpa '(nix-mode :fetcher url :url "https://raw.githubusercontent.com/NixOS/nix/master/misc/emacs/nix-mode.el"))
 (use-package nix-mode)
+
+(quelpa 'helm-nixos-options)
+(use-package helm-nixos-options)
+
+(use-package nixos-packages)
+
+(require 're-builder) ;; not necessary, all the useful functions are autoloaded
+(setq reb-re-syntax 'string) ;; very necessary.
 
 ;; persistent bookmarks
 (setq bookmark-save-flag 1) ; so save after every bookmark made.
@@ -490,6 +503,9 @@
 (setq split-height-threshold nil)
 ;; tried 150, I'm using xfwm4 if that makes any difference, but it did not work.
 (setq split-width-threshold 140)
+
+(quelpa 'mingus)
+;; (use-package mingus)
 
 (quelpa 'sx)
 (use-package sx)
