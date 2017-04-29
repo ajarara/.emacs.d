@@ -332,7 +332,6 @@
 
 (quelpa 'elpy :stable t)
 (use-package elpy
-  :disabled ;; until I figure out where these seg faults are coming from
   :config
 
   ;; py.test is actively developed. 
