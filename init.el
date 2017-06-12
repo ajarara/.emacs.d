@@ -177,6 +177,8 @@
 
 )
 
+(setq tramp-default-method "ssh")
+
 (quelpa '(swiper :repo "abo-abo/swiper" :fetcher github)) ; installs both swiper and ivy
 (use-package ivy
   :demand t
@@ -262,7 +264,7 @@
                              ))
 
 :bind*
-(("<f5>" . org-capture))
+(("<f6>" . org-capture))
 )
 
 (use-package term 
@@ -348,6 +350,9 @@
   ;; start
   (elpy-enable))
 
+(quelpa 'yasnippet)
+(use-package yasnippet)
+
 (quelpa 'markdown-mode)
 (use-package markdown-mode)
 
@@ -373,8 +378,8 @@
 (setq circe-network-options
       '(("ZNC/freenode"
          :tls t
-         :host "107.191.96.59"
-         :port 6697
+         :host "jarmac.org"
+         :port 5013
          :user "alphor/freenode"
          ;; the param is needed otherwise error!
          ;; read from minibuffer doesn't use named arguments, but has 7 of them.
@@ -382,19 +387,19 @@
          ("ZNC/mozilla"
           :tls t
           :host "jarmac.org"
-          :port 6697
+          :port 5013
           :user "alphor/mozilla"
           :pass (lambda (server-name) (read-passwd "Password?: ")))
          ("ZNC/snoonet"
           :tls t
           :host "jarmac.org"
-          :port 6697
+          :port 5013
           :user "alphor/snoonet"
           :pass (lambda (server-name) (read-passwd "Password?: ")))
          ("ZNC/gitter"
           :tls t
           :host "jarmac.org"
-          :port 6697
+          :port 5013
           :user "alphor/gitter"
           :pass (lambda (server-name) (read-passwd "Password?: ")))
          ("local/i2p"
@@ -712,6 +717,9 @@ point reaches the beginning or end of the buffer, stop there."
 ;; shadows nothing
 (bind-key* "M-\"" `insert-pair)
 
+;; shadows nothing
+(bind-key* "<f5>" `recompile)
+
 (add-hook `org-mode-hook `org-indent-mode)
 (add-hook `org-mode-hook `visual-line-mode)
 
@@ -722,3 +730,17 @@ point reaches the beginning or end of the buffer, stop there."
 (add-hook 'ess-mode-hook (lambda () (local-set-key (kbd "_" 'self-insert-command))))
 
 (message "Emacs config successfully loaded!")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (which-key websocket use-package try sx swiper slime quelpa projectile pelican-mode pdf-tools nix-mode monokai-theme mingus magit ledger-mode js2-mode htmlize helm-nixos-options general expand-region evil-visual-mark-mode elpy circe-znc circe-actions circe buttercup ace-window))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

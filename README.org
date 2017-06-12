@@ -287,6 +287,12 @@ Just.. don't play around with my keymaps.
   )
 #+END_SRC
 
+* tramp
+
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(setq tramp-default-method "ssh")
+#+END_SRC
+
 * swiper/ivy
 man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode globally gives most aspects of the minibuffer fuzzy typeahead (like ido-mode) but it further allows you to keep your search session if needed (especially useful when looking in help variables). Swiper is used to search buffers, and uses ivy as a backend. It is possible to use helm as a backend instead.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -426,7 +432,7 @@ Here we hold most of our gtd configuration, following [[http://orgmode.org/worg/
 We're still in the use package declaration. Close it off, and throw in an easy bind in case we can't get to it any other way.
 #+BEGIN_SRC emacs-lisp :tangle init.el
    :bind*
-   (("<f5>" . org-capture))
+   (("<f6>" . org-capture))
    )
 #+END_SRC
 
@@ -549,15 +555,11 @@ This section quickly allows me to emacs -q and load in elpy, allowing me to test
   (elpy-enable)
 #+END_SRC
 
-Just taking this down, no need to commit.
-#+BEGIN_SRC debug
-error in process sentinel: elpy-rpc--default-error-callback: peculiar error: "segmentation fault (core dumped)"
-error in process sentinel: peculiar error: "segmentation fault (core dumped)"
+* yasnippet
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(quelpa 'yasnippet)
+(use-package yasnippet)
 #+END_SRC
-
-error in process sentinel: elpy-rpc--default-error-callback: peculiar error: "segmentation fault (core dumped)"
-error in process sentinel: peculiar error: "segmentation fault (core dumped)"
-
 * markdown-mode
 For authoring pelican posts, and for README's that aren't in org.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -621,8 +623,8 @@ It's very simple to configure circe to connect to ZNC (a personal irc server, es
   (setq circe-network-options
         '(("ZNC/freenode"
            :tls t
-           :host "107.191.96.59"
-           :port 6697
+           :host "jarmac.org"
+           :port 5013
            :user "alphor/freenode"
            ;; the param is needed otherwise error!
            ;; read from minibuffer doesn't use named arguments, but has 7 of them.
@@ -630,19 +632,19 @@ It's very simple to configure circe to connect to ZNC (a personal irc server, es
            ("ZNC/mozilla"
             :tls t
             :host "jarmac.org"
-            :port 6697
+            :port 5013
             :user "alphor/mozilla"
             :pass (lambda (server-name) (read-passwd "Password?: ")))
            ("ZNC/snoonet"
             :tls t
             :host "jarmac.org"
-            :port 6697
+            :port 5013
             :user "alphor/snoonet"
             :pass (lambda (server-name) (read-passwd "Password?: ")))
            ("ZNC/gitter"
             :tls t
             :host "jarmac.org"
-            :port 6697
+            :port 5013
             :user "alphor/gitter"
             :pass (lambda (server-name) (read-passwd "Password?: ")))
            ("local/i2p"
@@ -1133,6 +1135,9 @@ These are largely personal preference so not going to explain them.
 
 ;; shadows nothing
 (bind-key* "M-\"" `insert-pair)
+
+;; shadows nothing
+(bind-key* "<f5>" `recompile)
 #+END_SRC
 
 * Hooks
