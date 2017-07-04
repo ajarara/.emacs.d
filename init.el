@@ -256,7 +256,8 @@
          "* %?\nEntered on %U\n %i")
         ("u" "uncategorized-mess" entry (file+datetree "~/Documents/org/u-mess.org")
          "* %?\nEntered on %U\n")
-
+        ("h" "recurse" entry (file+datetree "~/Documents/org/recurse.org")
+         "* %?\nEntered on %U\n")
         )
       )
 
@@ -449,8 +450,8 @@
       (message (prin1-to-string (-intersection names1 names2)))))
 )
 
-;; (quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions") :upgrade t)
-(quelpa '(circe-actions :fetcher file :path "~/proj/circe-znc/circe-actions.el") :upgrade t)
+(quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions") :upgrade t)
+;; (quelpa '(circe-actions :fetcher file :path "~/proj/circe-znc/circe-actions.el") :upgrade t)
 (quelpa '(circe-znc :fetcher file :path "~/proj/circe-znc/circe-znc.el") :upgrade t)
 (use-package circe-znc)
 
@@ -684,7 +685,6 @@ point reaches the beginning or end of the buffer, stop there."
 ;; I don't actually know what the name of the function is, but I know I don't need it. It's some typeface stuff.
 ;; also, the function name here is misleading, it evaluates the whole top-level expression, from anywhere in the expression, not just defuns
 ;; shadows Set face:
-(bind-key* "M-o" `eval-defun)
 
 ;; I'm gonna need shackle just for this async.
 ;; shadows universal argument, 7
@@ -730,17 +730,3 @@ point reaches the beginning or end of the buffer, stop there."
 (add-hook 'ess-mode-hook (lambda () (local-set-key (kbd "_" 'self-insert-command))))
 
 (message "Emacs config successfully loaded!")
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (which-key websocket use-package try sx swiper slime quelpa projectile pelican-mode pdf-tools nix-mode monokai-theme mingus magit ledger-mode js2-mode htmlize helm-nixos-options general expand-region evil-visual-mark-mode elpy circe-znc circe-actions circe buttercup ace-window))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

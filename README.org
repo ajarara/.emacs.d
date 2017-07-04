@@ -418,7 +418,8 @@ and that's it! for more info, check out [[http://orgmode.org/manual/Template-ele
             "* %?\nEntered on %U\n %i")
            ("u" "uncategorized-mess" entry (file+datetree "~/Documents/org/u-mess.org")
             "* %?\nEntered on %U\n")
-
+           ("h" "recurse" entry (file+datetree "~/Documents/org/recurse.org")
+            "* %?\nEntered on %U\n")
            )
          )
 #+END_SRC
@@ -560,6 +561,7 @@ This section quickly allows me to emacs -q and load in elpy, allowing me to test
 (quelpa 'yasnippet)
 (use-package yasnippet)
 #+END_SRC
+
 * markdown-mode
 For authoring pelican posts, and for README's that aren't in org.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -722,8 +724,8 @@ Hey I did it! Check out [[https://github.com/alphor/circe-actions][circe-actions
 
 Since this is now in active development, I build it directly from file. Maybe once it is published I'll build it back from github.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-;; (quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions") :upgrade t)
-(quelpa '(circe-actions :fetcher file :path "~/proj/circe-znc/circe-actions.el") :upgrade t)
+(quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions") :upgrade t)
+;; (quelpa '(circe-actions :fetcher file :path "~/proj/circe-znc/circe-actions.el") :upgrade t)
 (quelpa '(circe-znc :fetcher file :path "~/proj/circe-znc/circe-znc.el") :upgrade t)
 (use-package circe-znc)
 #+END_SRC
@@ -1103,7 +1105,6 @@ These are largely personal preference so not going to explain them.
 ;; I don't actually know what the name of the function is, but I know I don't need it. It's some typeface stuff.
 ;; also, the function name here is misleading, it evaluates the whole top-level expression, from anywhere in the expression, not just defuns
 ;; shadows Set face:
-(bind-key* "M-o" `eval-defun)
 
 ;; I'm gonna need shackle just for this async.
 ;; shadows universal argument, 7
