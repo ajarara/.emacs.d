@@ -836,6 +836,11 @@ By horizontal I mean vim's (and the rest of the world's) notion of vertical. You
 (setq split-width-threshold 140)
 #+END_SRC
 
+* project-specific
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (setq safe-local-variable-values
+        '(python-shell-interpreter .  "/home/ajarara/proj/webkov/shell.nix"))
+#+END_SRC
 * Can I do it from emacs?
 One reason I love using terminals in emacs is because of text manipulation. It's so flipping good at it! But I spend a lot of time editing email, or using stackoverflow. Bringing it into emacs would be great.
 
