@@ -128,6 +128,10 @@ and consolidate any interaction to minibuffers. These two options were brought t
 (setq mouse-yank-at-point t)
 #+END_SRC
 
+** Removing disabled function
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(setq disabled-command-function nil)
+#+END_SRC
 * evil-mode
 My relationship with evil is a healthy one. I can navigate fine without the keybinds but a lot of the constructs are already ingrained, and bound for me conveniently. Take #. The emacs alternative is word-search-backward, but I would have to bind it myself. I'd also have to write advice to provide the default word at point for equivalent functionality. Why do I have to ditch #? We have a good thing going. Let's keep it that way.
 
@@ -419,6 +423,8 @@ and that's it! for more info, check out [[http://orgmode.org/manual/Template-ele
            ("u" "uncategorized-mess" entry (file+datetree "~/Documents/org/u-mess.org")
             "* %?\nEntered on %U\n")
            ("h" "recurse" entry (file+datetree "~/Documents/org/recurse.org")
+            "* %?\nEntered on %U\n")
+           ("c" "coffee" entry (file+datetree "~/Documents/org/coffee.org")
             "* %?\nEntered on %U\n")
            )
          )
@@ -838,8 +844,9 @@ By horizontal I mean vim's (and the rest of the world's) notion of vertical. You
 
 * project-specific
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (setq safe-local-variable-values
-        '(python-shell-interpreter .  "/home/ajarara/proj/webkov/shell.nix"))
+  ;; here's an example, I no longer use it.
+  ;; (setq safe-local-variable-values
+ ;;       '(python-shell-interpreter .  "/home/ajarara/proj/webkov/shell.nix"))
 #+END_SRC
 * Can I do it from emacs?
 One reason I love using terminals in emacs is because of text manipulation. It's so flipping good at it! But I spend a lot of time editing email, or using stackoverflow. Bringing it into emacs would be great.
@@ -1165,6 +1172,11 @@ ess-mode hooks
 
 (add-hook 'ess-mode-hook (lambda () (local-set-key (kbd "_" 'self-insert-command)))) 
 
+#+END_SRC
+
+python
+#+BEGIN_SRC emacs-lisp :tangle init.el
+;; ignore me for now. ivy's codebase is... intimidating to say the least.
 #+END_SRC
 
 * Goodbye
