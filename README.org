@@ -493,6 +493,10 @@ I use term instead of ansi-term (tried it in a previous iteration) because it's 
   )
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+;; ansi-term specific:
+(setq explicit-shell-file-name "/bin/bash")
+#+END_SRC
 * which-key
 which-key is fantastic. It provides a visual reminder for any keymap. It even has a dialog for showing the top level binds (I bind it here to C-h SPC)
 
@@ -605,9 +609,9 @@ casual inspection of DOMS and JS objects on the fly
 
 currently disabled
 
-#+BEGIN_SRC emacs-lisp
-;;  (quelpa 'jade)
-;;  (use-package jade)
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (quelpa 'indium)
+  (use-package indium)
 #+END_SRC
 
 * circe

@@ -260,6 +260,8 @@
          "* %?\nEntered on %U\n")
         ("h" "recurse" entry (file+datetree "~/Documents/org/recurse.org")
          "* %?\nEntered on %U\n")
+        ("c" "coffee" entry (file+datetree "~/Documents/org/coffee.org")
+         "* %?\nEntered on %U\n")
         )
       )
 
@@ -370,6 +372,9 @@
   :config
   (slime-setup)
   (setq inferior-lisp-program "/usr/bin/sbcl"))
+
+(quelpa 'indium)
+(use-package indium)
 
 (quelpa 'circe)
 (use-package circe
