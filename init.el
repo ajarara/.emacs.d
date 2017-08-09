@@ -303,17 +303,19 @@
     (add-hook 'term-exec-hook 'my-term-use-utf8)
 
     (add-hook 'term-mode-hook 'goto-address-mode)
+                                 
 
     ;; 2048 lines of output is way too restrictive.
     (setq term-buffer-maximum-size 8192)
     :bind*
     (("C-z" . term)
+
      :map term-raw-map
      ("C-y" . term-paste)
-;;     ("<C-backspace>" . (lambda () (message "backward-kill-word is disabled here, use C-w")))
+     ;;     ("<C-backspace>" . (lambda () (message "backward-kill-word is disabled here, use C-w")))
+     
      )
-    :bind-keymap*
-    (("C-x" . ctl-x-map))
+    
   )
 
 (quelpa 'which-key)
@@ -743,3 +745,17 @@ point reaches the beginning or end of the buffer, stop there."
 ;; ignore me for now. ivy's codebase is... intimidating to say the least.
 
 (message "Emacs config successfully loaded!")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (indium sourcemap memoize websocket js2-mode which-key use-package try sx swiper slime quelpa projectile pelican-mode pdf-tools nix-mode monokai-theme mingus magit ledger-mode htmlize helm-nixos-options general expand-region evil-visual-mark-mode elpy circe-znc circe-actions circe buttercup ace-window))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
