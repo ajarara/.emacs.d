@@ -273,50 +273,47 @@
 )
 
 (use-package term 
-    :config
-    ;; most of this config is from:
-    ;; http://echosa.github.io/blog/2012/06/06/improving-ansi-term/
+  :config
+  ;; most of this config is from:
+  ;; http://echosa.github.io/blog/2012/06/06/improving-ansi-term/
 
-    ;; don't modify my output please (note this breaks when displaying
-    ;; multiline commands at the bottom of the buffer)
-    (setq term-suppress-hard-newline t)
+  ;; don't modify my output please (note this breaks when displaying
+  ;; multiline commands at the bottom of the buffer)
+  (setq term-suppress-hard-newline t)
 
-    ;; kill the buffer after finishing.
-    (defadvice term-sentinel (around my-advice-term-sentinel (proc msg))
-      (if (memq (process-status proc) '(signal exit))
-          (let ((buffer (process-buffer proc)))
-            ad-do-it
-            (kill-buffer buffer))
-        ad-do-it))
-    (ad-activate 'term-sentinel)
+  ;; kill the buffer after finishing.
+  (defadvice term-sentinel (around my-advice-term-sentinel (proc msg))
+    (if (memq (process-status proc) '(signal exit))
+        (let ((buffer (process-buffer proc)))
+          ad-do-it
+          (kill-buffer buffer))
+      ad-do-it))
+  (ad-activate 'term-sentinel)
 
-    ;; don't ask me about whether I want to use bash. I do.
-    ;; modified from ansi-term to term from source post
-    (defvar my-term-shell "/bin/bash")
-    (defadvice term (before force-bash)
-      (interactive (list my-term-shell)))
-    (ad-activate 'term)
+  ;; don't ask me about whether I want to use bash. I do.
+  ;; modified from ansi-term to term from source post
+  (defvar my-term-shell "/bin/bash")
+  (defadvice term (before force-bash)
+    (interactive (list my-term-shell)))
+  (ad-activate 'term)
 
-    ;; why is this not the default? 
-    (defun my-term-use-utf8 ()
-      (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
-    (add-hook 'term-exec-hook 'my-term-use-utf8)
+  ;; why is this not the default? 
+  (defun my-term-use-utf8 ()
+    (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
+  (add-hook 'term-exec-hook 'my-term-use-utf8)
 
-    (add-hook 'term-mode-hook 'goto-address-mode)
-                                 
+  (add-hook 'term-mode-hook 'goto-address-mode)
+  ;; huh.. it never occured to me to just unset the key
+  (add-hook 'term-mode-hook (lambda () (local-unset-key (kbd "C-x"))))
 
-    ;; 2048 lines of output is way too restrictive.
-    (setq term-buffer-maximum-size 8192)
-    :bind*
-    (("C-z" . term)
-
-     :map term-raw-map
-     ("C-y" . term-paste)
-     ;;     ("<C-backspace>" . (lambda () (message "backward-kill-word is disabled here, use C-w")))
-     
-     )
-    
-  )
+  ;; 2048 lines of output is way too restrictive.
+  (setq term-buffer-maximum-size 8192)
+  :bind*
+  (("C-z" . term)
+   :map term-raw-map
+   ("C-y" . term-paste)
+   ("C-x" . ctl-x-map))
+)
 
 (quelpa 'which-key)
 (use-package which-key
@@ -376,7 +373,10 @@
   (setq inferior-lisp-program "/usr/bin/sbcl"))
 
 (quelpa 'indium)
-(use-package indium)
+(use-package indium
+  :config
+  (add-hook 'js2-mode-hook 'indium-interaction-mode))
+(setq indium-chrome-executable "chromium-browser")
 
 (quelpa 'circe)
 (use-package circe
@@ -745,17 +745,3 @@ point reaches the beginning or end of the buffer, stop there."
 ;; ignore me for now. ivy's codebase is... intimidating to say the least.
 
 (message "Emacs config successfully loaded!")
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (indium sourcemap memoize websocket js2-mode which-key use-package try sx swiper slime quelpa projectile pelican-mode pdf-tools nix-mode monokai-theme mingus magit ledger-mode htmlize helm-nixos-options general expand-region evil-visual-mark-mode elpy circe-znc circe-actions circe buttercup ace-window))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
