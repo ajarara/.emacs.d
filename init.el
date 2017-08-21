@@ -305,6 +305,8 @@
   (add-hook 'term-mode-hook 'goto-address-mode)
   ;; huh.. it never occured to me to just unset the key
   (add-hook 'term-mode-hook (lambda () (local-unset-key (kbd "C-x"))))
+  (add-hook 'term-mode-hook (lambda () (local-unset-key (kbd "M-:"))))
+
 
   ;; 2048 lines of output is way too restrictive.
   (setq term-buffer-maximum-size 8192)
@@ -375,6 +377,11 @@
 (quelpa 'indium)
 (use-package indium
   :config
+  ;; delete all jsm modes..
+  ;; I wonder what disqualifies a mode from being applicable to the environment.
+  (setq auto-mode-alist (assq-delete-all "\\.jsm?\\'" auto-mode-alist))
+  ;; make js2-mode (javascript-IDE) the default
+  (setq auto-mode-alist (add-to '("\\.jsm?\\'" . js2-mode) auto-mode-alist))
   (add-hook 'js2-mode-hook 'indium-interaction-mode))
 (setq indium-chrome-executable "chromium-browser")
 
@@ -519,8 +526,9 @@
 (setq split-width-threshold 140)
 
 ;; here's an example, I no longer use it.
- ;; (setq safe-local-variable-values
-;;       '(python-shell-interpreter .  "/home/ajarara/proj/webkov/shell.nix"))
+(setq safe-local-variable-values
+      '((python-shell-interpreter .  "/home/ajarara/proj/viz/repl.nix")
+        (python-shell-interpreter .  "/home/ajarara/proj/webkov/shell.nix")))
 
 (quelpa 'mingus)
 ;; (use-package mingus)
