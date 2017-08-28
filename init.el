@@ -10,6 +10,8 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
+(setq straight-vc-git-default-protocol 'ssh)
+
 (straight-use-package
  '(use-package
     :type git :host github :repo "alphor/use-package"

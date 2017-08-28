@@ -25,6 +25,11 @@ The code obtained in the url retrieval is kinda difficult to reason about.
   (load bootstrap-file nil 'nomessage))
 #+END_SRC 
 
+Use ssh as default for authentication and for delivery.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(setq straight-vc-git-default-protocol 'ssh)
+#+END_SRC
+
 * Use-package
 Use package is a way to tidy up config and a convenient way to lazy load packages (that is, defer loading so that emacs doesn't load everything on startup).
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -526,7 +531,8 @@ which-key is fantastic. It provides a visual reminder for any keymap. It even ha
   (which-key-mode))
 #+END_SRC
 
-* buffer filtering wrought from Mount Olympus
+* buffer filtering 
+Wrought from Mount Olympus
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (use-package ibuffer
   :config
