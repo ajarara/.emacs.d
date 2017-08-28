@@ -6,48 +6,40 @@ Almost all of the code blocks you see below are placed into init.el. This has tw
 
 [[http://i.imgur.com/yQPukq6.png]]
 
-Further, I won't be going over what each package does, (the README files do a better job then I could do), but I will be going over configuration details.
+I won't be going over what each package does, (the README files do a better job than I could do)), but I will be going over config details.
 
-One goal of this config is to be able to nuke .emacs.d and clone it back in with no user interaction whatsoever.
-* Package archive config
-Most of the stuff I install is through Quelpa. Quelpa pulls down a local version of the package I'm interested in, and installs it from there. This allows me to select individual branches, prune commits, and even browse logs. But I still have to load in the package manager anyway.
+Initially I used [[https://github.com/quelpa/quelpa][quelpa]] to manage my configuration, in an attempt to have completely reproducible config. I'm using [[https://github.com/raxod502/straight.el][straight.el]] here to make it easier to contribute upstream and to make sure I don't get bit by some bad code.
+
+* Straight bootstrap
+The code obtained in the url retrieval is kinda difficult to reason about. 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-;; package-archive config
-(require 'package)
-(package-initialize)
+(let ((bootstrap-file (concat user-emacs-directory "straight/bootstrap.el"))
+      (bootstrap-version 2))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+#+END_SRC 
 
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
-
-(setq package-enable-at-startup nil)
-#+END_SRC
-
-* Quelpa bootstrap
-"Quelpa" is like a personal melpa that doesn't automatically build from whatever the author feels like pushing to their repo. It is a little more involved then just using package.el, with the benefit that you can manage the source yourself, with the ability to choose branches, easily patch things, as described before.
+* Use-package
+Use package is a way to tidy up config and a convenient way to lazy load packages (that is, defer loading so that emacs doesn't load everything on startup).
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  ;; Quelpa bootstrap
-  (package-initialize)
-  (if (require 'quelpa nil t)
-      (quelpa-self-upgrade)
-    (with-temp-buffer
-      (url-insert-file-contents "https://raw.github.com/quelpa/quelpa/master/bootstrap.el")
-      (eval-buffer)))
-#+END_SRC
+  (straight-use-package
+   '(use-package
+      :type git :host github :repo "alphor/use-package"
+      :upstream (:host github :repo "jwiegley/use-package")))
 
-* Use-package bootstrap
-Use package is a way to tidy up config and a convenient way to lazy load packages (that is, defer loading so that emacs doesn't load everything on startup. johnw tags a release every six months or so, so let's use quelpa's stable declaration until we need cutting edge functionality.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-;; Use-package bootstrap
-(quelpa 'use-package :stable t)
-;; is this really necessary? imenu allows me to instead manage this file through the headings anyway.
-(setq use-package-enable-imenu-support t)
-
-;; bind-key is provided with use-package, diminish I only use once or twice
-(eval-when-compile
-  (require 'use-package))
-(require 'diminish)
-(require 'bind-key)
+  ;; is this really necessary? imenu allows me to instead manage this file through the headings anyway.
+  (setq use-package-enable-imenu-support t)
+  ;; bind-key is provided with use-package, diminish I only use once or twice
+  (eval-when-compile
+    (require 'use-package))
+  (require 'diminish)
+  (require 'bind-key)
 #+END_SRC
 
 * UI
@@ -99,15 +91,22 @@ I don't know how I feel using hl-line-mode on EVERY buffer. Instead, let's just 
   (add-hook this-mode-hook `hl-line-mode))
 #+END_SRC
 
+
+
+
+
 * meta-packages
+
 ** Buttercup
 A BDD testing framework. Other powerpuff girls not included.
+
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'buttercup)
-(use-package buttercup)
+(use-package buttercup
+  :ensure t)
 #+END_SRC
 
 * Interface
+
 ** Fixing title bar
 I use this hack shell script called focus. It cycles through windows based on the contents of the title bar. But emacs has the unfortunate behavior of breaking my script if there is more then one frame. So keep it consistent.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -130,6 +129,8 @@ and consolidate any interaction to minibuffers. These two options were brought t
 (setq mouse-yank-at-point t)
 #+END_SRC
 
+
+
 ** Removing disabled function
 Emacs should let me be as stupid as I want.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -140,8 +141,8 @@ Emacs should let me be as stupid as I want.
 My relationship with evil is a healthy one. I can navigate fine without the keybinds but a lot of the constructs are already ingrained, and bound for me conveniently. Take #. The emacs alternative is word-search-backward, but I would have to bind it myself. I'd also have to write advice to provide the default word at point for equivalent functionality. Why do I have to ditch #? We have a good thing going. Let's keep it that way.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'evil)
 (use-package evil
+  :ensure t
 #+END_SRC
 
 evil likes to override my C-z key with evil-toggle-state. But if I set this before I load evil, it no longer gets overridden. 
@@ -229,43 +230,43 @@ Even though I use emacs-state as my insert state, I still want certain things to
 [[https://github.com/noctuid/general.el][General]] is a package that aims to simplify and unify keybinding. Problems I have with letting bind-key handle it is that it's difficult to tailor. An example: in dired mode, I like having the ability to move by jk or having visual block/line selection. At the same time, I want dired mode bindings available. So I bind "i" to evil-insert-state.  However I have no idea how to do it with bind-key. Further, this allows me to get rid of evil-leader. The less packages I depend on for my output, the better.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-    (quelpa 'general)
-    (use-package general
-      ;; maybe in the future make this config evil agnostic?
-      :if (featurep 'evil)
-      :config
+  (use-package general
+    ;; maybe in the future make this config evil agnostic?
+    :if (featurep 'evil)
+    :ensure t
+    :config
 
-      ;; leader key binds
-      (setq general-default-keymaps '(evil-normal-state-map
-                                      evil-visual-state-map))
+    ;; leader key binds
+    (setq general-default-keymaps '(evil-normal-state-map
+                                    evil-visual-state-map))
 
-      (setq general-default-prefix "SPC")
-      (general-define-key
-                          
-       "g" 'keyboard-quit
-       "C-g" 'keyboard-quit
-       "SPC" 'ace-window
+    (setq general-default-prefix "SPC")
+    (general-define-key
+                        
+     "g" 'keyboard-quit
+     "C-g" 'keyboard-quit
+     "SPC" 'ace-window
 
-       "w" 'save-buffer
-       "v" 'visual-line-mode
-       "t" 'toggle-word-wrap
-       "s" 'magit-status
-       
-       "a" 'org-agenda-list
-       
-       "m" 'fill-region
+     "w" 'save-buffer
+     "v" 'visual-line-mode
+     "t" 'toggle-word-wrap
+     "s" 'magit-status
+     
+     "a" 'org-agenda-list
+     
+     "m" 'fill-region
 
-       "f" 'find-file
-       "p" 'my-find-projects
-       "o" 'my-find-org-files
+     "f" 'find-file
+     "p" 'my-find-projects
+     "o" 'my-find-org-files
 
-       "r" 'org-capture
+     "r" 'org-capture
 
-       "i" 'imenu
+     "i" 'imenu
 
-       ) ;; closes general-define-key block
-      
-    ) ;; closes use-package general block
+     ) ;; closes general-define-key block
+    
+  ) ;; closes use-package general block
 #+END_SRC
 
 * dired
@@ -297,6 +298,7 @@ Just.. don't play around with my keymaps.
 
 * tramp
 
+scp is the default. I'm... not sure why I set this initially.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (setq tramp-default-method "ssh")
 #+END_SRC
@@ -304,8 +306,9 @@ Just.. don't play around with my keymaps.
 * swiper/ivy
 man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode globally gives most aspects of the minibuffer fuzzy typeahead (like ido-mode) but it further allows you to keep your search session if needed (especially useful when looking in help variables). Swiper is used to search buffers, and uses ivy as a backend. It is possible to use helm as a backend instead.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (quelpa '(swiper :repo "abo-abo/swiper" :fetcher github)) ; installs both swiper and ivy
   (use-package ivy
+    :ensure t
+    :recipe (:type git :host github :repo "abo-abo/swiper")
     :demand t
     :diminish ivy-mode
     :config
@@ -332,15 +335,18 @@ man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode glo
 
 Counsel-yank-pop is much easier to use than kill ring drive bys.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(use-package counsel)
+(use-package counsel
+  :ensure t
+  :bind* (("M-x" . counsel-M-x)))
 #+END_SRC
 
 * ace-window
 C-x o is way too much to switch between windows (which is an operation I find myself doing near constantly). I used to use something like [[http://oremacs.com/2015/02/14/semi-xmodmap/][semimap]] for my keyboard configuration, but have fallen out of doing that (hence why you'll find unicode binds randomly dispersed).
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'ace-window)
+
 (use-package ace-window
+  :ensure t
   :bind*
   ;; shadows quoted-insert
   (("C-q" . ace-window))
@@ -351,12 +357,11 @@ C-x o is way too much to switch between windows (which is an operation I find my
 #+END_SRC
 
 * magit
-Tarsius is a god. I have no idea where my use-package declaration went, though.
+
+Magit spoils me.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'magit)
 (use-package magit
-  :config
-(setq magit-popup-use-prefix-argument 'default))
+  :ensure t)
 #+END_SRC
 
 * org mode
@@ -371,7 +376,7 @@ Ah, org mode. Lovingly described as the crack of emacs, the thing that I absolut
   (setq org-default-notes-file (concat org-directory "notes.org"))
 #+END_SRC
 
-I'm using the org-export-to-html feature for sharing (eventually I'll output to jekyll)
+I'm using the org-export-to-html feature for sharing (eventually I'll output to some markdown)
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (quelpa 'htmlize)
 #+END_SRC
@@ -506,13 +511,14 @@ I use term instead of ansi-term (tried it in a previous iteration) because it's 
 ;; ansi-term specific:
 (setq explicit-shell-file-name "/bin/bash")
 #+END_SRC
+
 * which-key
 which-key is fantastic. It provides a visual reminder for any keymap. It even has a dialog for showing the top level binds (I bind it here to C-h SPC)
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'which-key)
 (use-package which-key
   :demand t
+  :ensure t
   :diminish which-key-mode
   :bind* 
   (("C-h SPC" . which-key-show-top-level))
@@ -520,20 +526,7 @@ which-key is fantastic. It provides a visual reminder for any keymap. It even ha
   (which-key-mode))
 #+END_SRC
 
-* helm
-I only use it for M-x invocations (in case I forget keybinds). Counsel-M-x does this as well.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'helm)
-(use-package helm
-  :init
-  ;; helm sets this stuff off, and they're not gonna fix it: https://github.com/emacs-helm/helm/issues/1498#issue-154021209
-  (setq ad-redefinition-action 'accept)
-  :ensure t
-  :bind* (("M-x" . helm-M-x)))
-#+END_SRC
-
-* ibuffer
-buffer filtering wrought from Mount Olympus
+* buffer filtering wrought from Mount Olympus
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (use-package ibuffer
   :config
@@ -544,8 +537,8 @@ buffer filtering wrought from Mount Olympus
 * elpy
 It was a little difficult figuring out how to change tests programmatically, so if you want to use something else, first M-x elpy-set-test-runner , and then query elpy-test-runner. For py.test, I had to use the symbol elpy-test-pytest-runner.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'elpy :stable t)
 (use-package elpy
+  :ensure t
   :config
 
   ;; py.test is actively developed. 
@@ -563,54 +556,34 @@ It was a little difficult figuring out how to change tests programmatically, so 
   (elpy-enable))
 #+END_SRC
 
-This section quickly allows me to emacs -q and load in elpy, allowing me to test changes or reproduce bugs quickly. All I have to evaluate is (load-file "~/.emacs.d/elpy-conf.el") and I'm set up.
-
-#+BEGIN_SRC emacs-lisp :tangle elpy-conf.el
-  (package-initialize)
-  (require 'elpy)
-  (let ((preference (y-or-n-p "Emulate custom elpy environment?")))
-    (when preference
-      (setq elpy-rpc-backend "jedi")
-      (setq elpy-rpc-python-command "python3")))
-  (elpy-enable)
-#+END_SRC
-
 * yasnippet
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'yasnippet)
-(use-package yasnippet)
+(use-package yasnippet :ensure t)
 #+END_SRC
 
 * markdown-mode
 For authoring pelican posts, and for README's that aren't in org.
+
+It just recently had its 10th birthday!
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'markdown-mode)
-(use-package markdown-mode)
+  (use-package markdown-mode 
+    :ensure t
+    :recipe (:type git :host github :repo "alphor/markdown-mode"
+                   :upstream (:host github :repo "jrblevin/markdown-mode")))
 #+END_SRC
 
 ** pelican mode
 Can't be found on melpa, but is on github:
 
 Pelican-mode automatically adds an enabler to markdown-mode-hook, which enables itself if it determines that it is indeed a site. Alternatively, this can be done with a dir-local, so as to strip out the magic of how pelican determines something is a pelican site.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa '(pelican-mode :fetcher github :repo "qdot/pelican-mode"))
-(use-package pelican-mode)
-#+END_SRC
 
-* pdf tools
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'pdf-tools)
-(use-package pdf-tools)
-#+END_SRC
 
-* Slime
-I've done all my swank config using ql, so all I gotta do is point it here.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'slime)
-(use-package slime
-  :config
-  (slime-setup)
-  (setq inferior-lisp-program "/usr/bin/sbcl"))
+  (use-package pelican-mode
+    :ensure t
+
+    :recipe (:type git :host github :repo "alphor/pelican-mode"
+                   :upstream (:host github :repo "qdot/pelican-mode")))
 #+END_SRC
 
 * indium
@@ -633,16 +606,17 @@ probably going to hit this next at RC.
 
 * circe
 
-[[https://github.com/jorgenschaefer/circe][Circe]] is described as an IRC client that is an intermediary between erc and rcirc. It features pretty good default options (with one exception that's really not all that important), and default network configuration out of the box. It's written by jorgenschaefer, who also is one of the leads on elpy!
+[[https://github.com/jorgenschaefer/circe][Circe]] is described as an IRC client that is an intermediary between erc and rcirc. It features pretty good default options (with one exception that's really not all that important), and default network configuration out of the box. It's written by jorgenschaefer, who also is the lead on elpy!
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'circe)
 (use-package circe
+  :ensure t
+  :recipe (:type git :host github :repo "alphor/circe"
+                 :upstream (:host github : repo "jorgenschaefer/pelican-mode"))
 #+END_SRC
 
 I use ZNC to connect to my networks. So far, I only really fool around in #emacs, and some other dev-related channels. But this means I don't really care about circe's default channels, so I clear it here.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   :config
-  ;; one of the things I love about emacs are how packages are 
   (setq circe-network-defaults nil)
 #+END_SRC
 
@@ -747,14 +721,14 @@ fun fact: the only other person that is also on both #freenode and ##wikimedia-k
 )
 #+END_SRC
 
-Hey I did it! Check out [[https://github.com/alphor/circe-actions][circe-actions]]!
+[[https://github.com/alphor/circe-actions][Circe-actions]] is a package that handles events coming in from IRC. 
 
-Since this is now in active development, I build it directly from file. Maybe once it is published I'll build it back from github.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions") :upgrade t)
-;; (quelpa '(circe-actions :fetcher file :path "~/proj/circe-znc/circe-actions.el") :upgrade t)
-(quelpa '(circe-znc :fetcher file :path "~/proj/circe-znc/circe-znc.el") :upgrade t)
-(use-package circe-znc)
+  (straight-use-package
+   '(circe-actions :type git :host github :repo "alphor/circe-actions"))
+
+  (use-package circe-actions)
+  (use-package circe-znc)
 #+END_SRC
 
 Useful for debugging interactively.
@@ -765,7 +739,7 @@ Useful for debugging interactively.
     "A utility function designed to show you what is passed to an
     arbitrary handler. Was very useful when inspecting, so I thought
     I'd leave it in here. Be warned with 30+ channels
-    circe-actions-inspect-arg-list grows mighty fast, if you're crazy
+    circe-actions-inspect-arg-list grows mighty fast, if you're adventerous
     and use circe-actions-t as a condition-function-p"
     (setq circe-actions-inspect-arg-list (cons args circe-actions-inspect-arg-list))
     (message
@@ -775,42 +749,30 @@ Useful for debugging interactively.
        )))
 #+END_SRC
 
-Using ZNC, I'm on 80 channels. Everytime I connect to the server I get absolutely flooded, because it sends the name list for each channel.
-
-So, what I want to do is ignore the first 
-#+BEGIN_SRC emacs-lisp :tangle init.el
-
-
-#+END_SRC
+Using ZNC, I'm on 80 channels. Everytime I connect to the server I get absolutely flooded, because it sends the name list for each channel. I should figure out how to ignore the first name list.
 
 Don't mind this.
 #+BEGIN_SRC 
 (setq erc-server-auto-reconnect nil)
 #+END_SRC
 
-* nix
-Problem: indenting
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa '(nix-mode :fetcher url :url "https://raw.githubusercontent.com/NixOS/nix/master/misc/emacs/nix-mode.el"))
-(use-package nix-mode)
-#+END_SRC
+* nix-mode
 
+I was so excited to find this.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'helm-nixos-options)
-(use-package helm-nixos-options)
-
-(use-package nixos-packages)
-
+  (use-package
+    :ensure t
+    :recipe (:type git :host github :repo "alphor/nix-mode"
+                   :upstream (:host github :repo "NixOS/nix-mode")))
 #+END_SRC
 
-* Have emacs use tcp
-I used to have this. Eventually, I wanted the ability to run emacs on a server (whether it be VPS, VM, or docker instance), but according to the [[http://stackoverflow.com/questions/12546722/using-emacs-server-and-emacsclient-on-other-machines-as-other-users][discussion found here]], it seems difficult. Would've been really neat to have a guile install emacs and a regular emacs side by side (although it is very likely still possible using sockets). 
 * regexp
-
+re-builder is quick to use. Setting the syntax to 'string means I don't have to escape backslashes with backslashes.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(require 're-builder) ;; not necessary, all the useful functions are autoloaded
-(setq reb-re-syntax 'string) ;; very necessary.
+(use-package re-builder
+  :config
+  (setq reb-re-syntax 'string))
 #+END_SRC
 
 * persistent bookmarks
@@ -827,15 +789,6 @@ Initially I just used the package (named simple-scrolling), but found that it ca
 (progn
   (setq scroll-conservatively 10000)
   (setq auto-window-vscroll nil)
-  )
-#+END_SRC
-
-* expand-region
-I don't use this enough, but that's mostly because I don't manipulate xml a lot (where this shines imo)
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'expand-region)
-(use-package expand-region
-  :bind (("M-t" . er/expand-region))
   )
 #+END_SRC
 
@@ -902,37 +855,22 @@ I reject your reality and substitute my own.
 * Theme
 I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
 #+BEGIN_SRC emacs-lisp :tangle init.el
+
 ;; (load-theme 'misterioso t)
-(quelpa `monokai-theme)
 (use-package monokai-theme
+  :ensure t
+  :recipe (:type git :host github :repo "alphor/monokai-emacs"
+                 :upstream (:host github :repo "oneKelvinSmith/monokai-emacs"))
   :config
   (setq monokai-comments "chocolate")
   (load-theme `monokai t))
+
 #+END_SRC
 
-* Unconfigured/barely used
-Not much to say about these, but hell I have you here so you're gonna have to read some more rambling.
-
-Try is useful for not having to edit a config file, installing packages that you're sure you don't even wanna bother configuring. Zamansky showcases it in one of his teaching emacs videos by grabbing lorem-ipsum, a package that does exactly what you think it does, and is a package that I don't really think I'd need to install more then 3 or 4 times in my life.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(quelpa 'try)
-(use-package try)
-#+END_SRC
-
-Playing around with john wiegley's ledger mode
-#+BEGIN_SRC emacs-lisp :tangle init.el
-  (quelpa 'ledger-mode)
-  (use-package ledger-mode
-    :config
-    (autoload 'ledger-mode "ledger-mode" "A major mode for Ledger" t)
-    (add-to-list 'auto-mode-alist '("\\.ledger$" . ledger-mode)))
-    
-#+END_SRC
-
+* projectile
 projectile-compile-project shaves seconds off my builds. SECONDS!
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (quelpa 'projectile)
-  (use-package projectile)
+  (use-package projectile :ensure t)
 #+END_SRC
 
 * "my-" functions

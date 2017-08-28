@@ -1,27 +1,22 @@
 
-;; package-archive config
-(require 'package)
-(package-initialize)
+(let ((bootstrap-file (concat user-emacs-directory "straight/bootstrap.el"))
+      (bootstrap-version 2))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
+(straight-use-package
+ '(use-package
+    :type git :host github :repo "alphor/use-package"
+    :upstream (:host github :repo "jwiegley/use-package")))
 
-(setq package-enable-at-startup nil)
-
-;; Quelpa bootstrap
-(package-initialize)
-(if (require 'quelpa nil t)
-    (quelpa-self-upgrade)
-  (with-temp-buffer
-    (url-insert-file-contents "https://raw.github.com/quelpa/quelpa/master/bootstrap.el")
-    (eval-buffer)))
-
-;; Use-package bootstrap
-(quelpa 'use-package :stable t)
 ;; is this really necessary? imenu allows me to instead manage this file through the headings anyway.
 (setq use-package-enable-imenu-support t)
-
 ;; bind-key is provided with use-package, diminish I only use once or twice
 (eval-when-compile
   (require 'use-package))
@@ -59,8 +54,8 @@
 (dolist (this-mode-hook my-hl-line-mode-hook-list)
   (add-hook this-mode-hook `hl-line-mode))
 
-(quelpa 'buttercup)
-(use-package buttercup)
+(use-package buttercup
+  :ensure t)
 
 (setq frame-title-format (concat "%b" " " invocation-name "@" (system-name)))
 
@@ -71,8 +66,8 @@
 
 (setq disabled-command-function nil)
 
-(quelpa 'evil)
 (use-package evil
+  :ensure t
 
 :init
  (setq evil-toggle-key "C-`")
@@ -121,10 +116,10 @@
                ("C-b" . evil-scroll-up))
 ) ;; closes use-package evil block
 
-(quelpa 'general)
 (use-package general
   ;; maybe in the future make this config evil agnostic?
   :if (featurep 'evil)
+  :ensure t
   :config
 
   ;; leader key binds
@@ -181,8 +176,9 @@
 
 (setq tramp-default-method "ssh")
 
-(quelpa '(swiper :repo "abo-abo/swiper" :fetcher github)) ; installs both swiper and ivy
 (use-package ivy
+  :ensure t
+  :recipe (:type git :host github :repo "abo-abo/swiper")
   :demand t
   :diminish ivy-mode
   :config
@@ -205,10 +201,12 @@
   :bind* (("C-s" . swiper))
   )
 
-(use-package counsel)
+(use-package counsel
+  :ensure t
+  :bind* (("M-x" . counsel-M-x)))
 
-(quelpa 'ace-window)
 (use-package ace-window
+  :ensure t
   :bind*
   ;; shadows quoted-insert
   (("C-q" . ace-window))
@@ -217,10 +215,8 @@
   (setq aw-scope 'frame)
   )
 
-(quelpa 'magit)
 (use-package magit
-  :config
-(setq magit-popup-use-prefix-argument 'default))
+  :ensure t)
 
 ;; init or config? I never know.
 (use-package org
@@ -303,8 +299,12 @@
   (add-hook 'term-exec-hook 'my-term-use-utf8)
 
   (add-hook 'term-mode-hook 'goto-address-mode)
-  ;; huh.. it never occured to me to just unset the key
-  (add-hook 'term-mode-hook (lambda () (local-unset-key (kbd "C-x"))))
+  ;; huh.. it never occured to me to just unset the key.
+  ;; this doesn't work unless I manually execute it. Not ideal.
+  ;; instead...
+  (define-key term-mode-map (kbd "C-x") 'ctl-x-map)
+  
+  ;; (add-hook 'term-mode-hook (lambda () (local-unset-key (kbd "C-x"))))
   (add-hook 'term-mode-hook (lambda () (local-unset-key (kbd "M-:"))))
 
 
@@ -317,29 +317,21 @@
    ("C-x" . ctl-x-map))
 )
 
-(quelpa 'which-key)
 (use-package which-key
   :demand t
+  :ensure t
   :diminish which-key-mode
   :bind* 
   (("C-h SPC" . which-key-show-top-level))
   :config
   (which-key-mode))
 
-(quelpa 'helm)
-(use-package helm
-  :init
-  ;; helm sets this stuff off, and they're not gonna fix it: https://github.com/emacs-helm/helm/issues/1498#issue-154021209
-  (setq ad-redefinition-action 'accept)
-  :ensure t
-  :bind* (("M-x" . helm-M-x)))
-
 (use-package ibuffer
   :config
   (global-set-key (kbd "C-x C-b") 'ibuffer))
 
-(quelpa 'elpy :stable t)
 (use-package elpy
+  :ensure t
   :config
 
   ;; py.test is actively developed. 
@@ -356,23 +348,18 @@
   ;; start
   (elpy-enable))
 
-(quelpa 'yasnippet)
-(use-package yasnippet)
+(use-package yasnippet :ensure t)
 
-(quelpa 'markdown-mode)
-(use-package markdown-mode)
+(use-package markdown-mode 
+  :ensure t
+  :recipe (:type git :host github :repo "alphor/markdown-mode"
+                 :upstream (:host github :repo "jrblevin/markdown-mode")))
 
-(quelpa '(pelican-mode :fetcher github :repo "qdot/pelican-mode"))
-(use-package pelican-mode)
+(use-package pelican-mode
+  :ensure t
 
-(quelpa 'pdf-tools)
-(use-package pdf-tools)
-
-(quelpa 'slime)
-(use-package slime
-  :config
-  (slime-setup)
-  (setq inferior-lisp-program "/usr/bin/sbcl"))
+  :recipe (:type git :host github :repo "alphor/pelican-mode"
+                 :upstream (:host github :repo "qdot/pelican-mode")))
 
 (quelpa 'indium)
 (use-package indium
@@ -385,11 +372,12 @@
   (add-hook 'js2-mode-hook 'indium-interaction-mode))
 (setq indium-chrome-executable "chromium-browser")
 
-(quelpa 'circe)
 (use-package circe
+  :ensure t
+  :recipe (:type git :host github :repo "alphor/circe"
+                 :upstream (:host github : repo "jorgenschaefer/pelican-mode"))
 
 :config
-;; one of the things I love about emacs are how packages are 
 (setq circe-network-defaults nil)
 
 (setq circe-network-options
@@ -466,9 +454,10 @@
       (message (prin1-to-string (-intersection names1 names2)))))
 )
 
-(quelpa '(circe-actions :fetcher github :repo "alphor/circe-actions") :upgrade t)
-;; (quelpa '(circe-actions :fetcher file :path "~/proj/circe-znc/circe-actions.el") :upgrade t)
-(quelpa '(circe-znc :fetcher file :path "~/proj/circe-znc/circe-znc.el") :upgrade t)
+(straight-use-package
+ '(circe-actions :type git :host github :repo "alphor/circe-actions"))
+
+(use-package circe-actions)
 (use-package circe-znc)
 
 (defvar circe-actions-inspect-arg-list '()
@@ -477,7 +466,7 @@
   "A utility function designed to show you what is passed to an
   arbitrary handler. Was very useful when inspecting, so I thought
   I'd leave it in here. Be warned with 30+ channels
-  circe-actions-inspect-arg-list grows mighty fast, if you're crazy
+  circe-actions-inspect-arg-list grows mighty fast, if you're adventerous
   and use circe-actions-t as a condition-function-p"
   (setq circe-actions-inspect-arg-list (cons args circe-actions-inspect-arg-list))
   (message
@@ -486,18 +475,14 @@
      (buffer-string)
      )))
 
+(use-package
+  :ensure t
+  :recipe (:type git :host github :repo "alphor/nix-mode"
+                 :upstream (:host github :repo "NixOS/nix-mode")))
 
-
-(quelpa '(nix-mode :fetcher url :url "https://raw.githubusercontent.com/NixOS/nix/master/misc/emacs/nix-mode.el"))
-(use-package nix-mode)
-
-(quelpa 'helm-nixos-options)
-(use-package helm-nixos-options)
-
-(use-package nixos-packages)
-
-(require 're-builder) ;; not necessary, all the useful functions are autoloaded
-(setq reb-re-syntax 'string) ;; very necessary.
+(use-package re-builder
+  :config
+  (setq reb-re-syntax 'string))
 
 ;; persistent bookmarks
 (setq bookmark-save-flag 1) ; so save after every bookmark made.
@@ -506,11 +491,6 @@
 (progn
   (setq scroll-conservatively 10000)
   (setq auto-window-vscroll nil)
-  )
-
-(quelpa 'expand-region)
-(use-package expand-region
-  :bind (("M-t" . er/expand-region))
   )
 
 ;; Directory clutter
@@ -530,11 +510,9 @@
       '((python-shell-interpreter .  "/home/ajarara/proj/viz/repl.nix")
         (python-shell-interpreter .  "/home/ajarara/proj/webkov/shell.nix")))
 
-(quelpa 'mingus)
-;; (use-package mingus)
+;; (use-package mingus :ensure t)
 
-(quelpa 'sx)
-(use-package sx)
+(use-package sx :ensure t)
 
 (setq x-select-enable-clipboard-manager nil)
 
@@ -543,23 +521,15 @@
 (setq-default indent-tabs-mode nil)
 
 ;; (load-theme 'misterioso t)
-(quelpa `monokai-theme)
 (use-package monokai-theme
+  :ensure t
+  :recipe (:type git :host github :repo "alphor/monokai-emacs"
+                 :upstream (:host github :repo "oneKelvinSmith/monokai-emacs"))
   :config
   (setq monokai-comments "chocolate")
   (load-theme `monokai t))
 
-(quelpa 'try)
-(use-package try)
-
-(quelpa 'ledger-mode)
-(use-package ledger-mode
-  :config
-  (autoload 'ledger-mode "ledger-mode" "A major mode for Ledger" t)
-  (add-to-list 'auto-mode-alist '("\\.ledger$" . ledger-mode)))
-
-(quelpa 'projectile)
-(use-package projectile)
+(use-package projectile :ensure t)
 
 ;; something useful from the emacs wiki? No way.
 (defun my-smarter-move-beginning-of-line (arg)
@@ -663,20 +633,6 @@ point reaches the beginning or end of the buffer, stop there."
         (insert date)
       (message date))))
 
-;; if there are two letters commented after the definition, the second is reached by using shift AND mode shift. It's a lot, so don't expect there to be many
-;; movement
-(define-key key-translation-map "ν" (kbd "M-f")) ;; [f]
-(define-key key-translation-map "β" (kbd "M-b")) ;; [b]
-
-;; shortcuts
-(define-key key-translation-map "Ι" (kbd "M-i")) ;; [i]
-(define-key key-translation-map "Σ" (kbd "M-z")) ;; [z]
-(define-key key-translation-map "χ" (kbd "M-c")) ;; [c]
-
-;; window manipulation
-(define-key key-translation-map "ψ" (kbd "M-r")) ;; [r]
-(define-key key-translation-map "κ" (kbd "M-k")) ;; [k]
-
 (bind-key* "C-h" `help-command)
 (bind-key* "C-h C-h" (lambda ()
     (interactive) (info "(emacs) Help Summary")))
@@ -749,7 +705,5 @@ point reaches the beginning or end of the buffer, stop there."
 ;; the <- shortcut is not helpful when you can't use hyphens in variable names
 
 (add-hook 'ess-mode-hook (lambda () (local-set-key (kbd "_" 'self-insert-command))))
-
-;; ignore me for now. ivy's codebase is... intimidating to say the least.
 
 (message "Emacs config successfully loaded!")
