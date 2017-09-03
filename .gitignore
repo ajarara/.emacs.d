@@ -6,4 +6,8 @@
 !README.org
 !code.org
 !elpy-conf.el
+!straight
+straight/*
+!straight/versions
+straight/versions/*
 !straight/versions/default.el
