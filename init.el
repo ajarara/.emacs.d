@@ -93,8 +93,8 @@
 
 (setq evil-lookup-func (lambda () (call-interactively 'man)))
 
-(quelpa 'evil-visual-mark-mode)
 (use-package evil-visual-mark-mode
+  :ensure t
   :config
   (evil-visual-mark-mode))
 
@@ -180,7 +180,7 @@
 
 (use-package ivy
   :ensure t
-  :recipe (:type git :host github :repo "abo-abo/swiper")
+  :recipe (ivy :type git :host github :repo "abo-abo/swiper")
   :demand t
   :diminish ivy-mode
   :config
@@ -226,8 +226,6 @@
   (setq org-directory "~/Documents/org/")
 
   (setq org-default-notes-file (concat org-directory "notes.org"))
-
-(quelpa 'htmlize)
 
 (setq my-org-capture-directory "~/Documents/org/capture/")
 
@@ -354,30 +352,30 @@
 
 (use-package markdown-mode 
   :ensure t
-  :recipe (:type git :host github :repo "alphor/markdown-mode"
+  :recipe (markdown-mode :type git :host github :repo "alphor/markdown-mode"
                  :upstream (:host github :repo "jrblevin/markdown-mode")))
 
 (use-package pelican-mode
   :ensure t
 
-  :recipe (:type git :host github :repo "alphor/pelican-mode"
+  :recipe (pelican-mode :type git :host github :repo "alphor/pelican-mode"
                  :upstream (:host github :repo "qdot/pelican-mode")))
 
-(quelpa 'indium)
 (use-package indium
+  :ensure t
   :config
   ;; delete all jsm modes..
   ;; I wonder what disqualifies a mode from being applicable to the environment.
-  (setq auto-mode-alist (assq-delete-all "\\.jsm?\\'" auto-mode-alist))
+  ;; (setq auto-mode-alist (assq-delete-all "\\.jsm?\\'" auto-mode-alist))
   ;; make js2-mode (javascript-IDE) the default
-  (setq auto-mode-alist (add-to '("\\.jsm?\\'" . js2-mode) auto-mode-alist))
+  ;; (setq auto-mode-alist (add-to-list '("\\.jsm?\\'" . js2-mode) auto-mode-alist))
   (add-hook 'js2-mode-hook 'indium-interaction-mode))
 (setq indium-chrome-executable "chromium-browser")
 
 (use-package circe
   :ensure t
-  :recipe (:type git :host github :repo "alphor/circe"
-                 :upstream (:host github : repo "jorgenschaefer/pelican-mode"))
+  :recipe (circe :type git :host github :repo "alphor/circe"
+                 :upstream (:host github :repo "jorgenschaefer/circe"))
 
 :config
 (setq circe-network-defaults nil)
@@ -477,10 +475,10 @@
      (buffer-string)
      )))
 
-(use-package
-  :ensure t
-  :recipe (:type git :host github :repo "alphor/nix-mode"
-                 :upstream (:host github :repo "NixOS/nix-mode")))
+(straight-use-package
+  '(nix-mode :type git :host github :repo "alphor/nix-mode"
+             :upstream (:host github :repo "NixOS/nix-mode")))
+(use-package nix-mode)
 
 (use-package re-builder
   :config
@@ -525,7 +523,7 @@
 ;; (load-theme 'misterioso t)
 (use-package monokai-theme
   :ensure t
-  :recipe (:type git :host github :repo "alphor/monokai-emacs"
+  :recipe (monokai-theme :type git :host github :repo "alphor/monokai-emacs"
                  :upstream (:host github :repo "oneKelvinSmith/monokai-emacs"))
   :config
   (setq monokai-comments "chocolate")
