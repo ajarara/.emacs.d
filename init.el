@@ -302,10 +302,8 @@
   ;; huh.. it never occured to me to just unset the key.
   ;; this doesn't work unless I manually execute it. Not ideal.
   ;; instead...
-  (define-key term-mode-map (kbd "C-x") 'ctl-x-map)
-  
-  ;; (add-hook 'term-mode-hook (lambda () (local-unset-key (kbd "C-x"))))
-  (add-hook 'term-mode-hook (lambda () (local-unset-key (kbd "M-:"))))
+  (define-key term-mode-map (kbd "C-x") nil)
+  (define-key term-mode-map (kbd "M-:") nil)
 
 
   ;; 2048 lines of output is way too restrictive.
