@@ -483,12 +483,13 @@ I use term instead of ansi-term (tried it in a previous iteration) because it's 
       (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
     (add-hook 'term-exec-hook 'my-term-use-utf8)
 
-    (add-hook 'term-mode-hook 'goto-address-mode)
-    ;; huh.. it never occured to me to just unset the key.
-    ;; this doesn't work unless I manually execute it. Not ideal.
-    ;; instead...
-    (define-key term-mode-map (kbd "C-x") nil)
-    (define-key term-mode-map (kbd "M-:") nil)
+
+    (defun my-ad-term-line-mode (_arg)
+      (term-line-mode))
+    (advice-add 'term :after #'my-ad-term-line-mode)
+    (advice-add 'ansi-term :after #'my-ad-term-line-mode)
+    
+      
 
 
     ;; 2048 lines of output is way too restrictive.
@@ -588,7 +589,7 @@ probably going to hit this next at RC.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (use-package indium
-    :ensure t
+    :disable t
     :config
     ;; delete all jsm modes..
     ;; I wonder what disqualifies a mode from being applicable to the environment.

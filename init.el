@@ -298,13 +298,18 @@
     (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
   (add-hook 'term-exec-hook 'my-term-use-utf8)
 
-  (add-hook 'term-mode-hook 'goto-address-mode)
   ;; huh.. it never occured to me to just unset the key.
   ;; this doesn't work unless I manually execute it. Not ideal.
   ;; instead...
+  (define-key term-raw-map (kbd "C-x") nil)
+  (define-key term-raw-map (kbd "M-:") nil)
+  
   (define-key term-mode-map (kbd "C-x") nil)
   (define-key term-mode-map (kbd "M-:") nil)
 
+  ;; I must be breaking something here. Why do I have to unset this
+  ;; key three times?
+  (define-key term-raw-escape-map (kbd "C-x") nil)
 
   ;; 2048 lines of output is way too restrictive.
   (setq term-buffer-maximum-size 8192)
