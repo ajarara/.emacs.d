@@ -298,18 +298,15 @@
     (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
   (add-hook 'term-exec-hook 'my-term-use-utf8)
 
-  ;; huh.. it never occured to me to just unset the key.
-  ;; this doesn't work unless I manually execute it. Not ideal.
-  ;; instead...
-  (define-key term-raw-map (kbd "C-x") nil)
-  (define-key term-raw-map (kbd "M-:") nil)
-  
-  (define-key term-mode-map (kbd "C-x") nil)
-  (define-key term-mode-map (kbd "M-:") nil)
 
-  ;; I must be breaking something here. Why do I have to unset this
-  ;; key three times?
-  (define-key term-raw-escape-map (kbd "C-x") nil)
+  ;; eh.. this makes me sad. All I wanted was C-x.
+  ;; (defun my-ad-term-line-mode (_arg)
+  ;;   (term-line-mode))
+  ;; (advice-add 'term :after #'my-ad-term-line-mode)
+  ;; (advice-add 'ansi-term :after #'my-ad-term-line-mode)
+  
+    
+
 
   ;; 2048 lines of output is way too restrictive.
   (setq term-buffer-maximum-size 8192)
@@ -365,7 +362,7 @@
                  :upstream (:host github :repo "qdot/pelican-mode")))
 
 (use-package indium
-  :ensure t
+  :disable t
   :config
   ;; delete all jsm modes..
   ;; I wonder what disqualifies a mode from being applicable to the environment.

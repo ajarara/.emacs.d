@@ -484,10 +484,11 @@ I use term instead of ansi-term (tried it in a previous iteration) because it's 
     (add-hook 'term-exec-hook 'my-term-use-utf8)
 
 
-    (defun my-ad-term-line-mode (_arg)
-      (term-line-mode))
-    (advice-add 'term :after #'my-ad-term-line-mode)
-    (advice-add 'ansi-term :after #'my-ad-term-line-mode)
+    ;; eh.. this makes me sad. All I wanted was C-x.
+    ;; (defun my-ad-term-line-mode (_arg)
+    ;;   (term-line-mode))
+    ;; (advice-add 'term :after #'my-ad-term-line-mode)
+    ;; (advice-add 'ansi-term :after #'my-ad-term-line-mode)
     
       
 
