@@ -498,8 +498,7 @@ I use term instead of ansi-term (tried it in a previous iteration) because it's 
     :bind*
     (("C-z" . term)
      :map term-raw-map
-     ("C-y" . term-paste)
-     ("C-x" . ctl-x-map))
+     ("C-y" . term-paste))
   )
 #+END_SRC
 
@@ -553,6 +552,18 @@ It was a little difficult figuring out how to change tests programmatically, so 
   (elpy-enable))
 #+END_SRC
 
+* merlin
+
+#+BEGIN_SRC 
+
+#+END_SRC
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(straight-use-package
+   '(tuareg
+      :type git :host github :repo "alphor/tuareg"
+      :upstream (:host github :repo "ocaml/tuareg")))
+#+END_SRC
+
 * yasnippet
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (use-package yasnippet :ensure t)
@@ -590,7 +601,7 @@ probably going to hit this next at RC.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (use-package indium
-    :disable t
+    :disabled t
     :config
     ;; delete all jsm modes..
     ;; I wonder what disqualifies a mode from being applicable to the environment.

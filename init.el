@@ -313,8 +313,7 @@
   :bind*
   (("C-z" . term)
    :map term-raw-map
-   ("C-y" . term-paste)
-   ("C-x" . ctl-x-map))
+   ("C-y" . term-paste))
 )
 
 (use-package which-key
@@ -348,6 +347,11 @@
   ;; start
   (elpy-enable))
 
+(straight-use-package
+   '(tuareg
+      :type git :host github :repo "alphor/tuareg"
+      :upstream (:host github :repo "ocaml/tuareg")))
+
 (use-package yasnippet :ensure t)
 
 (use-package markdown-mode 
@@ -362,7 +366,7 @@
                  :upstream (:host github :repo "qdot/pelican-mode")))
 
 (use-package indium
-  :disable t
+  :disabled t
   :config
   ;; delete all jsm modes..
   ;; I wonder what disqualifies a mode from being applicable to the environment.
