@@ -566,7 +566,7 @@ It was a little difficult figuring out how to change tests programmatically, so 
 
 * yasnippet
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(use-package yasnippet :ensure t)
+(straight-use-package 'yasnippet)
 #+END_SRC
 
 * markdown-mode
@@ -879,7 +879,10 @@ I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
 * projectile
 projectile-compile-project shaves seconds off my builds. SECONDS!
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (use-package projectile :ensure t)
+  (use-package projectile 
+    :ensure t
+    :config
+    (setq projectile-completion-system 'ivy))
 #+END_SRC
 
 * "my-" functions

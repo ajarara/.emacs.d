@@ -352,7 +352,7 @@
       :type git :host github :repo "alphor/tuareg"
       :upstream (:host github :repo "ocaml/tuareg")))
 
-(use-package yasnippet :ensure t)
+(straight-use-package 'yasnippet)
 
 (use-package markdown-mode 
   :ensure t
@@ -533,7 +533,10 @@
   (setq monokai-comments "chocolate")
   (load-theme `monokai t))
 
-(use-package projectile :ensure t)
+(use-package projectile 
+  :ensure t
+  :config
+  (setq projectile-completion-system 'ivy))
 
 ;; something useful from the emacs wiki? No way.
 (defun my-smarter-move-beginning-of-line (arg)
