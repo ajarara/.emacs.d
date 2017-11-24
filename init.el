@@ -144,7 +144,11 @@
    
    "m" 'fill-region
 
-   "f" 'find-file
+   ;; in the case that we don't have projectile, fall back to
+   ;; vanilla find-file
+   "f" (if (featurep 'projectile)
+           'projectile-find-file
+         'find-file)
    "p" 'my-find-projects
    "o" 'my-find-org-files
 
