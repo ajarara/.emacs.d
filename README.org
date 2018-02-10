@@ -350,15 +350,16 @@ C-x o is way too much to switch between windows (which is an operation I find my
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
 
-(use-package ace-window
-  :ensure t
-  :bind*
-  ;; shadows quoted-insert
-  (("C-q" . ace-window))
-   ;; needs abo-abo's key config (search for "semimap")
-  :config
-  (setq aw-scope 'frame)
-  )
+  (use-package ace-window
+    :ensure t
+    :bind*
+    ;; shadows quoted-insert
+    (("C-q" . ace-window)
+     ("C-t" . ace-window))
+     ;; needs abo-abo's key config (search for "semimap")
+    :config
+    (setq aw-scope 'frame)
+    )
 #+END_SRC
 
 * magit
