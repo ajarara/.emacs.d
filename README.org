@@ -478,7 +478,10 @@ I use term instead of ansi-term (tried it in a previous iteration) because it's 
 
     ;; don't ask me about whether I want to use bash. I do.
     ;; modified from ansi-term to term from source post
-    (defvar my-term-shell "/bin/bash")
+    ;; in NixOS the shell is in /run/current-system
+    ;; rather than dispatch on what OS I'm running, just let
+    ;; which handle it:
+    (defvar my-term-shell (s-trim (shell-command-to-string "which bash")))
     (defadvice term (before force-bash)
       (interactive (list my-term-shell)))
     (ad-activate 'term)
