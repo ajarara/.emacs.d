@@ -215,7 +215,8 @@
   :ensure t
   :bind*
   ;; shadows quoted-insert
-  (("C-q" . ace-window))
+  (("C-q" . ace-window)
+   ("C-t" . ace-window))
    ;; needs abo-abo's key config (search for "semimap")
   :config
   (setq aw-scope 'frame)
@@ -353,6 +354,8 @@
   
   ;; start
   (elpy-enable))
+
+(straight-use-package '(kotlin-mode :type git :host github :repo "https://github.com/Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
 
 (straight-use-package
    '(tuareg

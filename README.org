@@ -560,6 +560,10 @@ It was a little difficult figuring out how to change tests programmatically, so 
   (elpy-enable))
 #+END_SRC
 
+* kotlin
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(straight-use-package '(kotlin-mode :type git :host github :repo "https://github.com/Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
+#+END_SRC
 * merlin
 
 #+BEGIN_SRC 
