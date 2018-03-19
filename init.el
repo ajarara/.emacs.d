@@ -68,8 +68,8 @@
 
 (setq disabled-command-function nil)
 
+(straight-use-package 'evil)  ;; no plans to contrib upstream for now.
 (use-package evil
-  :ensure t
 
 :init
  (setq evil-toggle-key "C-`")
@@ -93,8 +93,8 @@
 
 (setq evil-lookup-func (lambda () (call-interactively 'man)))
 
+(straight-use-package 'evil-visual-mark-mode)
 (use-package evil-visual-mark-mode
-  :ensure t
   :config
   (evil-visual-mark-mode))
 
@@ -118,47 +118,47 @@
                ("C-b" . evil-scroll-up))
 ) ;; closes use-package evil block
 
-(use-package general
-  ;; maybe in the future make this config evil agnostic?
-  :if (featurep 'evil)
-  :ensure t
-  :config
+(straight-use-package 'general)
+  (use-package general
+    ;; maybe in the future make this config evil agnostic?
+    :if (featurep 'evil)
+    :config
 
-  ;; leader key binds
-  (setq general-default-keymaps '(evil-normal-state-map
-                                  evil-visual-state-map))
+    ;; leader key binds
+    (setq general-default-keymaps '(evil-normal-state-map
+                                    evil-visual-state-map))
 
-  (setq general-default-prefix "SPC")
-  (general-define-key
-                      
-   "g" 'keyboard-quit
-   "C-g" 'keyboard-quit
-   "SPC" 'ace-window
+    (setq general-default-prefix "SPC")
+    (general-define-key
+                        
+     "g" 'keyboard-quit
+     "C-g" 'keyboard-quit
+     "SPC" 'ace-window
 
-   "w" 'save-buffer
-   "v" 'visual-line-mode
-   "t" 'toggle-word-wrap
-   "s" 'magit-status
-   
-   "a" 'org-agenda-list
-   
-   "m" 'fill-region
+     "w" 'save-buffer
+     "v" 'visual-line-mode
+     "t" 'toggle-word-wrap
+     "s" 'magit-status
+     
+     "a" 'org-agenda-list
+     
+     "m" 'fill-region
 
-   ;; in the case that we don't have projectile, fall back to
-   ;; vanilla find-file
-   "f" (if (featurep 'projectile)
-           'projectile-find-file
-         'find-file)
-   "p" 'my-find-projects
-   "o" 'my-find-org-files
+     ;; in the case that we don't have projectile, fall back to
+     ;; vanilla find-file
+     "f" (if (featurep 'projectile)
+             'projectile-find-file
+           'find-file)
+     "p" 'my-find-projects
+     "o" 'my-find-org-files
 
-   "r" 'org-capture
+     "r" 'org-capture
 
-   "i" 'imenu
+     "i" 'imenu
 
-   ) ;; closes general-define-key block
-  
-) ;; closes use-package general block
+     ) ;; closes general-define-key block
+    
+  ) ;; closes use-package general block
 
 (use-package dired
   :config
@@ -182,50 +182,49 @@
 
 (setq tramp-default-method "ssh")
 
-(use-package ivy
-  :ensure t
-  :recipe (ivy :type git :host github :repo "abo-abo/swiper")
-  :demand t
-  :diminish ivy-mode
-  :config
-  (setq ivy-ignore-buffers `("\\` "))
-  
-  ;; i like completion in the minibuffer, completion in region is obnoxious when you have hl-line-mode active. This must be set before ivy-mode is called.
-  (setcdr (assoc 'ivy-completion-in-region ivy-display-functions-alist) nil)
+(straight-use-package 'ivy)
+  (use-package ivy
+    ;; :recipe (ivy :type git :host github :repo "abo-abo/swiper")
+    :demand t
+    :diminish ivy-mode
+    :config
+    (setq ivy-ignore-buffers `("\\` "))
+    
+    ;; i like completion in the minibuffer, completion in region is obnoxious when you have hl-line-mode active. This must be set before ivy-mode is called.
+    (setcdr (assoc 'ivy-completion-in-region ivy-display-functions-alist) nil)
 
-  (ivy-mode t))
+    (ivy-mode t))
 
-(use-package swiper
-  :config
+  (use-package swiper
+    :config
 
-  ;; almost required, I use search a lot for navigation, especially in
-  ;;   this growing init file. Note that if multiple candidates are in a
-  ;;   view moving between them does not recenter the buffer.
-  (setq swiper-action-recenter t)
+    ;; almost required, I use search a lot for navigation, especially in
+    ;;   this growing init file. Note that if multiple candidates are in a
+    ;;   view moving between them does not recenter the buffer.
+    (setq swiper-action-recenter t)
 
-  ;; shadows isearch
-  :bind* (("C-s" . swiper))
-  )
+    ;; shadows isearch
+    :bind* (("C-s" . swiper))
+    )
 
+(straight-use-package 'counsel)
 (use-package counsel
-  :ensure t
   :bind* (("M-x" . counsel-M-x)))
 
-(use-package ace-window
-  :ensure t
-  :bind*
-  ;; shadows quoted-insert
-  (("C-q" . ace-window)
-   ("C-t" . ace-window))
-   ;; needs abo-abo's key config (search for "semimap")
-  :config
-  (setq aw-scope 'frame)
-  )
+(straight-use-package 'ace-window)
+  (use-package ace-window
+    :bind*
+    ;; shadows quoted-insert
+    (("C-q" . ace-window)
+     ("C-t" . ace-window))
+     ;; needs abo-abo's key config (search for "semimap")
+    :config
+    (setq aw-scope 'frame)
+    )
 
-(use-package magit
-  :ensure t)
+(straight-use-package 'magit)
+(use-package magit)
 
-;; init or config? I never know.
 (use-package org
   :init
   (setq org-directory "~/Documents/org/")
@@ -266,8 +265,7 @@
         )
       )
 
-(setq org-agenda-files (list "~/Documents/org/gtd-capture.org"
-                             ))
+(setq org-agenda-files (list "~/Documents/org/gtd-capture.org"))
 
 :bind*
 (("<f6>" . org-capture))
@@ -324,9 +322,9 @@
    ("C-y" . term-paste))
 )
 
+(straight-use-package 'which-key)
 (use-package which-key
   :demand t
-  :ensure t
   :diminish which-key-mode
   :bind* 
   (("C-h SPC" . which-key-show-top-level))
@@ -337,8 +335,8 @@
   :config
   (global-set-key (kbd "C-x C-b") 'ibuffer))
 
+(straight-use-package 'elpy)
 (use-package elpy
-  :ensure t
   :config
 
   ;; py.test is actively developed. 
@@ -356,13 +354,6 @@
   (elpy-enable))
 
 (straight-use-package '(kotlin-mode :type git :host github :repo "https://github.com/Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
-
-(straight-use-package
-   '(tuareg
-      :type git :host github :repo "alphor/tuareg"
-      :upstream (:host github :repo "ocaml/tuareg")))
-
-(straight-use-package 'yasnippet)
 
 (use-package markdown-mode 
   :ensure t
@@ -438,10 +429,6 @@
 (enable-circe-color-nicks)
 
 (add-hook 'circe-mode-hook 'my-font-lock-ensure-function-nilify)
-
-(setq circe-fool-list
-      '("^7heo"
-        ))
 
 (setq tracking-ignored-buffers '(((lambda (buf-name)
                                     (not (or (string-prefix-p "#emacs" buf-name)
@@ -524,8 +511,6 @@
       '((python-shell-interpreter .  "/home/ajarara/proj/viz/repl.nix")
         (python-shell-interpreter .  "/home/ajarara/proj/webkov/shell.nix")))
 
-;; (use-package mingus :ensure t)
-
 (use-package sx :ensure t)
 
 (setq x-select-enable-clipboard-manager nil)
@@ -543,10 +528,10 @@
   (setq monokai-comments "chocolate")
   (load-theme `monokai t))
 
-(use-package projectile 
-  :ensure t
-  :config
-  (setq projectile-completion-system 'ivy))
+(straight-use-package 'projectile)
+  (use-package projectile 
+    :config
+    (setq projectile-completion-system 'ivy))
 
 ;; something useful from the emacs wiki? No way.
 (defun my-smarter-move-beginning-of-line (arg)
