@@ -355,6 +355,23 @@
 
 (straight-use-package '(kotlin-mode :type git :host github :repo "https://github.com/Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
 
+(straight-use-package 'meghanada)
+(add-hook 'java-mode-hook
+          (lambda ()
+            ;; meghanada-mode on
+            (meghanada-mode t)
+            (flycheck-mode +1)
+            (setq c-basic-offset 2)
+            ;; use code format
+            (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
+(cond
+   ((eq system-type 'windows-nt)
+    (setq meghanada-java-path (expand-file-name "bin/java.exe" (getenv "JAVA_HOME")))
+    (setq meghanada-maven-path "mvn.cmd"))
+   (t
+    (setq meghanada-java-path "java")
+    (setq meghanada-maven-path "mvn")))
+
 (use-package markdown-mode 
   :ensure t
   :recipe (markdown-mode :type git :host github :repo "alphor/markdown-mode"
