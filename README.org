@@ -565,26 +565,6 @@ This I could see being really, _really_ promising.
 (straight-use-package '(kotlin-mode :type git :host github :repo "https://github.com/Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
 #+END_SRC
 
-* meghanada
-Default java mode is.. okay. I'd like symbol completion, and incremental type checking. Testing to see if meghanada provides that, that's really all I need.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'meghanada)
-(add-hook 'java-mode-hook
-          (lambda ()
-            ;; meghanada-mode on
-            (meghanada-mode t)
-            (flycheck-mode +1)
-            (setq c-basic-offset 2)
-            ;; use code format
-            (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
-(cond
-   ((eq system-type 'windows-nt)
-    (setq meghanada-java-path (expand-file-name "bin/java.exe" (getenv "JAVA_HOME")))
-    (setq meghanada-maven-path "mvn.cmd"))
-   (t
-    (setq meghanada-java-path "java")
-    (setq meghanada-maven-path "mvn")))
-#+END_SRC
 * markdown-mode
 For authoring pelican posts, and for README's that aren't in org.
 
