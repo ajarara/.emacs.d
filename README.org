@@ -38,8 +38,6 @@ Use package is a way to tidy up config and a convenient way to lazy load package
       :type git :host github :repo "alphor/use-package"
       :upstream (:host github :repo "jwiegley/use-package")))
 
-  ;; is this really necessary? imenu allows me to instead manage this file through the headings anyway.
-  (setq use-package-enable-imenu-support t)
   ;; bind-key is provided with use-package, diminish I only use once or twice
   (eval-when-compile
     (require 'use-package))
