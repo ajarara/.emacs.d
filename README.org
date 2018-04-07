@@ -104,7 +104,6 @@ A BDD testing framework. Other powerpuff girls not included.
 #+END_SRC
 
 * Interface
-
 ** Fixing title bar
 I use this hack shell script called focus. It cycles through windows based on the contents of the title bar. But emacs has the unfortunate behavior of breaking my script if there is more then one frame. So keep it consistent.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -113,21 +112,21 @@ I use this hack shell script called focus. It cycles through windows based on th
 
 ** Making emacs snappier
 any dialog that asks for confirmation requires that you type in the full yes or no (and ignores whatever is after it, but does not accept y/n). Setting it to y-or-n-p allows you to do this. And you don't have to hit RET.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(fset `yes-or-no-p `y-or-n-p)
+#+END_SRC
 
 Echoing keystrokes allows you to see exactly what you've typed almost immediately. Doesn't sound useful, but it is appreciated often.
-
-the third assignment tells emacs to paste at point, not on location of click. Now if C-y doesn't work, I can use my mouse without caring about precision.
-
-and consolidate any interaction to minibuffers. These two options were brought to me, again, by [[https://github.com/wasamasa/dotemacs/blob/master/init.org][wasamasa's config]
-
 #+BEGIN_SRC emacs-lisp :tangle init.el
-;; Making emacs snappier
-(fset `yes-or-no-p `y-or-n-p)
 (setq echo-keystrokes 0.1)
+#+END_SRC
+
+Tell emacs to paste at point, not on location of click. Now if C-y doesn't work, I can use my mouse without caring about precision.
+#+BEGIN_SRC emacs-lisp :tangle init.el
 (setq mouse-yank-at-point t)
 #+END_SRC
 
-
+These options were brought to me, again, by [[https://github.com/wasamasa/dotemacs/blob/master/init.org][wasamasa's config]
 
 ** Removing disabled function
 Emacs should let me be as stupid as I want.
@@ -204,23 +203,24 @@ While a useful feature, in this case I want evil-mode active on start.
 Even though I use emacs-state as my insert state, I still want certain things to be available all the time, no matter what state I'm in.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  :bind* (:map evil-emacs-state-map
-               ("C-r" . evil-paste-from-register)
+    :bind* (:map evil-emacs-state-map
+                 ("C-r" . evil-paste-from-register)
 
-               :map evil-normal-state-map
-               ("C-f" . evil-scroll-down)
-               ("C-b" . evil-scroll-up)
-               ("j" . evil-next-visual-line)
-               ("k" . evil-previous-visual-line)
-               ("'" . evil-goto-mark)
-               ("C-e" . end-of-line)
-               ("C-y" . yank)
-               ("C-d" . evil-scroll-down)
+                 :map evil-normal-state-map
+                 ("C-f" . evil-scroll-down)
+                 ("C-b" . evil-scroll-up)
+                 ("j" . evil-next-visual-line)
+                 ("k" . evil-previous-visual-line)
+                 ("'" . evil-goto-mark)
+                 ("C-e" . end-of-line)
+                 ("C-y" . yank)
+                 ("C-d" . evil-scroll-down)
+                 ("C-t" . ace-window)
 
-               :map evil-motion-state-map
-               ("C-f" . evil-scroll-down)
-               ("C-b" . evil-scroll-up))
-) ;; closes use-package evil block
+                 :map evil-motion-state-map
+                 ("C-f" . evil-scroll-down)
+                 ("C-b" . evil-scroll-up))
+  ) ;; closes use-package evil block
 #+END_SRC
 
 * general
