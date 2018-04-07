@@ -2,7 +2,6 @@
 
 
 !.gitignore
-!init.el
 !README.org
 !code.org
 !elpy-conf.el
