@@ -60,15 +60,16 @@ Uh, gohu works too.
 ** Disabling 'helpful' visual goodies
 The only useful thing I lose here is the menubar, but typing <F10> gives you one at your cursor. And now I get all this real estate (it's free!)
 #+BEGIN_SRC emacs-lisp :tangle init.el
-;; Disabling 'helpful' visual goodies
 ;; can be recovered with <F10>
 (tool-bar-mode -1)
+
 ;; not needed, just look at the mode line for gauging where you are in the buffer
 (scroll-bar-mode -1)
+
 ;; wait which one is which
 (menu-bar-mode -1)
 
-;; you can set this to some arbitrary number so that it will blink for that number of times.
+;; you can set this to some arbitrary number so that it will blink for that number of times. I don't like blinking.
 (blink-cursor-mode 0)
 
 ;; pretty quotes can't be jumped to easily.
@@ -76,7 +77,7 @@ The only useful thing I lose here is the menubar, but typing <F10> gives you one
 #+END_SRC
 
 ** Enabling 'helpful' visual goodies
-Some people consider it a hindrance, but I rarely need more then 80 columns while programming and would rather not have to deal with horizontal scrolling. These two settings are neat for prose, and org mode.
+Might be considered a hindrance, but I rarely need more than 80 columns while programming and would rather not have to deal with horizontal scrolling. These two settings are neat for prose, and org mode.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; enabling visual line mode
 (visual-line-mode 1)
@@ -95,13 +96,11 @@ I don't know how I feel using hl-line-mode on EVERY buffer. Instead, let's just 
 #+END_SRC
 
 * meta-packages
-
 ** Buttercup
 A BDD testing framework. Other powerpuff girls not included.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(use-package buttercup
-  :ensure t)
+(straight-use-package 'buttercup)
 #+END_SRC
 
 * Interface
