@@ -17,8 +17,6 @@
     :type git :host github :repo "alphor/use-package"
     :upstream (:host github :repo "jwiegley/use-package")))
 
-;; is this really necessary? imenu allows me to instead manage this file through the headings anyway.
-(setq use-package-enable-imenu-support t)
 ;; bind-key is provided with use-package, diminish I only use once or twice
 (eval-when-compile
   (require 'use-package))
@@ -30,15 +28,16 @@
 ;; this worked!
 (add-to-list 'default-frame-alist '(font . "-xos4-Terminus-normal-normal-normal-*-16-*-*-*-c-80-iso10646-1"))
 
-;; Disabling 'helpful' visual goodies
 ;; can be recovered with <F10>
 (tool-bar-mode -1)
+
 ;; not needed, just look at the mode line for gauging where you are in the buffer
 (scroll-bar-mode -1)
+
 ;; wait which one is which
 (menu-bar-mode -1)
 
-;; you can set this to some arbitrary number so that it will blink for that number of times.
+;; you can set this to some arbitrary number so that it will blink for that number of times. I don't like blinking.
 (blink-cursor-mode 0)
 
 ;; pretty quotes can't be jumped to easily.
@@ -56,14 +55,14 @@
 (dolist (this-mode-hook my-hl-line-mode-hook-list)
   (add-hook this-mode-hook `hl-line-mode))
 
-(use-package buttercup
-  :ensure t)
+(straight-use-package 'buttercup)
 
 (setq frame-title-format (concat "%b" " " invocation-name "@" (system-name)))
 
-;; Making emacs snappier
 (fset `yes-or-no-p `y-or-n-p)
+
 (setq echo-keystrokes 0.1)
+
 (setq mouse-yank-at-point t)
 
 (setq disabled-command-function nil)
@@ -112,6 +111,7 @@
                ("C-e" . end-of-line)
                ("C-y" . yank)
                ("C-d" . evil-scroll-down)
+               ("C-t" . ace-window)
 
                :map evil-motion-state-map
                ("C-f" . evil-scroll-down)
@@ -353,7 +353,10 @@
   ;; start
   (elpy-enable))
 
-(straight-use-package '(kotlin-mode :type git :host github :repo "https://github.com/Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
+(straight-use-package
+ '(kotlin-mode
+    :type git :host github :repo "alphor/kotlin-mode"
+    :upstream (:host github :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode")))
 
 (use-package markdown-mode 
   :ensure t

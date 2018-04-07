@@ -559,7 +559,10 @@ It was a little difficult figuring out how to change tests programmatically, so 
 * kotlin
 This I could see being really, _really_ promising.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package '(kotlin-mode :type git :host github :repo "https://github.com/Emacs-Kotlin-Mode-Maintainers/kotlin-mode"))
+  (straight-use-package
+   '(kotlin-mode
+      :type git :host github :repo "alphor/kotlin-mode"
+      :upstream (:host github :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode")))
 #+END_SRC
 
 * markdown-mode
