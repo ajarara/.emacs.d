@@ -859,10 +859,13 @@ I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
 * projectile
 projectile-compile-project shaves seconds off my builds. SECONDS!
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'projectile)
-  (use-package projectile 
-    :config
-    (setq projectile-completion-system 'ivy))
+  (straight-use-package 'projectile)
+    (use-package projectile 
+      :bind*
+      (("C-c c" . projectile-compile-project)
+       ("C-c f" . projectile-find-file))
+      :config
+      (setq projectile-completion-system 'ivy))
 #+END_SRC
 
 * "my-" functions
