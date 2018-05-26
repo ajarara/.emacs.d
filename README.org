@@ -6,12 +6,12 @@ Almost all of the code blocks you see below are placed into init.el. This has tw
 
 [[http://i.imgur.com/yQPukq6.png]]
 
-I won't be going over what each package does, (the README files do a better job than I could do)), but I will be going over config details.
+I won't be going over what each package does, (the README files do a better job than I could do), but I will be going over config details.
 
 Initially I used [[https://github.com/quelpa/quelpa][quelpa]] to manage my configuration, in an attempt to have completely reproducible config. I'm using [[https://github.com/raxod502/straight.el][straight.el]] here to make it easier to contribute upstream and to make sure I don't get bit by some bad code.
-
-* Straight bootstrap
-The code obtained in the url retrieval is kinda difficult to reason about. 
+* Config
+** Straight bootstrap
+Straight downloads a file. Wondering why bootstrap-version is defined in this block but never used. Even though emacs has dynamic binding, I'm not setting the version globally...
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (let ((bootstrap-file (concat user-emacs-directory "straight/bootstrap.el"))
       (bootstrap-version 2))
@@ -30,7 +30,7 @@ Use ssh as default for authentication and for delivery.
 (setq straight-vc-git-default-protocol 'ssh)
 #+END_SRC
 
-* Use-package
+** Use-package
 Use package is a way to tidy up config and a convenient way to lazy load packages (that is, defer loading so that emacs doesn't load everything on startup).
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (straight-use-package
@@ -45,7 +45,6 @@ Use package is a way to tidy up config and a convenient way to lazy load package
   (require 'bind-key)
 #+END_SRC
 
-* UI
 ** Font
 I tried the default font (DejaVu Sans Mono, use M-x describe-font to find out what yours is), source code pro, and a couple others the emacs subreddit recommended, but all I need is a monospace font that looks nice and doesn't crap out on <= 80 characters. Terminus is that font.
 
@@ -95,15 +94,6 @@ I don't know how I feel using hl-line-mode on EVERY buffer. Instead, let's just 
   (add-hook this-mode-hook `hl-line-mode))
 #+END_SRC
 
-* meta-packages
-** Buttercup
-A BDD testing framework. Other powerpuff girls not included.
-
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'buttercup)
-#+END_SRC
-
-* Interface
 ** Fixing title bar
 I use this hack shell script called focus. It cycles through windows based on the contents of the title bar. But emacs has the unfortunate behavior of breaking my script if there is more then one frame. So keep it consistent.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -134,7 +124,14 @@ Emacs should let me be as stupid as I want.
 (setq disabled-command-function nil)
 #+END_SRC
 
-* evil-mode
+** Buttercup
+A BDD testing framework for emacs lisp. Other powerpuff girls not included.
+
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(straight-use-package 'buttercup)
+#+END_SRC
+
+** evil-mode
 My relationship with evil is a healthy one. I can navigate fine without the keybinds but a lot of the constructs are already ingrained, and bound for me conveniently. Take #. The emacs alternative is word-search-backward, but I would have to bind it myself. I'd also have to write advice to provide the default word at point for equivalent functionality. Why do I have to ditch #? We have a good thing going. Let's keep it that way.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -223,7 +220,7 @@ Even though I use emacs-state as my insert state, I still want certain things to
   ) ;; closes use-package evil block
 #+END_SRC
 
-* general
+** general
 
 [[https://github.com/noctuid/general.el][General]] is a package that aims to simplify and unify keybinding. Problems I have with letting bind-key handle it is that it's difficult to tailor. An example: in dired mode, I like having the ability to move by jk or having visual block/line selection. At the same time, I want dired mode bindings available. So I bind "i" to evil-insert-state.  However I have no idea how to do it with bind-key. Further, this allows me to get rid of evil-leader. The less packages I depend on for my output, the better.
 
@@ -271,7 +268,7 @@ Even though I use emacs-state as my insert state, I still want certain things to
   ) ;; closes use-package general block
 #+END_SRC
 
-* dired
+** dired
 I didn't bother playing around with dired but the amount of built in functionality is kind of insane. Edit all files in directories that you can just open in the same buffer with the same regex kind of insane.
 
 Just.. don't play around with my keymaps.
@@ -298,14 +295,14 @@ Just.. don't play around with my keymaps.
   )
 #+END_SRC
 
-* tramp
+** tramp
 
 scp is the default. I'm... not sure why I set this initially.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (setq tramp-default-method "ssh")
 #+END_SRC
 
-* swiper/ivy
+** swiper/ivy
 man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode globally gives most aspects of the minibuffer fuzzy typeahead (like ido-mode) but it further allows you to keep your search session if needed (especially useful when looking in help variables). Swiper is used to search buffers, and uses ivy as a backend. It is possible to use helm as a backend instead.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (straight-use-package 'ivy)
@@ -342,7 +339,7 @@ Counsel-yank-pop is much easier to use than kill ring drive bys.
   :bind* (("M-x" . counsel-M-x)))
 #+END_SRC
 
-* ace-window
+** ace-window
 C-x o is way too much to switch between windows (which is an operation I find myself doing near constantly). I used to use something like [[http://oremacs.com/2015/02/14/semi-xmodmap/][semimap]] for my keyboard configuration, but have fallen out of doing that (hence why you'll find unicode binds randomly dispersed).
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -356,7 +353,7 @@ C-x o is way too much to switch between windows (which is an operation I find my
     )
 #+END_SRC
 
-* magit
+** magit
 
 Magit spoils me.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -364,7 +361,7 @@ Magit spoils me.
 (use-package magit)
 #+END_SRC
 
-* org mode
+** org mode
 Ah, org mode. Lovingly described as the crack of emacs.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -445,7 +442,7 @@ We're still in the use package declaration. Close it off, and throw in an easy b
    )
 #+END_SRC
 
-* term
+** term
 I'm not exactly happy with term. There's a bunch of workarounds and keys get rebound and still I encounter usability issues. But it works enough, and I have good clipboard (and visual selection) interaction. So it stays. Maybe someone with knowledge of how to do things the right way will get a real terminal working by embedding or linking to the binary.
 
 I use term instead of ansi-term (tried it in a previous iteration) because it's much clearer to configure. I still have no idea how to make ansi-term not insert line breaks.
@@ -507,7 +504,7 @@ I use term instead of ansi-term (tried it in a previous iteration) because it's 
 (setq explicit-shell-file-name "/bin/bash")
 #+END_SRC
 
-* which-key
+** which-key
 which-key is fantastic. It provides a visual reminder for any keymap. It even has a dialog for showing the top level binds (I bind it here to C-h SPC)
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -521,7 +518,7 @@ which-key is fantastic. It provides a visual reminder for any keymap. It even ha
   (which-key-mode))
 #+END_SRC
 
-* buffer filtering 
+** buffer filtering 
 Wrought from Mount Olympus
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (use-package ibuffer
@@ -530,7 +527,7 @@ Wrought from Mount Olympus
 
 #+END_SRC
 
-* elpy
+** elpy
 It was a little difficult figuring out how to change tests programmatically, so if you want to use something else, first M-x elpy-set-test-runner , and then query elpy-test-runner. For py.test, I had to use the symbol elpy-test-pytest-runner.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -553,7 +550,11 @@ It was a little difficult figuring out how to change tests programmatically, so 
   (elpy-enable))
 #+END_SRC
 
-* kotlin
+** kotlin
+.. Hmm. So there's an implementation of LSP for Kotlin, and it's written in Kotlin!
+
+We should try it out. If it's good enough, we can then get serious about using emacs for work. 
+
 This I could see being really, _really_ promising.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (straight-use-package
@@ -562,8 +563,7 @@ This I could see being really, _really_ promising.
       :upstream (:host github :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode")))
 #+END_SRC
 
-
-* markdown-mode
+** markdown-mode
 For authoring pelican posts, and for README's that aren't in org.
 
 It just recently had its 10th birthday!
@@ -588,7 +588,7 @@ Pelican-mode automatically adds an enabler to markdown-mode-hook, which enables 
                    :upstream (:host github :repo "qdot/pelican-mode")))
 #+END_SRC
 
-* indium
+** indium
 casual inspection of DOMS and JS objects on the fly
 
 probably going to hit this next at RC. 
@@ -606,7 +606,7 @@ probably going to hit this next at RC.
   (setq indium-chrome-executable "chromium-browser")
 #+END_SRC
 
-* circe
+** circe
 
 [[https://github.com/jorgenschaefer/circe][Circe]] is described as an IRC client that is an intermediary between erc and rcirc. It features pretty good default options (with one exception that's really not all that important), and default network configuration out of the box. It's written by jorgenschaefer, who also is the lead on elpy!
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -749,8 +749,7 @@ Don't mind this.
 (setq erc-server-auto-reconnect nil)
 #+END_SRC
 
-* nix-mode
-
+** nix-mode
 I was so excited to find this. Indentation could use some more work, but much better than putting it in by hand.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -761,7 +760,7 @@ I was so excited to find this. Indentation could use some more work, but much be
 
 #+END_SRC
 
-* regexp
+** regexp
 re-builder is quick to use. Setting the syntax to 'string means I don't have to escape backslashes with backslashes.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (use-package re-builder
@@ -769,14 +768,14 @@ re-builder is quick to use. Setting the syntax to 'string means I don't have to 
   (setq reb-re-syntax 'string))
 #+END_SRC
 
-* persistent bookmarks
+** persistent bookmarks
 registers are neat. let's try using them more often. If I bother creating a register, I want it to be persistent. Emacs calls persistent registers bookmarks, and to save them, you must either call `bookmark-save or configure it to save after x amount of bookmarks created
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; persistent bookmarks
 (setq bookmark-save-flag 1) ; so save after every bookmark made.
 #+END_SRC
 
-* simple scrolling
+** simple scrolling
 Initially I just used the package (named simple-scrolling), but found that it caused weird graphical issues with browsing manual pages. This works just fine, although sometimes I miss the ability to have margins, but I also don't miss the jumpiness that sometimes occurred.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; simple scrolling
@@ -786,7 +785,7 @@ Initially I just used the package (named simple-scrolling), but found that it ca
   )
 #+END_SRC
 
-* Directory clutter
+** Directory clutter
 From [[https://github.com/wasamasa/dotemacs/blob/master/init.org][wasamasa's config]] 
 
 control, emacs.d/backup and emacs.d/autosave
@@ -801,7 +800,7 @@ control, emacs.d/backup and emacs.d/autosave
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosave/" t)))
 #+END_SRC
 
-* Prefer "horizontal" splits when the frame has the space for it.
+** Prefer "horizontal" splits when the frame has the space for it.
 By horizontal I mean vim's (and the rest of the world's) notion of vertical. You split along the horizontal axis, I guess. Sure.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -810,7 +809,7 @@ By horizontal I mean vim's (and the rest of the world's) notion of vertical. You
 (setq split-width-threshold 140)
 #+END_SRC
 
-* project-specific
+** project-specific
 These were great so that I could use elpy to spin up a shell provided by nix.
 Not really in use anymore.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -820,15 +819,14 @@ Not really in use anymore.
           (python-shell-interpreter .  "/home/ajarara/proj/webkov/shell.nix")))
 #+END_SRC
 
-* Can I do it from emacs?
-One reason I love using terminals in emacs is because of text manipulation. It's so flipping good at it! But I spend a lot of time editing email, or using stackoverflow. Bringing it into emacs would be great.
 ** stackoverflow
+One reason I love using terminals in emacs is because of text manipulation. It's so flipping good at it! But I spend a lot of time editing email, or using stackoverflow. Bringing it into emacs would be great.
+
 This makes me so happy. Ootb it works, then it asks you for authentication and handles all the secrets itself. I've symlinked .sx (stored in .emacs.d) into docs so that I can nuke .emacs.d, which I do every so often.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (use-package sx :ensure t)
 #+END_SRC
-
-* QOL fixes
+** QOL fixes
 To be honest I have no idea what this does, but I know that it causes emacs to hang on exit. Setting it to nil disables it, and there's no apparent loss of functionality of my clipboard interaction with emacs.. so... :|
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (setq x-select-enable-clipboard-manager nil)
@@ -841,7 +839,7 @@ I reject your reality and substitute my own.
 (setq-default indent-tabs-mode nil)
 #+END_SRC
 
-* Theme
+** Theme
 I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 
@@ -856,7 +854,7 @@ I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
 
 #+END_SRC
 
-* projectile
+** projectile
 projectile-compile-project shaves seconds off my builds. SECONDS!
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (straight-use-package 'projectile)
@@ -868,7 +866,7 @@ projectile-compile-project shaves seconds off my builds. SECONDS!
       (setq projectile-completion-system 'ivy))
 #+END_SRC
 
-* "my-" functions
+** "my-" functions
 Most of these are definitely not my code or my ideas. But they've definitely made a difference.
 
 C-a C-k is again, the one emacs combo that I really like. But C-a pretends like whitespace isn't a thing. Found on the emacswiki:
@@ -1003,7 +1001,7 @@ The help string for format-time-string is quite helpful.
         (message date))))
 #+END_SRC
 
-* Binds (that don't belong to specific packages)
+** Binds (that don't belong to specific packages)
 
 The emacs help system is absolutely fantastic. Unfortunately, in some cases, (looking at you, term-mode), it gets unbound. This keeps C-h bound to help.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -1084,7 +1082,7 @@ These are largely personal preference so not going to explain them.
 (bind-key* "<f5>" `recompile)
 #+END_SRC
 
-* Hooks
+** Hooks
 org-mode hooks. Maybe these should go into package specific configuration. Meh.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (add-hook `org-mode-hook `org-indent-mode)
@@ -1105,9 +1103,8 @@ ess-mode hooks
 
 #+END_SRC
 
-* Goodbye
-Okay, we're done. Let's send an OK.
-*** Message "loaded successfully"
+** Goodbye
+Okay, we're done. Let's send an OK. Note: This isn't visibile after loading up emacs. Why?
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (message "Emacs config successfully loaded!")
 #+END_SRC
