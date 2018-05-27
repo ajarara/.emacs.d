@@ -55,8 +55,6 @@
 (dolist (this-mode-hook my-hl-line-mode-hook-list)
   (add-hook this-mode-hook `hl-line-mode))
 
-(straight-use-package 'buttercup)
-
 (setq frame-title-format (concat "%b" " " invocation-name "@" (system-name)))
 
 (fset `yes-or-no-p `y-or-n-p)
@@ -66,6 +64,13 @@
 (setq mouse-yank-at-point t)
 
 (setq disabled-command-function nil)
+
+(use-package lsp-mode
+  :ensure t
+    :recipe (lsp-mode :type git :host github :repo "alphor/lsp-mode"
+                      :upstream (:host github :repo "emacs-lsp/lsp-mode")))
+
+(straight-use-package 'buttercup)
 
 (straight-use-package 'evil)  ;; no plans to contrib upstream for now.
 (use-package evil
@@ -214,10 +219,7 @@
 (straight-use-package 'ace-window)
   (use-package ace-window
     :bind*
-    ;; shadows quoted-insert
-    (("C-q" . ace-window)
-     ("C-t" . ace-window))
-     ;; needs abo-abo's key config (search for "semimap")
+    (("C-t" . ace-window))
     :config
     (setq aw-scope 'frame)
     )
@@ -353,15 +355,30 @@
   ;; start
   (elpy-enable))
 
-(straight-use-package
- '(kotlin-mode
-    :type git :host github :repo "alphor/kotlin-mode"
-    :upstream (:host github :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode")))
+(use-package kotlin-mode
+  :ensure t
+  :recipe (:type git :host github :repo "alphor/kotlin-mode"
+           :upstream (:host github :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode")))
+
+;; we need projectile to be loaded here, it's got a good definition
+;; of vc roots
+(require 'projectile)
+  (lsp-define-stdio-client
+   kotlin-lsp-mode
+   "kotlin"
+   (lambda () (projectile-project-root))
+   ;; timed out while waiting for a response from the language server?
+   '("/usr/bin/java" "-jar" "/home/ajarara/proj/kotlin-language-server/target/KotlinLanguageServer.jar")
+   )
+
+  ;; I think the #' variant fails at compile so that we can be sure
+  ;; lsp-define-stdio-client has at least generated a symbol
+  (add-hook 'kotlin-mode #'kotlin-lsp-mode-enable)
 
 (use-package markdown-mode 
-  :ensure t
-  :recipe (markdown-mode :type git :host github :repo "alphor/markdown-mode"
-                 :upstream (:host github :repo "jrblevin/markdown-mode")))
+    :ensure t
+    :recipe (markdown-mode :type git :host github :repo "alphor/markdown-mode"
+                   :upstream (:host github :repo "jrblevin/markdown-mode")))
 
 (use-package pelican-mode
   :ensure t
@@ -532,7 +549,11 @@
   (load-theme `monokai t))
 
 (straight-use-package 'projectile)
-  (use-package projectile 
+(use-package projectile
+  :demand t
+    :bind*
+    (("C-c c" . projectile-compile-project)
+     ("C-c f" . projectile-find-file))
     :config
     (setq projectile-completion-system 'ivy))
 

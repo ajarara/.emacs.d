@@ -124,6 +124,16 @@ Emacs should let me be as stupid as I want.
 (setq disabled-command-function nil)
 #+END_SRC
 
+** lsp-mode
+The language server protocol is neat! I'd like to be able to use emacs to edit java, kotlin code with little fuss. This requires jump to definition, find usages, _maybe_ incremental compilation. 
+
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (use-package lsp-mode
+    :ensure t
+      :recipe (lsp-mode :type git :host github :repo "alphor/lsp-mode"
+                        :upstream (:host github :repo "emacs-lsp/lsp-mode")))
+#+END_SRC
+
 ** Buttercup
 A BDD testing framework for emacs lisp. Other powerpuff girls not included.
 
@@ -557,18 +567,36 @@ We should try it out. If it's good enough, we can then get serious about using e
 
 This I could see being really, _really_ promising.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (straight-use-package
-   '(kotlin-mode
-      :type git :host github :repo "alphor/kotlin-mode"
-      :upstream (:host github :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode")))
+  (use-package kotlin-mode
+    :ensure t
+    :recipe (:type git :host github :repo "alphor/kotlin-mode"
+             :upstream (:host github :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode")))
 #+END_SRC
 
+Beyond syntax highlighting (which is vv nice regardless of Rob Pike's thoughts on it) we also want to be able to take advantage of lsp-mode for kotlin. It's pretty new. Let's see if it works out well.  
+#+BEGIN_SRC emacs-lisp :tangle init.el
+;; we need projectile to be loaded here, it's got a good definition
+;; of vc roots
+(require 'projectile)
+  (lsp-define-stdio-client
+   kotlin-lsp-mode
+   "kotlin"
+   (lambda () (projectile-project-root))
+   ;; timed out while waiting for a response from the language server?
+   '("/usr/bin/java" "-jar" "/home/ajarara/proj/kotlin-language-server/target/KotlinLanguageServer.jar")
+   )
+
+  ;; I think the #' variant fails at compile so that we can be sure
+  ;; lsp-define-stdio-client has at least generated a symbol
+  (add-hook 'kotlin-mode #'kotlin-lsp-mode-enable)
+    
+#+END_SRC
 ** markdown-mode
 For authoring pelican posts, and for README's that aren't in org.
 
 It just recently had its 10th birthday!
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (use-package markdown-mode 
+(use-package markdown-mode 
     :ensure t
     :recipe (markdown-mode :type git :host github :repo "alphor/markdown-mode"
                    :upstream (:host github :repo "jrblevin/markdown-mode")))
@@ -858,7 +886,8 @@ I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
 projectile-compile-project shaves seconds off my builds. SECONDS!
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (straight-use-package 'projectile)
-    (use-package projectile 
+  (use-package projectile
+    :demand t
       :bind*
       (("C-c c" . projectile-compile-project)
        ("C-c f" . projectile-find-file))
