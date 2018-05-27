@@ -588,7 +588,7 @@ Beyond syntax highlighting (which is vv nice regardless of Rob Pike's thoughts o
 
   ;; I think the #' variant fails at compile so that we can be sure
   ;; lsp-define-stdio-client has at least generated a symbol
-  (add-hook 'kotlin-mode #'kotlin-lsp-mode-enable)
+  (add-hook 'kotlin-mode-hook #'kotlin-lsp-mode-enable)
     
 #+END_SRC
 ** markdown-mode
