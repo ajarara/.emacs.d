@@ -1045,6 +1045,12 @@ Going back and forth with buffers with any sort of `jump-to` functionality is a 
 (bind-key* "M-]" `next-buffer)
 #+END_SRC
 
+With vertical splits, it's convenient to have a definition pop up in the other buffer.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(bind-key* "M-." `xref-find-definitions-other-window)
+#+END_SRC
+
+
 In case I hit escape, but still want to quit. Binding some other functionality to this key is pretty risky anyway, so no loss there.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (define-key key-translation-map (kbd "C-M-g") (kbd "C-g"))
