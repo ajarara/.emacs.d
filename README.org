@@ -1039,6 +1039,12 @@ The emacs help system is absolutely fantastic. Unfortunately, in some cases, (lo
     (interactive) (info "(emacs) Help Summary")))
 #+END_SRC
 
+Going back and forth with buffers with any sort of `jump-to` functionality is a common operation.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(bind-key* "M-[" `previous-buffer)
+(bind-key* "M-]" `next-buffer)
+#+END_SRC
+
 In case I hit escape, but still want to quit. Binding some other functionality to this key is pretty risky anyway, so no loss there.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (define-key key-translation-map (kbd "C-M-g") (kbd "C-g"))
