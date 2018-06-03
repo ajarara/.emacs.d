@@ -63,6 +63,8 @@
 
 (setq mouse-yank-at-point t)
 
+(setq vc-follow-symlinks nil)
+
 (setq disabled-command-function nil)
 
 (use-package lsp-mode
@@ -362,7 +364,6 @@
 
 ;; we need projectile to be loaded here, it's got a good definition
 ;; of vc roots
-(require 'projectile)
   (lsp-define-stdio-client
    kotlin-lsp-mode
    "kotlin"
@@ -373,7 +374,7 @@
 
   ;; I think the #' variant fails at compile so that we can be sure
   ;; lsp-define-stdio-client has at least generated a symbol
-  (add-hook 'kotlin-mode #'kotlin-lsp-mode-enable)
+  (add-hook 'kotlin-mode-hook #'kotlin-lsp-mode-enable)
 
 (use-package markdown-mode 
     :ensure t
@@ -662,6 +663,11 @@ point reaches the beginning or end of the buffer, stop there."
 (bind-key* "C-h" `help-command)
 (bind-key* "C-h C-h" (lambda ()
     (interactive) (info "(emacs) Help Summary")))
+
+(bind-key* "M-[" `previous-buffer)
+(bind-key* "M-]" `next-buffer)
+
+(bind-key* "M-." `xref-find-definitions-other-window)
 
 (define-key key-translation-map (kbd "C-M-g") (kbd "C-g"))
 

@@ -118,6 +118,11 @@ Tell emacs to paste at point, not on location of click. Now if C-y doesn't work,
 
 These options were brought to me, again, by [[https://github.com/wasamasa/dotemacs/blob/master/init.org][wasamasa's config]
 
+Don't ask me to follow symlinks, just warn me and do it always.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(setq vc-follow-symlinks nil)
+#+END_SRC
+
 ** Removing disabled function
 Emacs should let me be as stupid as I want.
 #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -577,7 +582,6 @@ Beyond syntax highlighting (which is vv nice regardless of Rob Pike's thoughts o
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; we need projectile to be loaded here, it's got a good definition
 ;; of vc roots
-(require 'projectile)
   (lsp-define-stdio-client
    kotlin-lsp-mode
    "kotlin"
@@ -1045,7 +1049,7 @@ Going back and forth with buffers with any sort of `jump-to` functionality is a 
 (bind-key* "M-]" `next-buffer)
 #+END_SRC
 
-With vertical splits, it's convenient to have a definition pop up in the other buffer.
+With vertical splits, it's convenient to have a definition pop up in the other buffer. OTOH, if the definition is in the same buffer, maybe I'd like to keep the buffer. 
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (bind-key* "M-." `xref-find-definitions-other-window)
 #+END_SRC
