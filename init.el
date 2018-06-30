@@ -407,32 +407,35 @@
 (setq circe-network-defaults nil)
 
 (setq circe-network-options
-      '(("ZNC/freenode"
+      (let ((server-passwd (lambda (server-name)
+                         (read-passwd
+                          (format "Password for server: %s? " server-name)))))
+          `(("ZNC/freenode"
          :tls t
          :host "jarmac.org"
          :port 5013
          :user "alphor/freenode"
          ;; the param is needed otherwise error!
          ;; read from minibuffer doesn't use named arguments, but has 7 of them.
-         :pass (lambda (server-name) (read-passwd "Password?: ")))
+         :pass ,server-passwd)
          ("ZNC/mozilla"
           :tls t
           :host "jarmac.org"
           :port 5013
           :user "alphor/mozilla"
-          :pass (lambda (server-name) (read-passwd "Password?: ")))
+          :pass ,server-passwd)
          ("ZNC/snoonet"
           :tls t
           :host "jarmac.org"
           :port 5013
           :user "alphor/snoonet"
-          :pass (lambda (server-name) (read-passwd "Password?: ")))
+          :pass ,server-passwd)
          ("ZNC/gitter"
           :tls t
           :host "jarmac.org"
           :port 5013
           :user "alphor/gitter"
-          :pass (lambda (server-name) (read-passwd "Password?: ")))
+          :pass ,server-passwd)
          ("local/i2p"
           :tls t
           :host "localhost"
@@ -444,7 +447,7 @@
          ;;  :port 6697
          ;;  :user "alphor/rizon"
          ;;  :pass (lambda (server-name) (read-passwd "Password?: ")))
-         ))
+         )))
 
 ;; enable nicks
 (enable-circe-color-nicks)

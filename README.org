@@ -656,45 +656,46 @@ I use ZNC to connect to my networks. So far, I only really fool around in #emacs
 
 It's very simple to configure circe to connect to ZNC (a personal irc server, essentially, that optionally saves the last 50 lines of chats so you have context upon logging in, amongst a whole slew of other features).
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (setq circe-network-options
-        '(("ZNC/freenode"
-           :tls t
-           :host "jarmac.org"
-           :port 5013
-           :user "alphor/freenode"
-           ;; the param is needed otherwise error!
-           ;; read from minibuffer doesn't use named arguments, but has 7 of them.
-           :pass (lambda (server-name) (read-passwd "Password?: ")))
-           ("ZNC/mozilla"
-            :tls t
-            :host "jarmac.org"
-            :port 5013
-            :user "alphor/mozilla"
-            :pass (lambda (server-name) (read-passwd "Password?: ")))
-           ("ZNC/snoonet"
-            :tls t
-            :host "jarmac.org"
-            :port 5013
-            :user "alphor/snoonet"
-            :pass (lambda (server-name) (read-passwd "Password?: ")))
-           ("ZNC/gitter"
-            :tls t
-            :host "jarmac.org"
-            :port 5013
-            :user "alphor/gitter"
-            :pass (lambda (server-name) (read-passwd "Password?: ")))
-           ("local/i2p"
-            :tls t
-            :host "localhost"
-            :port 6668)
-           ;; doesn't look that interesting anymore. Maybe later.
-           ;; ("ZNC/rizon"
-           ;;  :tls t
-           ;;  :host "jarmac.org"
-           ;;  :port 6697
-           ;;  :user "alphor/rizon"
-           ;;  :pass (lambda (server-name) (read-passwd "Password?: ")))
-           ))
+    (setq circe-network-options
+          (let ((server-passwd
+                 (lambda (server-name)
+                   (read-passwd (format "Password for server: %s? " server-name)))))
+              `(("ZNC/freenode"
+             :tls t
+             :host "jarmac.org"
+             :port 5013
+             :user "alphor/freenode"
+             :pass ,server-passwd)
+             ("ZNC/mozilla"
+              :tls t
+              :host "jarmac.org"
+              :port 5013
+              :user "alphor/mozilla"
+              :pass ,server-passwd)
+             ("ZNC/snoonet"
+              :tls t
+              :host "jarmac.org"
+              :port 5013
+              :user "alphor/snoonet"
+              :pass ,server-passwd)
+             ("ZNC/gitter"
+              :tls t
+              :host "jarmac.org"
+              :port 5013
+              :user "alphor/gitter"
+              :pass ,server-passwd)
+             ("local/i2p"
+              :tls t
+              :host "localhost"
+              :port 6668)
+             ;; doesn't look that interesting anymore. Maybe later.
+             ;; ("ZNC/rizon"
+             ;;  :tls t
+             ;;  :host "jarmac.org"
+             ;;  :port 6697
+             ;;  :user "alphor/rizon"
+             ;;  :pass (lambda (server-name) (read-passwd "Password?: ")))
+             )))
 #+END_SRC
 
 I have no idea why colored nicks are not enabled by default. Much prettier! (This is the default option I was complaining about earlier)
