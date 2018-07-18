@@ -362,20 +362,6 @@
   :recipe (:type git :host github :repo "alphor/kotlin-mode"
            :upstream (:host github :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode")))
 
-;; we need projectile to be loaded here, it's got a good definition
-;; of vc roots
-  (lsp-define-stdio-client
-   kotlin-lsp-mode
-   "kotlin"
-   (lambda () (projectile-project-root))
-   ;; timed out while waiting for a response from the language server?
-   '("/usr/bin/java" "-jar" "/home/ajarara/proj/kotlin-language-server/target/KotlinLanguageServer.jar")
-   )
-
-  ;; I think the #' variant fails at compile so that we can be sure
-  ;; lsp-define-stdio-client has at least generated a symbol
-  (add-hook 'kotlin-mode-hook #'kotlin-lsp-mode-enable)
-
 (use-package markdown-mode 
     :ensure t
     :recipe (markdown-mode :type git :host github :repo "alphor/markdown-mode"
@@ -407,16 +393,14 @@
 (setq circe-network-defaults nil)
 
 (setq circe-network-options
-      (let ((server-passwd (lambda (server-name)
-                         (read-passwd
-                          (format "Password for server: %s? " server-name)))))
+      (let ((server-passwd
+             (lambda (server-name)
+               (read-passwd (format "Password for server: %s? " server-name)))))
           `(("ZNC/freenode"
          :tls t
          :host "jarmac.org"
          :port 5013
          :user "alphor/freenode"
-         ;; the param is needed otherwise error!
-         ;; read from minibuffer doesn't use named arguments, but has 7 of them.
          :pass ,server-passwd)
          ("ZNC/mozilla"
           :tls t

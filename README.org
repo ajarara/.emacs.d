@@ -578,23 +578,8 @@ This I could see being really, _really_ promising.
              :upstream (:host github :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode")))
 #+END_SRC
 
-Beyond syntax highlighting (which is vv nice regardless of Rob Pike's thoughts on it) we also want to be able to take advantage of lsp-mode for kotlin. It's pretty new. Let's see if it works out well.  
-#+BEGIN_SRC emacs-lisp :tangle init.el
-;; we need projectile to be loaded here, it's got a good definition
-;; of vc roots
-  (lsp-define-stdio-client
-   kotlin-lsp-mode
-   "kotlin"
-   (lambda () (projectile-project-root))
-   ;; timed out while waiting for a response from the language server?
-   '("/usr/bin/java" "-jar" "/home/ajarara/proj/kotlin-language-server/target/KotlinLanguageServer.jar")
-   )
-
-  ;; I think the #' variant fails at compile so that we can be sure
-  ;; lsp-define-stdio-client has at least generated a symbol
-  (add-hook 'kotlin-mode-hook #'kotlin-lsp-mode-enable)
-    
-#+END_SRC
+It's kind of good enough. Previously I had an LSP block here, but it just wasn't good enough, for two reasons:
+The first was starting it was hacky AF. There are alternatives of using something like idea-lsp or intellij-lsp, but I'm going to confine that hackery to my work machine.
 ** markdown-mode
 For authoring pelican posts, and for README's that aren't in org.
 
