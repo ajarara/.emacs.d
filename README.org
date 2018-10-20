@@ -566,11 +566,6 @@ It was a little difficult figuring out how to change tests programmatically, so 
 #+END_SRC
 
 ** kotlin
-.. Hmm. So there's an implementation of LSP for Kotlin, and it's written in Kotlin!
-
-We should try it out. If it's good enough, we can then get serious about using emacs for work. 
-
-This I could see being really, _really_ promising.
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (use-package kotlin-mode
     :ensure t
@@ -578,8 +573,13 @@ This I could see being really, _really_ promising.
              :upstream (:host github :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode")))
 #+END_SRC
 
-It's kind of good enough. Previously I had an LSP block here, but it just wasn't good enough, for two reasons:
+Previously I had an LSP block here, but it just wasn't good enough, for two reasons:
 The first was starting it was hacky AF. There are alternatives of using something like idea-lsp or intellij-lsp, but I'm going to confine that hackery to my work machine.
+
+The second meant I had to have the lsp server installed on each machine. Now I only have two, but this kinda tramples over the nice feature of emacs that I can have the exact same dev environment with just a git clone, where everything's self contained.
+
+** rust
+Oh, you knew it was coming.
 ** markdown-mode
 For authoring pelican posts, and for README's that aren't in org.
 
