@@ -567,10 +567,7 @@ It was a little difficult figuring out how to change tests programmatically, so 
 
 ** kotlin
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (use-package kotlin-mode
-    :ensure t
-    :recipe (:type git :host github :repo "alphor/kotlin-mode"
-             :upstream (:host github :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode")))
+(straight-use-package 'kotlin-mode)
 #+END_SRC
 
 Previously I had an LSP block here, but it just wasn't good enough, for two reasons:
@@ -580,15 +577,22 @@ The second meant I had to have the lsp server installed on each machine. Now I o
 
 ** rust
 Oh, you knew it was coming.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(straight-use-package 'rust-mode)
+(straight-use-package 'cargo)
+(add-hook 'rust-mode-hook 'cargo-minor-mode)
+
+;; somewhere I read that using add-to-list is not enough, even though it mutates the list..
+;; I'll leave out the setq at first and see if emacs cooperates 
+(add-to-list 'auto-mode-alist '("\\.rs" . rust-mode))
+
+#+END_SRC
 ** markdown-mode
 For authoring pelican posts, and for README's that aren't in org.
 
 It just recently had its 10th birthday!
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(use-package markdown-mode 
-    :ensure t
-    :recipe (markdown-mode :type git :host github :repo "alphor/markdown-mode"
-                   :upstream (:host github :repo "jrblevin/markdown-mode")))
+(straight-use-package 'markdown-mode)
 #+END_SRC
 
 ** pelican mode
@@ -598,11 +602,7 @@ Pelican-mode automatically adds an enabler to markdown-mode-hook, which enables 
 
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (use-package pelican-mode
-    :ensure t
-
-    :recipe (pelican-mode :type git :host github :repo "alphor/pelican-mode"
-                   :upstream (:host github :repo "qdot/pelican-mode")))
+(straight-use-package 'pelican-mode)
 #+END_SRC
 
 ** indium

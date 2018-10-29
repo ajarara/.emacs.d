@@ -357,21 +357,19 @@
   ;; start
   (elpy-enable))
 
-(use-package kotlin-mode
-  :ensure t
-  :recipe (:type git :host github :repo "alphor/kotlin-mode"
-           :upstream (:host github :repo "Emacs-Kotlin-Mode-Maintainers/kotlin-mode")))
+(straight-use-package 'kotlin-mode)
 
-(use-package markdown-mode 
-    :ensure t
-    :recipe (markdown-mode :type git :host github :repo "alphor/markdown-mode"
-                   :upstream (:host github :repo "jrblevin/markdown-mode")))
+(straight-use-package 'rust-mode)
+(straight-use-package 'cargo)
+(add-hook 'rust-mode-hook 'cargo-minor-mode)
 
-(use-package pelican-mode
-  :ensure t
+;; somewhere I read that using add-to-list is not enough, even though it mutates the list..
+;; I'll leave out the setq at first and see if emacs cooperates 
+(add-to-list 'auto-mode-alist '("\\.rs" . rust-mode))
 
-  :recipe (pelican-mode :type git :host github :repo "alphor/pelican-mode"
-                 :upstream (:host github :repo "qdot/pelican-mode")))
+(straight-use-package 'markdown-mode)
+
+(straight-use-package 'pelican-mode)
 
 (use-package indium
   :disabled t
