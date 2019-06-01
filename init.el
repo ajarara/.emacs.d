@@ -1,4 +1,3 @@
-
 (let ((bootstrap-file (concat user-emacs-directory "straight/bootstrap.el"))
       (bootstrap-version 2))
   (unless (file-exists-p bootstrap-file)
@@ -26,7 +25,7 @@
 ;; this didn't seem to work, would not have the first frame be terminus'd
 ;; (set-face-attribute 'default nil :font "-xos4-Terminus-normal-normal-normal-*-16-*-*-*-c-80-iso10646-1")
 ;; this worked!
-(add-to-list 'default-frame-alist '(font . "-xos4-Terminus-normal-normal-normal-*-16-*-*-*-c-80-iso10646-1"))
+;; (add-to-list 'default-frame-alist '(font . "-xos4-Terminus-normal-normal-normal-*-16-*-*-*-c-80-iso10646-1"))
 
 ;; can be recovered with <F10>
 (tool-bar-mode -1)
@@ -171,15 +170,15 @@
   :config
   (define-key dired-mode-map (kbd "SPC") nil)
   (define-key dired-mode-map (kbd "M-s") nil)
-  
+
   ;; remove dired-mode-map definition
   (define-key dired-mode-map (kbd "i") nil)
-  
+
   (general-define-key :prefix nil
                       :keymaps 'dired-mode-map
                       :states '(normal)
                       "i" 'evil-insert-state)
-                      
+
   (general-define-key :prefix nil
                       :keymaps 'dired-mode-map
                       :states '(emacs)
@@ -314,8 +313,8 @@
   ;;   (term-line-mode))
   ;; (advice-add 'term :after #'my-ad-term-line-mode)
   ;; (advice-add 'ansi-term :after #'my-ad-term-line-mode)
-  
-    
+
+
 
 
   ;; 2048 lines of output is way too restrictive.
@@ -362,6 +361,14 @@
 (straight-use-package 'rust-mode)
 (straight-use-package 'cargo)
 (add-hook 'rust-mode-hook 'cargo-minor-mode)
+(use-package cargo
+  :config
+  (setq cargo-process--custom-path-to-bin "./cargo")
+  ;; likely no need to create custom rustc paths, just use the
+  ;; global one
+  (setq cargo-process--rustc-cmd "\"$(nix-build '<nixpkgs>' --no-build-output -A rustc)/bin/rustc\"")
+)
+
 
 ;; somewhere I read that using add-to-list is not enough, even though it mutates the list..
 ;; I'll leave out the setq at first and see if emacs cooperates 
