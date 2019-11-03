@@ -516,11 +516,9 @@ I use term instead of ansi-term (tried it in a previous iteration) because it's 
   )
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-;; ansi-term specific:
-(setq explicit-shell-file-name "/bin/bash")
-#+END_SRC
+#+BEGIN_SRC emacs-lisp :tangle init.el
 
+#+END_SRC
 ** which-key
 which-key is fantastic. It provides a visual reminder for any keymap. It even has a dialog for showing the top level binds (I bind it here to C-h SPC)
 
@@ -605,16 +603,6 @@ It just recently had its 10th birthday!
 (straight-use-package 'markdown-mode)
 #+END_SRC
 
-** pelican mode
-Can't be found on melpa, but is on github:
-
-Pelican-mode automatically adds an enabler to markdown-mode-hook, which enables itself if it determines that it is indeed a site. Alternatively, this can be done with a dir-local, so as to strip out the magic of how pelican determines something is a pelican site.
-
-
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'pelican-mode)
-#+END_SRC
-
 ** indium
 casual inspection of DOMS and JS objects on the fly
 
@@ -643,7 +631,7 @@ probably going to hit this next at RC.
                  :upstream (:host github :repo "jorgenschaefer/circe"))
 #+END_SRC
 
-I use ZNC to connect to my networks. So far, I only really fool around in #emacs, and some other dev-related channels. But this means I don't really care about circe's default channels, so I clear it here.
+Currently not using ZNC, but this is probably still a good idea. 
 #+BEGIN_SRC emacs-lisp :tangle init.el
   :config
   (setq circe-network-defaults nil)
@@ -651,46 +639,50 @@ I use ZNC to connect to my networks. So far, I only really fool around in #emacs
 
 It's very simple to configure circe to connect to ZNC (a personal irc server, essentially, that optionally saves the last 50 lines of chats so you have context upon logging in, amongst a whole slew of other features).
 #+BEGIN_SRC emacs-lisp :tangle init.el
-    (setq circe-network-options
-          (let ((server-passwd
-                 (lambda (server-name)
-                   (read-passwd (format "Password for server: %s? " server-name)))))
-              `(("ZNC/freenode"
-             :tls t
-             :host "jarmac.org"
-             :port 5013
-             :user "alphor/freenode"
-             :pass ,server-passwd)
-             ("ZNC/mozilla"
-              :tls t
-              :host "jarmac.org"
-              :port 5013
-              :user "alphor/mozilla"
-              :pass ,server-passwd)
-             ("ZNC/snoonet"
-              :tls t
-              :host "jarmac.org"
-              :port 5013
-              :user "alphor/snoonet"
-              :pass ,server-passwd)
-             ("ZNC/gitter"
-              :tls t
-              :host "jarmac.org"
-              :port 5013
-              :user "alphor/gitter"
-              :pass ,server-passwd)
-             ("local/i2p"
-              :tls t
-              :host "localhost"
-              :port 6668)
-             ;; doesn't look that interesting anymore. Maybe later.
-             ;; ("ZNC/rizon"
-             ;;  :tls t
-             ;;  :host "jarmac.org"
-             ;;  :port 6697
-             ;;  :user "alphor/rizon"
-             ;;  :pass (lambda (server-name) (read-passwd "Password?: ")))
-             )))
+  (setq circe-network-options
+        (let ((server-passwd
+               (lambda (server-name)
+                 (read-passwd (format "Password for server: %s? " server-name)))))
+            `(("ZNC/freenode"
+           :tls t
+           :host "jarmac.org"
+           :port 5013
+           :user "alphor/freenode"
+           :pass ,server-passwd)
+           ("ZNC/mozilla"
+            :tls t
+            :host "jarmac.org"
+            :port 5013
+            :user "alphor/mozilla"
+            :pass ,server-passwd)
+           ("ZNC/snoonet"
+            :tls t
+            :host "jarmac.org"
+            :port 5013
+            :user "alphor/snoonet"
+            :pass ,server-passwd)
+           ("ZNC/gitter"
+            :tls t
+            :host "jarmac.org"
+            :port 5013
+            :user "alphor/gitter"
+            :pass ,server-passwd)
+           ("local/i2p"
+            :tls t
+            :host "localhost"
+            :port 6668)
+           ("freenode"
+            :tls t
+            :host "chat.freenode.net"
+            :port 6697)
+           ;; doesn't look that interesting anymore. Maybe later.
+           ;; ("ZNC/rizon"
+           ;;  :tls t
+           ;;  :host "jarmac.org"
+           ;;  :port 6697
+           ;;  :user "alphor/rizon"
+           ;;  :pass (lambda (server-name) (read-passwd "Password?: ")))
+           )))
 #+END_SRC
 
 I have no idea why colored nicks are not enabled by default. Much prettier! (This is the default option I was complaining about earlier)
@@ -833,7 +825,8 @@ By horizontal I mean vim's (and the rest of the world's) notion of vertical. You
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (setq split-height-threshold nil)
-;; tried 150, I'm using xfwm4 if that makes any difference, but it did not work.
+;; This works on a small 11 in screen, but I have a big screen with a docking station at home.
+;; It would be great to preserve this behavior by relative size of screen, not absolute.
 (setq split-width-threshold 140)
 #+END_SRC
 
@@ -855,11 +848,6 @@ This makes me so happy. Ootb it works, then it asks you for authentication and h
 (use-package sx :ensure t)
 #+END_SRC
 ** QOL fixes
-To be honest I have no idea what this does, but I know that it causes emacs to hang on exit. Setting it to nil disables it, and there's no apparent loss of functionality of my clipboard interaction with emacs.. so... :|
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(setq x-select-enable-clipboard-manager nil)
-#+END_SRC
-
 I reject your reality and substitute my own.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; (setq custom-file "/dev/null")
