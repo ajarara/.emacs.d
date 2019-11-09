@@ -134,7 +134,7 @@ The language server protocol is neat! I'd like to be able to use emacs to edit j
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (straight-use-package 'lsp-mode)
-  (use-package lsp-mode :ensure t)
+  ;; (use-package lsp-mode :ensure t)
 #+END_SRC
 
 ** Buttercup
@@ -479,16 +479,6 @@ I use term instead of ansi-term (tried it in a previous iteration) because it's 
         ad-do-it))
     (ad-activate 'term-sentinel)
 
-    ;; don't ask me about whether I want to use bash. I do.
-    ;; modified from ansi-term to term from source post
-    ;; in NixOS the shell is in /run/current-system
-    ;; rather than dispatch on what OS I'm running, just let
-    ;; which handle it:
-    (defvar my-term-shell (s-trim (shell-command-to-string "which bash")))
-    (defadvice term (before force-bash)
-      (interactive (list my-term-shell)))
-    (ad-activate 'term)
-
     ;; why is this not the default? 
     (defun my-term-use-utf8 ()
       (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
@@ -621,6 +611,7 @@ probably going to hit this next at RC.
 (straight-use-package 'circe)
 (use-package circe 
   :ensure t
+  :disabled t
 #+END_SRC
 
 Currently not using ZNC, but this is probably still a good idea. 
@@ -837,7 +828,8 @@ One reason I love using terminals in emacs is because of text manipulation. It's
 
 This makes me so happy. Ootb it works, then it asks you for authentication and handles all the secrets itself. I've symlinked .sx (stored in .emacs.d) into docs so that I can nuke .emacs.d, which I do every so often.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(use-package sx :ensure t)
+(straight-use-package 'sx)
+(use-package sx :ensure t :disabled t)
 #+END_SRC
 ** QOL fixes
 I reject your reality and substitute my own.
@@ -854,7 +846,6 @@ I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
 ;; (load-theme 'misterioso t)
 (straight-use-package 'monokai-theme)
 (use-package monokai-theme
-  :ensure t
   :config
   (setq monokai-comments "chocolate")
   (load-theme `monokai t))
