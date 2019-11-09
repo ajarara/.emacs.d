@@ -134,7 +134,6 @@ The language server protocol is neat! I'd like to be able to use emacs to edit j
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (straight-use-package 'lsp-mode)
-  ;; (use-package lsp-mode :ensure t)
 #+END_SRC
 
 ** Buttercup
@@ -610,8 +609,6 @@ probably going to hit this next at RC.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (straight-use-package 'circe)
 (use-package circe 
-  :ensure t
-  :disabled t
 #+END_SRC
 
 Currently not using ZNC, but this is probably still a good idea. 
@@ -823,14 +820,6 @@ Not really in use anymore.
           (python-shell-interpreter .  "/home/ajarara/proj/webkov/shell.nix")))
 #+END_SRC
 
-** stackoverflow
-One reason I love using terminals in emacs is because of text manipulation. It's so flipping good at it! But I spend a lot of time editing email, or using stackoverflow. Bringing it into emacs would be great.
-
-This makes me so happy. Ootb it works, then it asks you for authentication and handles all the secrets itself. I've symlinked .sx (stored in .emacs.d) into docs so that I can nuke .emacs.d, which I do every so often.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'sx)
-(use-package sx :ensure t :disabled t)
-#+END_SRC
 ** QOL fixes
 I reject your reality and substitute my own.
 #+BEGIN_SRC emacs-lisp :tangle init.el
