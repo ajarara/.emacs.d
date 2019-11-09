@@ -8,7 +8,7 @@ Almost all of the code blocks you see below are placed into init.el. This has tw
 
 I won't be going over what each package does, (the README files do a better job than I could do), but I will be going over config details.
 
-Initially I used [[https://github.com/quelpa/quelpa][quelpa]] to manage my configuration, in an attempt to have completely reproducible config. I'm using [[https://github.com/raxod502/straight.el][straight.el]] here to make it easier to contribute upstream and to make sure I don't get bit by some bad code.
+Initially I used [[https://github.com/quelpa/quelpa][quelpa]] to manage my configuration, in an attempt to have completely reproducible config. I'm using [[https://github.com/raxod502/straight.el][straight.el]] here to make it easier to validate patches and contribute them upstream and also to make sure I can rollback just like I can on NixOS.
 * Config
 ** Straight bootstrap
 Straight downloads a file. Wondering why bootstrap-version is defined in this block but never used. Even though emacs has dynamic binding, I'm not setting the version globally...
@@ -514,10 +514,6 @@ I use term instead of ansi-term (tried it in a previous iteration) because it's 
      :map term-raw-map
      ("C-y" . term-paste))
   )
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp :tangle init.el
-
 #+END_SRC
 ** which-key
 which-key is fantastic. It provides a visual reminder for any keymap. It even has a dialog for showing the top level binds (I bind it here to C-h SPC)
