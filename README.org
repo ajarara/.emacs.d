@@ -133,10 +133,8 @@ Emacs should let me be as stupid as I want.
 The language server protocol is neat! I'd like to be able to use emacs to edit java, kotlin code with little fuss. This requires jump to definition, find usages, _maybe_ incremental compilation. 
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (use-package lsp-mode
-    :ensure t
-      :recipe (lsp-mode :type git :host github :repo "alphor/lsp-mode"
-                        :upstream (:host github :repo "emacs-lsp/lsp-mode")))
+(straight-use-package 'lsp-mode)
+  (use-package lsp-mode :ensure t)
 #+END_SRC
 
 ** Buttercup
@@ -322,7 +320,6 @@ man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode glo
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (straight-use-package 'ivy)
   (use-package ivy
-    ;; :recipe (ivy :type git :host github :repo "abo-abo/swiper")
     :demand t
     :diminish ivy-mode
     :config
@@ -621,10 +618,9 @@ probably going to hit this next at RC.
 
 [[https://github.com/jorgenschaefer/circe][Circe]] is described as an IRC client that is an intermediary between erc and rcirc. It features pretty good default options (with one exception that's really not all that important), and default network configuration out of the box. It's written by jorgenschaefer, who also is the lead on elpy!
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(use-package circe
+(straight-use-package 'circe)
+(use-package circe 
   :ensure t
-  :recipe (circe :type git :host github :repo "alphor/circe"
-                 :upstream (:host github :repo "jorgenschaefer/circe"))
 #+END_SRC
 
 Currently not using ZNC, but this is probably still a good idea. 
@@ -856,10 +852,9 @@ I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 
 ;; (load-theme 'misterioso t)
+(straight-use-package 'monokai-theme)
 (use-package monokai-theme
   :ensure t
-  :recipe (monokai-theme :type git :host github :repo "alphor/monokai-emacs"
-                 :upstream (:host github :repo "oneKelvinSmith/monokai-emacs"))
   :config
   (setq monokai-comments "chocolate")
   (load-theme `monokai t))
@@ -1129,7 +1124,7 @@ ess-mode hooks
 #+END_SRC
 
 ** Goodbye
-Okay, we're done. Let's send an OK. Note: This isn't visibile after loading up emacs. Why?
+Okay, we're done. Let's emit an OK.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (message "Emacs config successfully loaded!")
 #+END_SRC
