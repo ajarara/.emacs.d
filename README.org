@@ -80,12 +80,6 @@ I don't know how I feel using hl-line-mode on EVERY buffer. Instead, let's just 
   (add-hook this-mode-hook `hl-line-mode))
 #+END_SRC
 
-** Fixing title bar
-I use this hack shell script called focus. It cycles through windows based on the contents of the title bar. But emacs has the unfortunate behavior of breaking my script if there is more then one frame. So keep it consistent.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(setq frame-title-format (concat "%b" " " invocation-name "@" (system-name)))
-#+END_SRC
-
 ** Making emacs snappier
 any dialog that asks for confirmation requires that you type in the full yes or no (and ignores whatever is after it, but does not accept y/n). Setting it to y-or-n-p allows you to do this. And you don't have to hit RET.
 #+BEGIN_SRC emacs-lisp :tangle init.el
