@@ -33,27 +33,13 @@ Use ssh as default for authentication and for delivery.
 ** Use-package
 Use package is a way to tidy up config and a convenient way to lazy load packages (that is, defer loading so that emacs doesn't load everything on startup).
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (straight-use-package
-   '(use-package
-      :type git :host github :repo "alphor/use-package"
-      :upstream (:host github :repo "jwiegley/use-package")))
+  (straight-use-package 'use-package)
 
   ;; bind-key is provided with use-package, diminish I only use once or twice
   (eval-when-compile
     (require 'use-package))
   (require 'diminish)
   (require 'bind-key)
-#+END_SRC
-
-** Font
-I tried the default font (DejaVu Sans Mono, use M-x describe-font to find out what yours is), source code pro, and a couple others the emacs subreddit recommended, but all I need is a monospace font that looks nice and doesn't crap out on <= 80 characters. Terminus is that font.
-
-Uh, gohu works too.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-  ;; this didn't seem to work, would not have the first frame be terminus'd
-  ;; (set-face-attribute 'default nil :font "-xos4-Terminus-normal-normal-normal-*-16-*-*-*-c-80-iso10646-1")
-  ;; this worked!
-  ;; (add-to-list 'default-frame-alist '(font . "-xos4-Terminus-normal-normal-normal-*-16-*-*-*-c-80-iso10646-1"))
 #+END_SRC
 
 ** Disabling 'helpful' visual goodies
