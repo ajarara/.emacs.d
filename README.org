@@ -11,7 +11,13 @@ I won't be going over what each package does, (the README files do a better job 
 Initially I used [[https://github.com/quelpa/quelpa][quelpa]] to manage my configuration, in an attempt to have completely reproducible config. I'm using [[https://github.com/raxod502/straight.el][straight.el]] here to make it easier to validate patches and contribute them upstream and also to make sure I can rollback just like I can on NixOS.
 * Config
 ** Straight bootstrap
-Straight downloads a file. Wondering why bootstrap-version is defined in this block but never used. Even though emacs has dynamic binding, I'm not setting the version globally...
+Use straight to manage packages by default, and ssh to clone.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(setq straight-use-package-by-default t)
+(setq straight-vc-git-default-protocol 'ssh)
+#+END_SRC
+
+Straight downloads a file to bootstrap from. Wondering why bootstrap-version is defined in this block but never used. Even though emacs has dynamic binding, I'm not setting the version globally...
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (let ((bootstrap-file (concat user-emacs-directory "straight/bootstrap.el"))
       (bootstrap-version 2))
@@ -24,11 +30,6 @@ Straight downloads a file. Wondering why bootstrap-version is defined in this bl
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 #+END_SRC 
-
-Use ssh as default for authentication and for delivery.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-(setq straight-vc-git-default-protocol 'ssh)
-#+END_SRC
 
 ** Use-package
 Use package is a way to tidy up config and a convenient way to lazy load packages (that is, defer loading so that emacs doesn't load everything on startup).
@@ -43,7 +44,7 @@ Use package is a way to tidy up config and a convenient way to lazy load package
 #+END_SRC
 
 ** Disabling 'helpful' visual goodies
-The only useful thing I lose here is the menubar, but typing <F10> gives you one at your cursor. And now I get all this real estate (it's free!)
+The only useful thing I lose here is the menubar, but typing <F10> gives you one at your cursor. And now I get all this real estate.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 ;; can be recovered with <F10>
 (tool-bar-mode -1)
@@ -64,10 +65,7 @@ The only useful thing I lose here is the menubar, but typing <F10> gives you one
 ** Enabling 'helpful' visual goodies
 Might be considered a hindrance, but I rarely need more than 80 columns while programming and would rather not have to deal with horizontal scrolling. These two settings are neat for prose, and org mode.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-;; enabling visual line mode
 (visual-line-mode 1)
-
-(toggle-word-wrap)
 #+END_SRC
 
 I don't know how I feel using hl-line-mode on EVERY buffer. Instead, let's just add the ones that make sense.
@@ -113,21 +111,20 @@ Emacs should let me be as stupid as I want.
 The language server protocol is neat! I'd like to be able to use emacs to edit java, kotlin code with little fuss. This requires jump to definition, find usages, _maybe_ incremental compilation. 
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'lsp-mode)
+(use-package lsp-mode)
 #+END_SRC
 
 ** Buttercup
 A BDD testing framework for emacs lisp. Other powerpuff girls not included.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'buttercup)
+(use-package buttercup)
 #+END_SRC
 
 ** evil-mode
 My relationship with evil is a healthy one. I can navigate fine without the keybinds but a lot of the constructs are already ingrained, and bound for me conveniently. Take #. The emacs alternative is word-search-backward, but I would have to bind it myself. I'd also have to write advice to provide the default word at point for equivalent functionality. Why do I have to ditch #? We have a good thing going. Let's keep it that way.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'evil)  ;; no plans to contrib upstream for now.
 (use-package evil
 #+END_SRC
 
@@ -176,7 +173,6 @@ I highly value colors.
 
 inserts highly visible characters at marks. they go away upon entering visual mode or 'insert' mode.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (straight-use-package 'evil-visual-mark-mode)
   (use-package evil-visual-mark-mode
     :config
     (evil-visual-mark-mode))
@@ -217,7 +213,6 @@ Even though I use emacs-state as my insert state, I still want certain things to
 [[https://github.com/noctuid/general.el][General]] is a package that aims to simplify and unify keybinding. Problems I have with letting bind-key handle it is that it's difficult to tailor. An example: in dired mode, I like having the ability to move by jk or having visual block/line selection. At the same time, I want dired mode bindings available. So I bind "i" to evil-insert-state.  However I have no idea how to do it with bind-key. Further, this allows me to get rid of evil-leader. The less packages I depend on for my output, the better.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'general)
   (use-package general
     ;; maybe in the future make this config evil agnostic?
     :if (featurep 'evil)
@@ -267,6 +262,7 @@ Just.. don't play around with my keymaps.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
   (use-package dired
+    :after (general)
     :config
     (define-key dired-mode-map (kbd "SPC") nil)
     (define-key dired-mode-map (kbd "M-s") nil)
@@ -297,7 +293,6 @@ scp is the default. I'm... not sure why I set this initially.
 ** swiper/ivy
 man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode globally gives most aspects of the minibuffer fuzzy typeahead (like ido-mode) but it further allows you to keep your search session if needed (especially useful when looking in help variables). Swiper is used to search buffers, and uses ivy as a backend. It is possible to use helm as a backend instead.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'ivy)
   (use-package ivy
     :demand t
     :diminish ivy-mode
@@ -325,7 +320,6 @@ man do I love this package. Lightweight, pretty, and FAST. Enabling ivy mode glo
 
 Counsel-yank-pop is much easier to use than kill ring drive bys.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (straight-use-package 'counsel)
   (use-package counsel
     :bind* (("M-x" . counsel-M-x)
             ("C-c a" . counsel-ag))
@@ -336,8 +330,6 @@ Counsel-yank-pop is much easier to use than kill ring drive bys.
 C-x o is way too much to switch between windows (which is an operation I find myself doing near constantly). I used to use something like [[http://oremacs.com/2015/02/14/semi-xmodmap/][semimap]] for my keyboard configuration, but have fallen out of doing that (hence why you'll find unicode binds randomly dispersed).
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-
-(straight-use-package 'ace-window)
   (use-package ace-window
     :bind*
     (("C-t" . ace-window))
@@ -350,7 +342,6 @@ C-x o is way too much to switch between windows (which is an operation I find my
 
 Magit spoils me.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'magit)
 (use-package magit)
 #+END_SRC
 
@@ -485,7 +476,6 @@ I use term instead of ansi-term (tried it in a previous iteration) because it's 
 which-key is fantastic. It provides a visual reminder for any keymap. It even has a dialog for showing the top level binds (I bind it here to C-h SPC)
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'which-key)
 (use-package which-key
   :demand t
   :diminish which-key-mode
@@ -508,7 +498,6 @@ Wrought from Mount Olympus
 It was a little difficult figuring out how to change tests programmatically, so if you want to use something else, first M-x elpy-set-test-runner , and then query elpy-test-runner. For py.test, I had to use the symbol elpy-test-pytest-runner.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'elpy)
 (use-package elpy
   :config
 
@@ -529,7 +518,7 @@ It was a little difficult figuring out how to change tests programmatically, so 
 
 ** kotlin
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'kotlin-mode)
+(use-package kotlin-mode)
 #+END_SRC
 
 Previously I had an LSP block here, but it just wasn't good enough, for two reasons:
@@ -540,9 +529,7 @@ The second meant I had to have the lsp server installed on each machine. Now I o
 ** rust
 Oh, you knew it was coming.
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (straight-use-package 'rust-mode)
-  (straight-use-package 'cargo)
-  (add-hook 'rust-mode-hook 'cargo-minor-mode)
+  (use-package rust-mode)
   (use-package cargo
     :config
     (setq cargo-process--custom-path-to-bin "./cargo")
@@ -550,7 +537,7 @@ Oh, you knew it was coming.
     ;; global one
     (setq cargo-process--rustc-cmd "\"$(nix-build '<nixpkgs>' --no-build-output -A rustc)/bin/rustc\"")
   )
-
+  (add-hook 'rust-mode-hook 'cargo-minor-mode)
 
   ;; somewhere I read that using add-to-list is not enough, even though it mutates the list..
   ;; I'll leave out the setq at first and see if emacs cooperates 
@@ -562,7 +549,7 @@ For authoring pelican posts, and for README's that aren't in org.
 
 It just recently had its 10th birthday!
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'markdown-mode)
+(use-package markdown-mode)
 #+END_SRC
 
 ** indium
@@ -587,8 +574,8 @@ probably going to hit this next at RC.
 
 [[https://github.com/jorgenschaefer/circe][Circe]] is described as an IRC client that is an intermediary between erc and rcirc. It features pretty good default options (with one exception that's really not all that important), and default network configuration out of the box. It's written by jorgenschaefer, who also is the lead on elpy!
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'circe)
 (use-package circe 
+  :disabled t
 #+END_SRC
 
 Currently not using ZNC, but this is probably still a good idea. 
@@ -700,8 +687,8 @@ fun fact: the only other person that is also on both #freenode and ##wikimedia-k
   (straight-use-package
    '(circe-actions :type git :host github :repo "alphor/circe-actions"))
 
-  (use-package circe-actions)
-  (use-package circe-znc)
+  (use-package circe-actions :disabled t)
+  (use-package circe-znc :disabled t)
 #+END_SRC
 
 Useful for debugging interactively.
@@ -733,9 +720,6 @@ Don't mind this.
 I was so excited to find this. Indentation could use some more work, but much better than putting it in by hand.
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (straight-use-package
-    '(nix-mode :type git :host github :repo "alphor/nix-mode"
-               :upstream (:host github :repo "NixOS/nix-mode")))
   (use-package nix-mode)
 
 #+END_SRC
@@ -813,7 +797,6 @@ I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
 #+BEGIN_SRC emacs-lisp :tangle init.el
 
 ;; (load-theme 'misterioso t)
-(straight-use-package 'monokai-theme)
 (use-package monokai-theme
   :config
   (setq monokai-comments "chocolate")
@@ -824,7 +807,6 @@ I like Monokai. In case I ever need to use a default theme, I'd use misterioso.
 ** projectile
 projectile-compile-project shaves seconds off my builds. SECONDS!
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (straight-use-package 'projectile)
   (use-package projectile
     :demand t
       :bind*
