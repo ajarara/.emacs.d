@@ -42,8 +42,8 @@ Use package is a way to tidy up config and a convenient way to lazy load package
 
   ;; bind-key is provided with use-package, diminish I only use once or twice
   (eval-when-compile
-    (require 'use-package))
-  (require 'diminish)
+      (require 'use-package))
+  ;; (require 'diminish)
   (require 'bind-key)
 #+END_SRC
 
@@ -270,7 +270,7 @@ I didn't bother playing around with dired but the amount of built in functionali
 
 Just.. don't play around with my keymaps.
 
-#+BEGIN_SRC emacs-lisp :tangle init.el
+#+BEGIN_SRC emacs-lisp 
   (use-package dired
     :after (general)
     :config
