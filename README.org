@@ -480,11 +480,32 @@ I use term instead of ansi-term (tried it in a previous iteration) because it's 
 
     ;; 2048 lines of output is way too restrictive.
     (setq term-buffer-maximum-size 8192)
-    :bind*
-    (("C-z" . term)
-     :map term-raw-map
-     ("C-y" . term-paste))
   )
+#+END_SRC
+
+** vterm
+Let's try this: there's some words of encouragement on the emacs subreddit. Only thing I want to change for now is closing the buffer on exit  
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  (straight-use-package 'vterm)
+  (use-package vterm
+    :config
+    (add-hook 'vterm-exit-functions
+              (lambda (&optional buffer event)
+                (unless (eq buffer nil)
+                  (kill-buffer buffer))))
+    )
+                                   
+  
+#+END_SRC
+
+** password-store
+I have a pretty sweet password store setup - I sync gpg public keys between all the places I use pass, and sync the store itself through the same mechanism.
+
+This means I have lastpass functionality. This package brings dmenu like search to all computer platforms I use, and is written by 
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(straight-use-package 'password-store)
+(use-package password-store)
+
 #+END_SRC
 ** which-key
 which-key is fantastic. It provides a visual reminder for any keymap. It even has a dialog for showing the top level binds (I bind it here to C-h SPC)
