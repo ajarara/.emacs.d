@@ -488,7 +488,7 @@ Let's try this: there's some words of encouragement on the emacs subreddit. Only
 
 There's one minor catch here - on one computer I use NixOS, which manages vterm installation (on Mac you have to have libtool + cmake to install)
 #+BEGIN_SRC emacs-lisp :tangle init.el
-  (unless (eq system-type 'darwin)
+  (if (eq system-type 'darwin)
     (straight-use-package 'vterm))
   (use-package vterm
     :config
