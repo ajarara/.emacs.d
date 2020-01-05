@@ -505,7 +505,14 @@ This means I have lastpass functionality. This package brings dmenu like search 
 #+BEGIN_SRC emacs-lisp :tangle init.el
 (straight-use-package 'password-store)
 (use-package password-store)
+#+END_SRC
 
+Additionally, use emacs for pin entry
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(straight-use-package 'pinentry)
+(use-package pinentry
+  :config
+  (pinentry-start))
 #+END_SRC
 ** which-key
 which-key is fantastic. It provides a visual reminder for any keymap. It even has a dialog for showing the top level binds (I bind it here to C-h SPC)
