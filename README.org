@@ -116,8 +116,11 @@ The language server protocol is neat! I'd like to be able to use emacs to edit j
 usages, _maybe_ incremental compilation. 
 
 #+BEGIN_SRC emacs-lisp :tangle init.el
-(straight-use-package 'lsp-mode)
-(use-package lsp-mode)
+  (straight-use-package 'lsp-mode)
+  (use-package lsp-mode
+    :hook ((rust-mode . lsp)
+           (lsp-mode . lsp-enable-which-key-integration))
+    :config (setq lsp-rust-server 'rust-analyzer))
 #+END_SRC
 
 ** Buttercup
@@ -293,6 +296,12 @@ Just.. don't play around with my keymaps.
   )
 #+END_SRC
 
+** direnv
+Only very slightly related to dired -- integrate emacs with direnv. Using this with lorri for rust/nix/cargo.el integration.
+#+BEGIN_SRC emacs-lisp :tangle init.el
+(straight-use-package 'direnv)
+(use-package direnv)
+#+END_SRC
 ** tramp
 
 scp is the default. I'm... not sure why I set this initially.
@@ -581,13 +590,7 @@ Oh, you knew it was coming.
 (straight-use-package 'rust-mode)
   (use-package rust-mode)
 (straight-use-package 'cargo)
-  (use-package cargo
-    :config
-    (setq cargo-process--custom-path-to-bin "./cargo")
-    ;; likely no need to create custom rustc paths, just use the
-    ;; global one
-    (setq cargo-process--rustc-cmd "\"$(nix-build '<nixpkgs>' --no-build-output -A rustc)/bin/rustc\"")
-  )
+  (use-package cargo)
   (add-hook 'rust-mode-hook 'cargo-minor-mode)
 
   ;; somewhere I read that using add-to-list is not enough, even though it mutates the list..
