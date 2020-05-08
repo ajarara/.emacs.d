@@ -829,16 +829,6 @@ By horizontal I mean vim's (and the rest of the world's) notion of vertical. You
 (setq split-width-threshold 140)
 #+END_SRC
 
-** project-specific
-These were great so that I could use elpy to spin up a shell provided by nix.
-Not really in use anymore.
-#+BEGIN_SRC emacs-lisp :tangle init.el
-   ;; here's an example, I no longer use it.
-  (setq safe-local-variable-values
-        '((python-shell-interpreter .  "/home/ajarara/proj/viz/repl.nix")
-          (python-shell-interpreter .  "/home/ajarara/proj/webkov/shell.nix")))
-#+END_SRC
-
 ** QOL fixes
 I reject your reality and substitute my own.
 #+BEGIN_SRC emacs-lisp :tangle init.el
