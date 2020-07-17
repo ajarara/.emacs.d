@@ -677,13 +677,6 @@ It's very simple to configure circe to connect to ZNC (a personal irc server, es
             :tls t
             :host "chat.freenode.net"
             :port 6697)
-           ;; doesn't look that interesting anymore. Maybe later.
-           ;; ("ZNC/rizon"
-           ;;  :tls t
-           ;;  :host "jarmac.org"
-           ;;  :port 6697
-           ;;  :user "alphor/rizon"
-           ;;  :pass (lambda (server-name) (read-passwd "Password?: ")))
            )))
 #+END_SRC
 
