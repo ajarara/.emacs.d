@@ -1,0 +1,10 @@
+#+STARTIP: overview
+* Intro
+This file is a literate emacs file I can evaluate to generate configuration for my personal machine, a Thinkpad x250 running NixOS.
+
+
+
+
+
+
+
