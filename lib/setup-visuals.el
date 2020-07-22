@@ -19,6 +19,15 @@
 ;; org mode.
 (visual-line-mode 1)
 
+
+;; Initially I just used the package (named simple-scrolling), but
+;; found that it caused weird graphical issues with browsing manual
+;; pages. This works just fine, although sometimes I miss the ability
+;; to have margins, but I also don't miss the jumpiness that sometimes
+;; occurred.
+(setq scroll-conservatively 10000)
+(setq auto-window-vscroll nil)
+
 ;; I don't know how I feel using hl-line-mode on EVERY
 ;; buffer. Instead, let's just add the ones that make sense.
 (defvar my-hl-line-mode-hook-list
@@ -36,6 +45,8 @@
   (blink-cursor-mode 10)
   (setq text-quoting-style nil)
   (visual-line-mode -1)
+  (setq scroll-conservatively 0)
+  (setq auto-window-vscroll t)
   (dolist (this-mode-hook my-hl-line-mode-hook-list)
     (remove-hook this-mode-hook `hl-line-mode)))
 
