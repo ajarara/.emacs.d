@@ -1,0 +1,44 @@
+#+STARTIP: overview
+* What is this?
+This file is a literate emacs file I can evaluate to generate configuration for my personal Mac. Lots of it is shared for different configs, so it's broken down into require blocks. Some of these can be unrequired.
+
+#+begin_src emacs-lisp :tangle init.el
+  (load "~/.emacs.d/bootstrap.el")
+
+  (require 'setup-evil)
+  (require 'setup-general)
+  (require 'setup-lsp)
+
+  (require 'setup-ace-window)
+  (require 'setup-apropos)
+  (require 'setup-circe)
+  (require 'setup-counsel)
+  (require 'setup-directory-clutter)
+  (require 'setup-dired)
+  (require 'setup-direnv)
+  (require 'setup-elpy)
+  (require 'setup-ibuffer)
+  (require 'setup-indium)
+  (require 'setup-magit)
+  (require 'setup-magit)
+  (require 'setup-markdown)
+  (require 'setup-nix)
+  (require 'setup-password-store)
+  (require 'setup-personal)
+  (require 'setup-projectile)
+  (require 'setup-qol)
+  (require 'setup-re-builder)
+  (require 'setup-rust)
+  (require 'setup-snappy)
+  (require 'setup-swiper)
+  (require 'setup-term)
+  (require 'setup-theme)
+  (require 'setup-visuals)
+  (require 'setup-which-key)
+#+end_src
+
+
+
+
+
+
