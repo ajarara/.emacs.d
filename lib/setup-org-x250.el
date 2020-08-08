@@ -44,4 +44,8 @@
           ("c" "coffee" entry (file+datetree "~/Documents/org/coffee.org")
            "* %?\nEntered on %U\n"))))
 
+(add-hook `org-mode-hook `org-indent-mode)
+(add-hook `org-mode-hook `visual-line-mode)
+
 (provide 'setup-org-x250)
+

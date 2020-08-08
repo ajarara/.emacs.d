@@ -75,3 +75,5 @@
   :straight t
   :config
   (evil-visual-mark-mode))
+
+(provide 'setup-evil)

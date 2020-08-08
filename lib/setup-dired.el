@@ -1,6 +1,7 @@
 ;; Dired is deep. Just.. don't play around with my keymaps.
 
 (use-package dired
+  :straight nil
   :after (general)
   :config
   (define-key dired-mode-map (kbd "SPC") nil)

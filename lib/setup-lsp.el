@@ -4,3 +4,5 @@
 (use-package lsp-mode
   :straight t
   :hook ((lsp-mode . lsp-enable-which-key-integration)))
+
+(provide 'setup-lsp)

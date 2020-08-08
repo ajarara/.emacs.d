@@ -46,3 +46,5 @@
 
    "i" 'imenu))
 
+
+(provide 'setup-general)

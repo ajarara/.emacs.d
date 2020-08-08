@@ -7,3 +7,5 @@
 (setq split-width-threshold 140)
 
 (setq-default indent-tabs-mode nil)
+
+(provide 'setup-qol)
