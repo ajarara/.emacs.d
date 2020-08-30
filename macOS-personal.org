@@ -1,4 +1,3 @@
-#+STARTIP: overview
 * What is this?
 This file is a literate emacs file I can evaluate to generate configuration for my personal Mac. Lots of it is shared for different configs, so it's broken down into require blocks. Some of these can be unrequired.
 
@@ -33,6 +32,7 @@ This file is a literate emacs file I can evaluate to generate configuration for 
   (require 'setup-swiper)
   (require 'setup-term)
   (require 'setup-theme)
+  (require 'setup-ux)
   (require 'setup-visuals)
   (require 'setup-which-key)
 #+end_src
