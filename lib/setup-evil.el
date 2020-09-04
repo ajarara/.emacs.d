@@ -46,9 +46,6 @@
   ;; at the mode line
   (setq evil-emacs-state-cursor `(hbar . 2))
 
-  ;; I highly value colors.
-  (setq evil-lookup-func (lambda () (call-interactively 'man)))
-
   :demand t
   ;; Needs to also be sent to general.
   :bind* (:map evil-emacs-state-map
