@@ -31,6 +31,7 @@ This file is a literate emacs file I can evaluate to generate configuration for 
   (require 'setup-snappy)
   (require 'setup-swiper)
   (require 'setup-term)
+  (require 'setup-ts)
   (require 'setup-theme)
   (require 'setup-ux)
   (require 'setup-visuals)
