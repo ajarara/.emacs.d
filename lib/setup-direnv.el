@@ -1,4 +1,6 @@
 ;; invaluable for lorri integration.
-(use-package direnv :straight t)
+(use-package direnv
+  :config
+  (setq direnv-always-show-summary nil))
 
 (provide 'setup-direnv)
