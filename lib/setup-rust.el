@@ -1,5 +1,5 @@
 (use-package rust-mode
-  :mode "\\.rs\\"
+  :mode "\\.rs"
   :config
   (add-hook 'rust-mode-hook 'lsp))
 
