@@ -1,6 +1,7 @@
 (use-package rust-mode
   :mode "\\.rs\\"
-  :hook lsp)
+  :config
+  (add-hook 'rust-mode-hook 'lsp))
 
 (use-package cargo
   :hook rust-mode)
