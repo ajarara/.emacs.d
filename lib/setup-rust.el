@@ -4,8 +4,8 @@
   (add-hook 'rust-mode-hook 'lsp))
 
 (use-package cargo
-  :hook rust-mode)
-
+  :config
+  (add-hook 'rust-mode-hook 'cargo-minor-mode))
 
 (provide 'setup-rust)
 
