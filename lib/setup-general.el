@@ -16,7 +16,8 @@
 
   ;; leader key binds
   (setq general-default-keymaps '(evil-normal-state-map
-                                  evil-visual-state-map))
+                                  evil-visual-state-map
+                                  evil-emacs-state-map))
 
   (setq general-default-prefix "C-c")
   (general-define-key
