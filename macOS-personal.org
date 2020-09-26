@@ -9,7 +9,6 @@ This file is a literate emacs file I can evaluate to generate configuration for 
   (require 'setup-lsp)
 
   (require 'setup-ace-window)
-  (require 'setup-apropos)
   (require 'setup-circe)
   (require 'setup-counsel)
   (require 'setup-directory-clutter)

@@ -18,7 +18,7 @@
   (setq general-default-keymaps '(evil-normal-state-map
                                   evil-visual-state-map))
 
-  (setq general-default-prefix "SPC")
+  (setq general-default-prefix "C-c")
   (general-define-key
    
    "g" 'keyboard-quit
@@ -30,15 +30,17 @@
    "t" 'toggle-word-wrap
    "s" 'magit-status
    
-   "a" 'org-agenda-list
+   "a" 'counsel-ag
    
    "m" 'fill-region
 
-   ;; in the case that we don't have projectile, fall back to
-   ;; vanilla find-file
    "f" (if (featurep 'projectile)
            'projectile-find-file
          'find-file)
+   "c" (if (featurep 'projectile)
+           'projectile-compile-project
+         'compile-project)
+   
    "p" 'my-find-projects
    "o" 'my-find-org-files
 
