@@ -35,12 +35,8 @@
    
    "m" 'fill-region
 
-   "f" (if (featurep 'projectile)
-           'projectile-find-file
-         'find-file)
-   "c" (if (featurep 'projectile)
-           'projectile-compile-project
-         'compile-project)
+   "f" 'projectile-find-file
+   "c" 'projectile-compile-project
    
    "p" 'my-find-projects
    "o" 'my-find-org-files
