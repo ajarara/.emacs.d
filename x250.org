@@ -15,6 +15,7 @@ This file is a literate emacs file I can evaluate to generate configuration for 
   (require 'setup-dired)
   (require 'setup-direnv)
   (require 'setup-elpy)
+  (require 'setup-go)
   (require 'setup-ibuffer)
   (require 'setup-indium)
   (require 'setup-magit)
@@ -36,9 +37,3 @@ This file is a literate emacs file I can evaluate to generate configuration for 
   (require 'setup-visuals)
   (require 'setup-which-key)
 #+end_src
-
-
-
-
-
-
