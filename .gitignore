@@ -1,12 +1,7 @@
 /*
-!bootstrap.el
-!x250.org
-!macOS-personal.org
-!lib
 !.gitignore
+!init.el
 !README.md
-!code.org
-!elpy-conf.el
 !straight
 straight/*
 !straight/versions
