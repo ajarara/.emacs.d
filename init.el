@@ -21,6 +21,7 @@
 ;; `profile' to either `personal-macOS', `nixOS'
 (load "~/.emacs.d/profile")
 
+
 ;; shouldn't be in here: We should just use general to write keybinds.
 (require 'bind-key)
 
@@ -425,7 +426,6 @@ point reaches the beginning or end of the buffer, stop there."
 ;; pretty quotes can't be jumped to easily.
 (setq text-quoting-style 'grave)
 
-;; don't use 
 (setq scroll-conservatively 10000)
 (setq auto-window-vscroll nil)
 
@@ -440,3 +440,5 @@ point reaches the beginning or end of the buffer, stop there."
   (("C-h SPC" . which-key-show-top-level))
   :config
   (which-key-mode))
+
+(use-package git-link)
