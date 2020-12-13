@@ -233,16 +233,16 @@
 
 (use-package org
   :config
-  (setq org-directory "~/Documents/org/")
+  (setq org-directory "~/notes/org/")
 
   (setq org-default-notes-file (concat org-directory "sink.org"))
   (setq org-capture-templates
         (cond
          ((eq profile 'nixOS)
-           '(("j"
+           `(("j"
               "journal"
               entry
-              (file+datetree (concat org-directory "journal.org"))
+              (file+datetree ,(concat org-directory "journal.org"))
               "* %?\nEntered on %U\n  %i\n  %a")))
          (t nil))))
 
