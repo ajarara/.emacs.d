@@ -25,57 +25,9 @@
 ;; shouldn't be in here: We should just use general to write keybinds.
 (require 'bind-key)
 
-(use-package evil
-  :straight t
-  :init
-  (setq evil-toggle-key "C-`")
-  (setq evil-want-fine-undo t)
-
-  :config
-  (evil-mode t)
-
-  (defalias 'evil-insert-state 'evil-emacs-state) 
-  (setq evil-default-state 'emacs)
-  (define-key evil-emacs-state-map [escape] 'evil-normal-state)
-
-  ;; hbar -> horizontal bar
-  (setq evil-emacs-state-cursor `(hbar . 2))
-
-  :demand t
-  ;; Needs to also be sent to general.
-  :bind* (:map evil-emacs-state-map
-               ("C-r" . evil-paste-from-register)
-
-               :map evil-normal-state-map
-               ("C-f" . evil-scroll-down)
-               ("C-b" . evil-scroll-up)
-               ("j" . evil-next-visual-line)
-               ("k" . evil-previous-visual-line)
-               ("'" . evil-goto-mark)
-               ("C-e" . end-of-line)
-               ("C-y" . yank)
-               ("C-d" . evil-scroll-down)
-               ("C-t" . ace-window)
-
-               :map evil-motion-state-map
-               ("C-f" . evil-scroll-down)
-               ("C-b" . evil-scroll-up)))
-
-(use-package evil-visual-mark-mode
-  :config
-  (evil-visual-mark-mode))
-
 (use-package general
   ;; maybe in the future make this config evil agnostic?
-  :straight t
-  :if (featurep 'evil)
   :config
-
-  ;; leader key binds
-  (setq general-default-keymaps '(evil-normal-state-map
-                                  evil-visual-state-map
-                                  evil-emacs-state-map))
-
   (general-define-key
    "g" 'keyboard-quit
    "C-g" 'keyboard-quit
@@ -193,25 +145,6 @@
 (make-directory "~/.emacs.d/autosave" t)
 (setq auto-save-list-file-prefix "~/.emacs.d/autosave/")
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosave/" t)))
-
-(use-package dired
-  :straight nil
-  :config
-  (define-key dired-mode-map (kbd "SPC") nil)
-  (define-key dired-mode-map (kbd "M-s") nil)
-  
-  ;; remove dired-mode-map definition
-  (define-key dired-mode-map (kbd "i") nil)
-  
-  (general-define-key :prefix nil
-                      :keymaps 'dired-mode-map
-                      :states '(normal)
-                      "i" 'evil-insert-state)
-  
-  (general-define-key :prefix nil
-                      :keymaps 'dired-mode-map
-                      :states '(emacs)
-                      "i" 'dired-maybe-insert-subdir))
 
 (use-package direnv
   :config
