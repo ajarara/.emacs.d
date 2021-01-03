@@ -375,3 +375,6 @@ point reaches the beginning or end of the buffer, stop there."
   (which-key-mode))
 
 (use-package git-link)
+
+(when (eq profile 'personal-macOS)
+  (setq ring-bell-function 'ignore))
