@@ -287,7 +287,7 @@ point reaches the beginning or end of the buffer, stop there."
     (interactive)
     (tide-setup)
     (flycheck-mode 1)
-    (estq flycheck-check-syntax-automatically '(save mode-enabled))
+    (setq flycheck-check-syntax-automatically '(save mode-enabled))
     (eldoc-mode 1)
 
     (tide-hl-identifier-mode 1)
