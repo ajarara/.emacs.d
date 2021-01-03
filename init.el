@@ -280,6 +280,8 @@ point reaches the beginning or end of the buffer, stop there."
   :config
   (add-hook 'rust-mode-hook 'lsp))
 
+(use-package company)
+
 (use-package tide
   :config
   (setq typescript-indent-level 2)
