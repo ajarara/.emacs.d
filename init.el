@@ -188,7 +188,7 @@
 ;; You split along the horizontal axis, I guess. Sure.
 (setq split-height-threshold nil)
 (setq split-width-threshold 140)
-(setq-default cursor-type 'bar)
+(setq-default cursor-type 'hbar)
 
 (setq-default indent-tabs-mode nil)
 
