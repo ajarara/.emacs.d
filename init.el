@@ -306,7 +306,7 @@ point reaches the beginning or end of the buffer, stop there."
 (defun node-repl ()
   (interactive)
   (setenv "NODE_NO_READLINE" "1") ;avoid fancy terminal codes
-      (pop-to-buffer (make-comint "node-repl" "node" nil "--interactive")))
+  (pop-to-buffer (make-comint "node-repl" "node" nil "--interactive")))
 
 (use-package cargo
   :config
