@@ -156,6 +156,8 @@
   (add-hook 'go-mode-hook 'direnv-mode)
   (add-to-list 'auto-mode-alist'("\\.go" . go-mode)))
 
+(use-package guix)
+
 (use-package ibuffer
   :config
   (global-set-key (kbd "C-x C-b") 'ibuffer))
@@ -406,3 +408,7 @@ point reaches the beginning or end of the buffer, stop there."
 
 (when (eq profile 'personal-macOS)
   (setq ring-bell-function 'ignore))
+
+(use-package geiser
+  :config
+  (setq geiser-active-implementations '(guile)))
