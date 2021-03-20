@@ -36,7 +36,6 @@
    "w" 'save-buffer
    "v" 'visual-line-mode
    "t" 'toggle-word-wrap
-   "s" 'magit-status
    
    "a" 'counsel-ag
    
