@@ -387,6 +387,8 @@ point reaches the beginning or end of the buffer, stop there."
 ;; horizontal scrolling bad
 (visual-line-mode 1)
 
+(column-number-mode)
+
 ;; pretty quotes can't be jumped to easily.
 (setq text-quoting-style 'grave)
 
