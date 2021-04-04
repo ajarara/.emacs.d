@@ -21,6 +21,12 @@
 ;; `profile' to either `personal-macOS', `nixOS'
 (load "~/.emacs.d/profile")
 
+(use-package srfi
+  :config
+  (add-hook
+   'srfi-mode-hook
+   (lambda ()
+     (setq-local browse-url-browser-function 'eww))))
 
 ;; shouldn't be in here: We should just use general to write keybinds.
 (require 'bind-key)
