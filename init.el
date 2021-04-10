@@ -32,7 +32,7 @@
 (require 'bind-key)
 
 (use-package general
-  ;; maybe in the future make this config evil agnostic?
+  :demand t
   :config
   (general-define-key
    "g" 'keyboard-quit
