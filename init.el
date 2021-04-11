@@ -420,7 +420,13 @@ point reaches the beginning or end of the buffer, stop there."
 
 (use-package geiser
   :config
-  (setq geiser-active-implementations '(guile)))
+  ;; hack -- config is being run too early here so force geiser-impl
+  ;; to load so the implementation macro is defined
+  (load "geiser-impl")
+  
+  (define-geiser-implementation (guix guile)
+    (binary "guix")
+    (arglist `("repl" "--" ,@(geiser-nguile--parameters)))))
 
 (use-package dumb-jump
   :config
