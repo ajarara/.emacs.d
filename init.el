@@ -422,11 +422,14 @@ point reaches the beginning or end of the buffer, stop there."
   :config
   ;; hack -- config is being run too early here so force geiser-impl
   ;; to load so the implementation macro is defined
-  (load "geiser-impl")
+
+  (unless (locate-library "geiser-impl")
+    (error "Could not find geiser-impl -- failing fast"))
   
-  (define-geiser-implementation (guix guile)
-    (binary "guix")
-    (arglist `("repl" "--" ,@(geiser-nguile--parameters)))))
+  (with-eval-after-load "geiser-impl"
+    (define-geiser-implementation (guix guile)
+      (binary "guix")
+      (arglist `("repl" "--" ,@(geiser-guile--parameters))))))
 
 (use-package dumb-jump
   :config
