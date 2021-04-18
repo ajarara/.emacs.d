@@ -420,16 +420,13 @@ point reaches the beginning or end of the buffer, stop there."
 
 (use-package geiser
   :config
-  ;; hack -- config is being run too early here so force geiser-impl
-  ;; to load so the implementation macro is defined
-
-  (unless (locate-library "geiser-impl")
-    (error "Could not find geiser-impl -- failing fast"))
   
   (with-eval-after-load "geiser-impl"
-    (define-geiser-implementation (guix guile)
-      (binary "guix")
-      (arglist `("repl" "--" ,@(geiser-guile--parameters))))))
+    (require 'geiser-guix
+             (concat user-emacs-directory "lib/geiser-guix")))
+    
+  (setq geiser-default-implementation 'guile)
+  (setq geiser-active-implementations '(guile guix)))
 
 (use-package dumb-jump
   :config
