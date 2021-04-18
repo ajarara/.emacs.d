@@ -426,13 +426,7 @@ point reaches the beginning or end of the buffer, stop there."
 
 (use-package geiser
   :config
-  
-  (with-eval-after-load "geiser-impl"
-    (require 'geiser-guix
-             (concat user-emacs-directory "lib/geiser-guix")))
-    
-  (setq geiser-default-implementation 'guile)
-  (setq geiser-active-implementations '(guile guix)))
+  (setq geiser-default-implementation 'guile))
 
 (use-package dumb-jump
   :config
