@@ -19,7 +19,8 @@
 
 ;; load up the profile. This is an untracked file that sets
 ;; `profile' to either `personal-macOS', `nixOS'
-(load "~/.emacs.d/profile")
+(load (concat user-emacs-directory "profile.el"))
+(push (concat user-emacs-directory "elisp") load-path)
 
 (use-package srfi
   :config
