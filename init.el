@@ -143,14 +143,19 @@
   :bind* (("M-x" . counsel-M-x)
           ("C-c a" . counsel-ag)))
 
-(make-directory "~/.emacs.d/backup" t)
-(setq backup-directory-alist '((".*" . "~/.emacs.d/backup")))
+(defvar backup-directory
+  (concat user-emacs-directory "backup"))
+
+(make-directory backup-directory t)
+(setq backup-directory-alist `((".*" . ,backup-directory)))
 (setq version-control t)
 (setq delete-old-versions t)
 
-(make-directory "~/.emacs.d/autosave" t)
-(setq auto-save-list-file-prefix "~/.emacs.d/autosave/")
-(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosave/" t)))
+(defvar autosave-directory
+  (concat user-emacs-directory "autosave"))
+(make-directory autosave-directory t)
+(setq auto-save-list-file-prefix autosave-directory)
+(setq auto-save-file-name-transforms `((".*" ,autosave-directory t)))
 
 (use-package direnv
   :config
