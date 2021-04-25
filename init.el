@@ -434,7 +434,7 @@ point reaches the beginning or end of the buffer, stop there."
   (setq geiser-default-implementation 'guile)
   (setq geiser-active-implementations '(guile))
   (setq geiser-guile-load-path
-       '("/gnu/store/595llwq6gbb45iqh922v5x7kgmz9kcc2-nonguix/share/guile/site/3.0")))
+       '("/gnu/store/iyx6725jjma3d4dyi0byalpl7iqx55xy-nonguix-1e57ef8/share/guile/site/3.0")))
 
 (use-package dumb-jump
   :config
