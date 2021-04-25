@@ -250,7 +250,10 @@ point reaches the beginning or end of the buffer, stop there."
 (bind-key* "C-h C-h" (lambda ()
     (interactive) (info "(emacs) Help Summary")))
 
-(bind-key* "M-." `xref-find-definitions-other-window)
+(use-package xref
+  :config
+  (setq xref-show-definitions-function 'xref--show-defs-buffer-at-bottom)
+  (bind-key* "M-." `xref-find-definitions-other-window))
 
 (define-key key-translation-map (kbd "C-M-g") (kbd "C-g"))
 
