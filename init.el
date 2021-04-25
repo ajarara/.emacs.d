@@ -186,12 +186,17 @@
   (setq org-default-notes-file (concat org-directory "sink.org"))
   (setq org-capture-templates
         (cond
-         ((eq profile 'nixOS)
+         ((eq profile 'guix)
            `(("j"
               "journal"
               entry
               (file+datetree ,(concat org-directory "journal.org"))
-              "* %?\nEntered on %U\n  %i\n  %a")))
+              "* %?\nEntered on %U\n  %i\n  %a")
+             ("t"
+              "todo"
+              entry
+              (file+datetree ,(concat org-directory "todo.org"))
+              "* TODO %?\n  %i\n  %a")))
          (t nil))))
 
 (add-hook `org-mode-hook `org-indent-mode)
