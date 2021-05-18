@@ -435,9 +435,14 @@ point reaches the beginning or end of the buffer, stop there."
 (use-package geiser
   :config
   (setq geiser-default-implementation 'guile)
-  (setq geiser-active-implementations '(guile))
-  (setq geiser-guile-load-path
-       '("/gnu/store/3jm7xqyb2fwh35534l6737asj3f49igp-nonguix-9e912f2")))
+  (if (eq profile 'guix)
+      (setq geiser-active-implementations '(guile guix))
+    (setq geiser-active-implementations '(guile))))
+
+(when (eq profile 'guix)
+  (straight-use-package
+   '(geiser-guix :local-repo "~/src/geiser-guix"))
+  (use-package geiser-guix))
 
 (use-package dumb-jump
   :config
