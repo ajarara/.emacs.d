@@ -190,7 +190,7 @@
            `(("j"
               "journal"
               entry
-              (file+datetree ,(concat org-directory "journal.org"))
+              (file+datetree ,(concat org-directory "journal-second.org"))
               "* %?\nEntered on %U\n  %i\n  %a")
              ("t"
               "todo"
@@ -454,7 +454,8 @@ point reaches the beginning or end of the buffer, stop there."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(safe-local-variable-values
-   '((eval let
+   '((geiser-default-implementation quote guix)
+     (eval let
            ((root-dir-unexpanded
              (locate-dominating-file default-directory ".dir-locals.el")))
            (when root-dir-unexpanded
