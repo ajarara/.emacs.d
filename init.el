@@ -78,37 +78,33 @@
                (lambda (server-name)
                  (read-passwd (format "Password for server: %s? " server-name)))))
             `(("ZNC/freenode"
-           :tls t
-           :host "jarmac.org"
-           :port 5013
-           :user "alphor/freenode"
-           :pass ,server-passwd)
-           ("ZNC/mozilla"
-            :tls t
-            :host "jarmac.org"
-            :port 5013
-            :user "alphor/mozilla"
-            :pass ,server-passwd)
-           ("ZNC/snoonet"
-            :tls t
-            :host "jarmac.org"
-            :port 5013
-            :user "alphor/snoonet"
-            :pass ,server-passwd)
-           ("ZNC/gitter"
-            :tls t
-            :host "jarmac.org"
-            :port 5013
-            :user "alphor/gitter"
-            :pass ,server-passwd)
-           ("local/i2p"
-            :tls t
-            :host "localhost"
-            :port 6668)
-           ("freenode"
-            :tls t
-            :host "chat.freenode.net"
-            :port 6697))))
+               :tls t
+               :host "jarmac.org"
+               :port 5013
+               :user "alphor/freenode"
+               :pass ,server-passwd)
+              ("ZNC/mozilla"
+               :tls t
+               :host "jarmac.org"
+               :port 5013
+               :user "alphor/mozilla"
+               :pass ,server-passwd)
+              ("ZNC/snoonet"
+               :tls t
+               :host "jarmac.org"
+               :port 5013
+               :user "alphor/snoonet"
+               :pass ,server-passwd)
+              ("ZNC/gitter"
+               :tls t
+               :host "jarmac.org"
+               :port 5013
+               :user "alphor/gitter"
+               :pass ,server-passwd)
+              ("libera"
+               :tls t
+               :host "irc.libera.chat"
+               :port 6697))))
     ;; I have no idea why colored nicks are not enabled by default. Much
     ;; prettier! (This is the default option I was complaining about
     ;; earlier)
@@ -228,7 +224,6 @@ point reaches the beginning or end of the buffer, stop there."
   (when (/= arg 1)
     (let ((line-move-visual nil))
       (forward-line (1- arg))))
-
   (let ((orig-point (point)))
     (back-to-indentation)
     (when (= orig-point (point))
