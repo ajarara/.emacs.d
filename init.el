@@ -72,38 +72,11 @@
     :config
   (setq circe-network-defaults nil)
   
-    (setq circe-network-options
-        (let ((server-passwd
-               (lambda (server-name)
-                 (read-passwd (format "Password for server: %s? " server-name)))))
-            `(("ZNC/freenode"
-               :tls t
-               :host "jarmac.org"
-               :port 5013
-               :user "alphor/freenode"
-               :pass ,server-passwd)
-              ("ZNC/mozilla"
-               :tls t
-               :host "jarmac.org"
-               :port 5013
-               :user "alphor/mozilla"
-               :pass ,server-passwd)
-              ("ZNC/snoonet"
-               :tls t
-               :host "jarmac.org"
-               :port 5013
-               :user "alphor/snoonet"
-               :pass ,server-passwd)
-              ("ZNC/gitter"
-               :tls t
-               :host "jarmac.org"
-               :port 5013
-               :user "alphor/gitter"
-               :pass ,server-passwd)
-              ("libera"
-               :tls t
-               :host "irc.libera.chat"
-               :port 6697))))
+  (setq circe-network-options
+        `(("libera"
+           :tls t
+           :host "irc.libera.chat"
+           :port 6697)))
     ;; I have no idea why colored nicks are not enabled by default. Much
     ;; prettier! (This is the default option I was complaining about
     ;; earlier)
