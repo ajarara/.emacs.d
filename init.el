@@ -428,6 +428,9 @@ point reaches the beginning or end of the buffer, stop there."
 
 (use-package geiser
   :config
+  (with-eval-after-load 'geiser-guile
+    (add-to-list 'geiser-guile-load-path "~/src/guix")
+    (add-to-list 'geiser-guile-load-path "~/src/nonguix"))
   (setq geiser-default-implementation 'guile)
   (setq geiser-active-implementations '(guile)))
 
