@@ -170,6 +170,11 @@
 (add-hook `org-mode-hook `org-indent-mode)
 (add-hook `org-mode-hook `visual-line-mode)
 
+(use-package org-roam
+  :config
+  (setq org-roam-v2-ack t)
+  (setq org-roam-directory "~/notes/roam"))
+
 ;; Prefer horizontal splits when the frame has the space for it.
 ;; By horizontal, I mean vim's and the rest of the world's notion of vertical.
 
