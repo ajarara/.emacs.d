@@ -171,8 +171,9 @@
 (add-hook `org-mode-hook `visual-line-mode)
 
 (use-package org-roam
-  :config
+  :init
   (setq org-roam-v2-ack t)
+  :config
   (setq org-roam-directory "~/notes/roam"))
 
 ;; Prefer horizontal splits when the frame has the space for it.
