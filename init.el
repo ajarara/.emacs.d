@@ -105,7 +105,8 @@
 (straight-use-package
  '(circe-actions :type git :host github :repo "alphor/circe-actions"))
 (use-package circe-actions)
-    
+
+(use-package ag)
 (use-package counsel
   :straight t
   :bind* (("M-x" . counsel-M-x)
