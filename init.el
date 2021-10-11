@@ -1,4 +1,3 @@
-;; All files depend on straight.el to manage packages, and use-package to configure
 (setq straight-use-package-version 'straight)
 (setq straight-use-package-by-default t)
 
@@ -417,6 +416,10 @@ point reaches the beginning or end of the buffer, stop there."
 (use-package dumb-jump
   :config
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
+
+(use-package deft
+  :init
+  (setq deft-extension ".gpg"))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
