@@ -419,7 +419,7 @@ point reaches the beginning or end of the buffer, stop there."
 
 (use-package deft
   :init
-  (setq deft-extension ".gpg"))
+  (setq deft-extension "gpg"))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
