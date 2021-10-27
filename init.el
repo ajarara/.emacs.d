@@ -68,8 +68,9 @@
   (setq aw-scope 'frame))
 
 (use-package circe
-    :config
+  :config
   (setq circe-network-defaults nil)
+  (setq circe-split-line-length 400)
   
   (setq circe-network-options
         `(("libera"
@@ -138,6 +139,15 @@
 (use-package guix
   :config
   (setq guix-dot-program "xt"))
+
+;; https://www.reddit.com/r/emacs/comments/qeehqa/is_there_a_way_to_highlight_the_content_inside/hhsfsry/
+(use-package paren
+  :config
+  (setq show-paren-style 'expression)
+  (setq show-paren-when-point-in-periphery t)
+  (setq show-paren-when-point-inside-paren nil)
+  :hook
+  (after-init-hook . show-paren-mode))
 
 (use-package ibuffer
   :config
