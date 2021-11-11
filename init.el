@@ -70,7 +70,7 @@
 (use-package circe
   :config
   (setq circe-network-defaults nil)
-  (setq lui-fill-column 65)
+  (setq lui-fill-column 63)
   
   (setq circe-network-options
         `(("libera"
