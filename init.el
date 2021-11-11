@@ -76,7 +76,12 @@
         `(("libera"
            :tls t
            :host "irc.libera.chat"
-           :port 6697)))
+           :port 6697
+           :sasl-strict t
+           :sasl-username "ajarara"
+           :sasl-password (lambda (host)
+                            (password-store-get host))
+           )))
     ;; I have no idea why colored nicks are not enabled by default. Much
     ;; prettier! (This is the default option I was complaining about
     ;; earlier)
