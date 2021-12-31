@@ -20,6 +20,8 @@
 ;; `profile' to either `personal-macOS', `nixOS'
 (load (concat user-emacs-directory "profile.el"))
 
+(set-frame-font "DejaVu Sans Mono 8")
+
 (use-package srfi
   :config
   (add-hook
@@ -67,7 +69,10 @@
   :config
   (setq aw-scope 'frame))
 
+(use-package password-store)
+
 (use-package circe
+  :requires password-store
   :config
   (setq circe-network-defaults nil)
   (setq lui-fill-column 63)
@@ -226,7 +231,7 @@ point reaches the beginning or end of the buffer, stop there."
 (global-set-key [remap move-beginning-of-line]
                 'my-smarter-move-beginning-of-line)
 
-(use-package password-store)
+
 (use-package pinentry
   :config
   (pinentry-start))
