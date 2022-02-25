@@ -20,8 +20,6 @@
 ;; `profile' to either `personal-macOS', `nixOS'
 (load (concat user-emacs-directory "profile.el"))
 
-(set-frame-font "DejaVu Sans Mono 8")
-
 (use-package srfi
   :config
   (add-hook
