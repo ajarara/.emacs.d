@@ -24,7 +24,7 @@
     (defvar profile 'nil)))
 
 (defvar is-personal-profile
-  (s-starts-with? "personal" (symbol-name profile))
+  (s-starts-with? "personal" (symbol-name profile)))
 
 (use-package srfi
   :config
