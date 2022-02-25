@@ -23,8 +23,8 @@
       (load profile-path)
     (defvar profile 'nil)))
 
-(defvar my-is-personal-machine
-  (s-starts-with? "personal" (symbol-name profile)
+(defvar is-personal-profile
+  (s-starts-with? "personal" (symbol-name profile))
 
 (use-package srfi
   :config
