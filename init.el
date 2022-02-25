@@ -23,6 +23,8 @@
       (load profile-path)
     (defvar profile 'nil)))
 
+(use-package s)
+  
 (defvar is-personal-profile
   (s-starts-with? "personal" (symbol-name profile)))
 
