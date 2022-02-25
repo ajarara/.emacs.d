@@ -18,7 +18,13 @@
 
 ;; load up the profile. This is an untracked file that sets
 ;; `profile' to either `personal-macOS', `nixOS'
-(load (concat user-emacs-directory "profile.el"))
+(let ((profile-path (concat user-emacs-directory "profile.el")))
+  (if (file-exists-p profile-path)
+      (load profile-path)
+    (defvar profile 'nil)))
+
+(defvar my-is-personal-machine
+  (s-starts-with? "personal" (symbol-name profile)
 
 (use-package srfi
   :config
@@ -114,11 +120,12 @@
  '(circe-actions :type git :host github :repo "alphor/circe-actions"))
 (use-package circe-actions)
 
-(use-package ag)
-(use-package counsel
-  :straight t
-  :bind* (("M-x" . counsel-M-x)
-          ("C-c a" . counsel-ag)))
+(when is-personal-profile
+  (use-package ag)
+  (use-package counsel
+    :straight t
+    :bind* (("M-x" . counsel-M-x)
+            ("C-c a" . counsel-ag))))
 
 (defvar backup-directory
   (concat user-emacs-directory "backup"))
