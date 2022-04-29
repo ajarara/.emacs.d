@@ -24,6 +24,7 @@
     (defvar profile 'nil)))
 
 (use-package s)
+(use-package project)
   
 (defvar is-personal-profile
   (s-starts-with? "personal" (symbol-name profile)))
