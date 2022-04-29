@@ -34,6 +34,7 @@
  ("magit-popup" . "d8585fa39f88956963d877b921322530257ba9f5")
  ("markdown-mode" . "d2a3d5b8625a7c6be21f19f9146745cd5c791a6a")
  ("melpa" . "deae8f07ccee183288487c3fd3580705feae0fae")
+ ("meow" . "8cfc0b0ecc03f0a017cf2ec96530c1e5c291394c")
  ("monokai-emacs" . "4a09c59f948ba5b602b6f395e667f53224fd75a2")
  ("nix-mode" . "66206cab276c0f4d1c84e77ba2a67ed6a46b2d9c")
  ("org" . "a3dac4d20a37c51393f191d01e0ec2170bb260a3")

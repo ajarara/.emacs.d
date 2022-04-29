@@ -38,6 +38,7 @@
 
 ;; shouldn't be in here: We should just use general to write keybinds.
 (require 'bind-key)
+(use-package meow)
 
 (use-package general
   :demand t
