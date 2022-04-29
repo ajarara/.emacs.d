@@ -171,6 +171,7 @@
   :config
   (global-set-key (kbd "C-x C-b") 'ibuffer))
 
+
 (use-package magit) ;; for how much it's used I've never needed to config it
 (use-package markdown-mode)
 (use-package nix-mode)
@@ -197,12 +198,6 @@
 
 (add-hook `org-mode-hook `org-indent-mode)
 (add-hook `org-mode-hook `visual-line-mode)
-
-(use-package org-roam
-  :init
-  (setq org-roam-v2-ack t)
-  :config
-  (setq org-roam-directory "~/notes/roam"))
 
 ;; Prefer horizontal splits when the frame has the space for it.
 ;; By horizontal, I mean vim's and the rest of the world's notion of vertical.
