@@ -17,17 +17,18 @@
 (straight-use-package 'use-package)
 
 ;; load up the profile. This is an untracked file that sets
-;; `profile' to either `personal-macOS', `nixOS'
+;; `profile' to either `personal-macOS', `personal-guix'.
 (let ((profile-path (concat user-emacs-directory "profile.el")))
   (if (file-exists-p profile-path)
       (load profile-path)
     (defvar profile 'nil)))
 
 (use-package s)
-(use-package project)
-  
+
 (defvar is-personal-profile
   (s-starts-with? "personal" (symbol-name profile)))
+
+(use-package project)
 
 (use-package meow
   :demand t
@@ -118,9 +119,16 @@
      '("<escape>" . ignore))
     (meow-global-mode))
 
+(use-package magit)
+
 ;; shouldn't be in here: We should just use general to write keybinds.
 (require 'bind-key)
-(use-package meow)
+(use-package key-chord
+  :config
+  ;; hmm.. when grabbing this key chord is not respected
+  (key-chord-define
+   meow-insert-state-keymap "jj" 'meow-normal-mode)
+  (key-chord-mode))
 
 (use-package general
   :demand t
@@ -153,7 +161,6 @@
   :hook ((lsp-mode . lsp-enable-which-key-integration)))
 
 (use-package ace-window
-  :straight t
   :bind*
   (("C-t" . ace-window))
   :config
@@ -209,7 +216,6 @@
 (when is-personal-profile
   (use-package ag)
   (use-package counsel
-    :straight t
     :bind* (("M-x" . counsel-M-x)
             ("C-c a" . counsel-ag))))
 
@@ -254,10 +260,7 @@
   :config
   (global-set-key (kbd "C-x C-b") 'ibuffer))
 
-
-(use-package magit) ;; for how much it's used I've never needed to config it
 (use-package markdown-mode)
-(use-package nix-mode)
 
 (use-package org
   :config
@@ -266,21 +269,21 @@
   (setq org-default-notes-file (concat org-directory "sink.org"))
   (setq org-capture-templates
         (cond
-         ((eq profile 'guix)
-           `(("j"
-              "journal"
-              entry
-              (file+datetree ,(concat org-directory "journal-second.org"))
-              "* %?\nEntered on %U\n  %i\n  %a")
-             ("t"
-              "todo"
-              entry
-              (file+datetree ,(concat org-directory "todo.org"))
-              "* TODO %?\n  %i\n  %a")))
-         (t nil))))
+         ((eq profile 'personal-guix)
+          `(("j"
+             "journal"
+             entry
+             (file+datetree ,(concat org-directory "journal-second.org"))
+             "* %?\nEntered on %U\n  %i\n  %a")
+            ("t"
+             "todo"
+             entry
+             (file+datetree ,(concat org-directory "todo.org"))
+             "* TODO %?\n  %i\n  %a")))
+         (t nil)))
+  (add-hook `org-mode-hook `org-indent-mode)
+  (add-hook `org-mode-hook `visual-line-mode))
 
-(add-hook `org-mode-hook `org-indent-mode)
-(add-hook `org-mode-hook `visual-line-mode)
 
 ;; Prefer horizontal splits when the frame has the space for it.
 ;; By horizontal, I mean vim's and the rest of the world's notion of vertical.
@@ -317,8 +320,8 @@ point reaches the beginning or end of the buffer, stop there."
 (global-set-key [remap move-beginning-of-line]
                 'my-smarter-move-beginning-of-line)
 
-
 (use-package pinentry
+  :disabled t
   :config
   (pinentry-start))
 
@@ -348,27 +351,19 @@ point reaches the beginning or end of the buffer, stop there."
 
 (bind-key* "M-s" 'switch-to-buffer)
 
-(defun my-find-init-file ()
-  "Displays the contents of ~/.emacs.d/myinit.org, if already shown, revert to previous buffer"
-  (interactive)
-  (let ((init-file-location "/home/ajarara/.emacs.d/x250.org"))
-    (if (string= init-file-location (buffer-file-name))
-        (previous-buffer)
-      (find-file init-file-location))))
-
 (bind-key* "M-i"
            (lambda ()
              (interactive)
-             (let ((init-file-location "~/.emacs.d/init.el"))
+             (let ((init-file-location (concat user-emacs-directory "init.el")))
                (if (string= init-file-location (buffer-file-name))
                    (previous-buffer)
                  (find-file init-file-location)))))
 
 (use-package projectile
+  :disabled t
   :config
+  (add-to-list 'projectile-project-root-files-bottom-up "package.json")
   (setq projectile-completion-system 'ivy))
-
-(setq split-height-threshold nil)
 
 (use-package re-builder
   :config
@@ -403,7 +398,6 @@ point reaches the beginning or end of the buffer, stop there."
   (setq typescript-indent-level 2)
   (setq js-indent-level 2))
 
-(add-to-list 'projectile-project-root-files-bottom-up "package.json")
 
 (defun node-repl ()
   (interactive)
@@ -440,43 +434,15 @@ point reaches the beginning or end of the buffer, stop there."
   ;; shadows isearch
   :bind* (("C-s" . swiper)))
 
-(use-package term 
-  :config
-  ;; most of this config is from:
-  ;; http://echosa.github.io/blog/2012/06/06/improving-ansi-term/
-
-  ;; don't modify my output please (note this breaks when displaying
-  ;; multiline commands at the bottom of the buffer)
-  (setq term-suppress-hard-newline t)
-
-  ;; kill the buffer after finishing.
-  (defadvice term-sentinel (around my-advice-term-sentinel (proc msg))
-    (if (memq (process-status proc) '(signal exit))
-        (let ((buffer (process-buffer proc)))
-          ad-do-it
-          (kill-buffer buffer))
-      ad-do-it))
-  (ad-activate 'term-sentinel)
-
   ;; why is this not the default? 
   (defun my-term-use-utf8 ()
     (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
   (add-hook 'term-exec-hook 'my-term-use-utf8)
 
-  ;; eh.. this makes me sad. All I wanted was C-x.
-  ;; (defun my-ad-term-line-mode (_arg)
-  ;;   (term-line-mode))
-  ;; (advice-add 'term :after #'my-ad-term-line-mode)
-  ;; (advice-add 'ansi-term :after #'my-ad-term-line-mode)
-  
-
-  ;; 2048 lines of output is way too restrictive.
-  (setq term-buffer-maximum-size 8192))
-
-(use-package monokai-theme
-  :config
-  (setq monokai-comments "chocolate")
-  (load-theme `monokai t))
+;; (use-package monokai-theme
+;;   :config
+;;   (setq monokai-comments "chocolate")
+;;   (load-theme `monokai t))
 
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -489,7 +455,7 @@ point reaches the beginning or end of the buffer, stop there."
 (column-number-mode)
 
 ;; pretty quotes can't be jumped to easily.
-(setq text-quoting-style 'grave)
+    (setq text-quoting-style 'grave)
 
 (setq scroll-conservatively 10000)
 (setq auto-window-vscroll nil)
