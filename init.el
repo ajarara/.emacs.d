@@ -116,11 +116,10 @@
      '("'" . repeat)
      '("<escape>" . ignore))
     (meow-global-mode))
+(use-package diminish)
 
 (use-package magit)
 
-;; shouldn't be in here: We should just use general to write keybinds.
-(require 'bind-key)
 (use-package key-chord
   :config
   ;; hmm.. when grabbing this key chord is not respected
