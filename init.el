@@ -94,6 +94,19 @@
   (add-hook 'go-mode-hook 'direnv-mode)
   (add-to-list 'auto-mode-alist'("\\.go" . go-mode)))
 
+(use-package ivy
+  :demand t
+  :diminish ivy-mode
+  :config
+  (setq ivy-ignore-buffers `("\\` "))
+
+  ;; I like completion in the minibuffer, completion in region is
+  ;; obnoxious when you have hl-line-mode active. This must be set
+  ;; before ivy-mode is called.
+  (setcdr (assoc 'ivy-completion-in-region ivy-display-functions-alist) nil)
+
+  (ivy-mode t))
+
 (use-package guix
   :disabled (not is-personal-profile)
   :config
@@ -308,17 +321,7 @@ point reaches the beginning or end of the buffer, stop there."
 (setq vc-follow-symlinks nil)
 (setq disabled-command-function nil)
 
-(use-package ivy
-  :demand t
-  :diminish ivy-mode
-  :config
-  (setq ivy-ignore-buffers `("\\` "))
   
-  ;; i like completion in the minibuffer, completion in region is obnoxious when you have hl-line-mode active. This must be set before ivy-mode is called.
-  (setcdr (assoc 'ivy-completion-in-region ivy-display-functions-alist) nil)
-
-  (ivy-mode t))
-
 (use-package swiper
   :config
   (setq swiper-action-recenter t)
