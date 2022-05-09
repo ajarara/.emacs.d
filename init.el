@@ -29,6 +29,8 @@
 (use-package diminish)
 (use-package magit)
 (use-package key-chord)
+(use-package markdown-mode)
+(use-package company)
 
 (use-package evil
   :demand t
@@ -71,20 +73,134 @@
    "i" 'imenu
    :prefix "C-c"))
 
-(use-package lsp-mode
-  :disabled (not is-personal-profile)
-  :hook ((lsp-mode . lsp-enable-which-key-integration)))
-
-;; shouldn't be in here: We should just use general to write keybinds.
-(require 'bind-key)
 
 (use-package ace-window
   :config
   (setq aw-scope 'frame))
 
-
 (use-package password-store
   :disabled (not is-personal-profile))
+
+(use-package ag
+  :disabled (not is-personal-profile))
+
+(use-package direnv
+  :config
+  (setq direnv-always-show-summary nil))
+
+(use-package go-mode
+  :config
+  (add-hook 'go-mode-hook 'lsp)
+  (add-hook 'go-mode-hook 'direnv-mode)
+  (add-to-list 'auto-mode-alist'("\\.go" . go-mode)))
+
+(use-package guix
+  :disabled (not is-personal-profile)
+  :config
+  (setq guix-dot-program "xt"))
+
+(use-package paren
+  :config
+  (setq show-paren-style 'expression)
+  (setq show-paren-when-point-in-periphery t)
+  (setq show-paren-when-point-inside-paren nil)
+  :hook
+  (after-init-hook . show-paren-mode))
+
+(use-package ibuffer
+  :config
+  (general-define-key
+   "C-b" 'ibuffer
+   :prefix "C-x"))
+
+(use-package xref
+  :config
+  (setq xref-show-definitions-function 'xref--show-defs-buffer-at-bottom))
+
+(use-package re-builder
+  :config
+  (setq reb-re-syntax 'string))
+
+;; tie it all together
+(use-package emacs
+  :config
+  (let ((backup-directory (concat user-emacs-directory "backup")))
+    (make-directory backup-directory t)
+    (setq backup-directory-alist `((".*" . ,backup-directory)))
+    (setq version-control t)
+    (setq delete-old-versions t))
+  (let ((auto-save-directory (concat user-emacs-directory "autosave")))
+    (make-directory auto-save-directory t)
+    (setq auto-save-list-file-prefix auto-save-directory)
+    (setq auto-save-file-name-transforms `((".*" ,auto-save-directory t))))
+  (progn
+    ;; Prefer horizontal splits when the frame has the space for it.
+    ;; By horizontal, I mean vim's and the rest of the world's notion
+    ;; of vertical.
+
+    ;; You split along the horizontal axis, I guess. Sure.
+    (setq split-height-threshold nil)
+    (setq split-width-threshold 140))
+  (setq-default cursor-type 'hbar)
+  (setq-default indent-tabs-mode nil)
+
+  (progn
+    (defun my-smarter-move-beginning-of-line (arg)
+      "Move point back to indentation of beginning of line.
+
+Move point to the first non-whitespace character on this line.
+If point is already there, move to the beginning of the line.
+Effectively toggle between the first non-whitespace character and
+the beginning of the line.
+
+If ARG is not nil or 1, move forward ARG - 1 lines first.  If
+point reaches the beginning or end of the buffer, stop there."
+      (interactive "^p")
+      (setq arg (or arg 1))
+      ;; Move lines first
+      (when (/= arg 1)
+        (let ((line-move-visual nil))
+          (forward-line (1- arg))))
+      (let ((orig-point (point)))
+        (back-to-indentation)
+        (when (= orig-point (point))
+          (move-beginning-of-line 1))))
+
+    ;; maybe the only legitimate use of global-set-key here.
+    (general-define-key [remap move-beginning-of-line]
+                    'my-smarter-move-beginning-of-line))
+
+  (progn
+    (defun my-toggle-init ()
+      (interactive)
+      (let ((init-file-location
+             (file-truename
+              (concat user-emacs-directory "init.el")))
+            (current-location
+             (file-truename (buffer-file-name))))
+        (if (string= init-file-location current-location)
+            (previous-buffer)
+          (find-file init-file-location))))
+    (general-define-key "M-i" 'my-toggle-init))
+
+  (progn
+    (setq scroll-conservatively 10000)
+    (setq auto-window-vscroll nil))
+
+
+  (general-define-key
+   "M-0" 'text-scale-adjust
+   "M-1" 'shell-command
+   "M-7" 'async-shell-command
+   "M-s" 'switch-to-buffer))
+
+;; ------ BANKRUPTCY LINE ----------
+;; shouldn't be in here: We should just use general to write keybinds.
+(require 'bind-key)
+
+(use-package lsp-mode 
+  :disabled (not is-personal-profile)
+  :hook ((lsp-mode . lsp-enable-which-key-integration)))
 
 (use-package circe
   :disabled (not is-personal-profile)
@@ -132,57 +248,12 @@
 ;;  '(circe-actions :type git :host github :repo "alphor/circe-actions"))
 ;; (use-package circe-actions)
 
-(use-package ag
-  :disabled (not is-personal-profile))
 
 (use-package counsel
   :disabled (not is-personal-profile)
   :bind* (("M-x" . counsel-M-x)
           ("C-c a" . counsel-ag)))
                  
-(defvar backup-directory
-  (concat user-emacs-directory "backup"))
-
-(make-directory backup-directory t)
-(setq backup-directory-alist `((".*" . ,backup-directory)))
-(setq version-control t)
-(setq delete-old-versions t)
-
-(defvar autosave-directory
-  (concat user-emacs-directory "autosave"))
-(make-directory autosave-directory t)
-(setq auto-save-list-file-prefix autosave-directory)
-(setq auto-save-file-name-transforms `((".*" ,autosave-directory t)))
-
-(use-package direnv
-  :config
-  (setq direnv-always-show-summary nil))
-
-(use-package go-mode
-  :config
-  (add-hook 'go-mode-hook 'lsp)
-  (add-hook 'go-mode-hook 'direnv-mode)
-  (add-to-list 'auto-mode-alist'("\\.go" . go-mode)))
-
-(use-package guix
-  :config
-  (setq guix-dot-program "xt"))
-
-;; https://www.reddit.com/r/emacs/comments/qeehqa/is_there_a_way_to_highlight_the_content_inside/hhsfsry/
-(use-package paren
-  :config
-  (setq show-paren-style 'expression)
-  (setq show-paren-when-point-in-periphery t)
-  (setq show-paren-when-point-inside-paren nil)
-  :hook
-  (after-init-hook . show-paren-mode))
-
-(use-package ibuffer
-  :config
-  (global-set-key (kbd "C-x C-b") 'ibuffer))
-
-(use-package markdown-mode)
-
 (use-package org
   :config
   (setq org-directory "~/notes/org/")
@@ -206,98 +277,14 @@
   (add-hook `org-mode-hook `visual-line-mode))
 
 
-;; Prefer horizontal splits when the frame has the space for it.
-;; By horizontal, I mean vim's and the rest of the world's notion of vertical.
-
-;; You split along the horizontal axis, I guess. Sure.
-(setq split-height-threshold nil)
-(setq split-width-threshold 140)
-(setq-default cursor-type 'hbar)
-
-(setq-default indent-tabs-mode nil)
-
-(defun my-smarter-move-beginning-of-line (arg)
-  "Move point back to indentation of beginning of line.
-
-Move point to the first non-whitespace character on this line.
-If point is already there, move to the beginning of the line.
-Effectively toggle between the first non-whitespace character and
-the beginning of the line.
-
-If ARG is not nil or 1, move forward ARG - 1 lines first.  If
-point reaches the beginning or end of the buffer, stop there."
-  (interactive "^p")
-  (setq arg (or arg 1))
-  ;; Move lines first
-  (when (/= arg 1)
-    (let ((line-move-visual nil))
-      (forward-line (1- arg))))
-  (let ((orig-point (point)))
-    (back-to-indentation)
-    (when (= orig-point (point))
-      (move-beginning-of-line 1))))
-
-;; maybe the only legitimate use of global-set-key here.
-(global-set-key [remap move-beginning-of-line]
-                'my-smarter-move-beginning-of-line)
-
-(use-package pinentry
-  :disabled t
-  :config
-  (pinentry-start))
-
-(setq scroll-conservatively 10000)
-(setq auto-window-vscroll nil)
-
-(bind-key* "C-h" `help-command)
-(bind-key* "C-h C-h" (lambda ()
-    (interactive) (info "(emacs) Help Summary")))
-
-(use-package xref
-  :config
-  (setq xref-show-definitions-function 'xref--show-defs-buffer-at-bottom)
-  (bind-key* "M-." `xref-find-definitions-other-window))
-
-(define-key key-translation-map (kbd "C-M-g") (kbd "C-g"))
-
-(bind-key* "C-0" `text-scale-adjust)
-
-(bind-key "M-c" `comment-dwim)
-
-(bind-key* "M-j" `end-of-buffer)
-
-(bind-key* "M-7" `async-shell-command)
-
-(bind-key* "M-1" `shell-command)
-
-(bind-key* "M-s" 'switch-to-buffer)
-
-(bind-key* "M-i"
-           (lambda ()
-             (interactive)
-             (let ((init-file-location (concat user-emacs-directory "init.el")))
-               (if (string= init-file-location (buffer-file-name))
-                   (previous-buffer)
-                 (find-file init-file-location)))))
-
-(use-package projectile
-  :disabled t
-  :config
-  (add-to-list 'projectile-project-root-files-bottom-up "package.json")
-  (setq projectile-completion-system 'ivy))
-
-(use-package re-builder
-  :config
-  (setq reb-re-syntax 'string))
-
 (use-package rust-mode
   :mode "\\.rs"
   :config
   (add-hook 'rust-mode-hook 'lsp))
 
-(use-package company)
 
 (use-package tide
+  :disabled t
   :config
   (setq typescript-indent-level 2)
   (defun tide-setup-hanger ()
@@ -375,7 +362,8 @@ point reaches the beginning or end of the buffer, stop there."
 
 (dolist (this-mode-hook `(prog-mode-hook
                           circe-mode-hook))
-  (add-hook this-mode-hook `hl-line-mode))
+  (add-hook this-mode-hook `hl-line-mode)
+  (general-define-key "M-c" 'comment-dwim))
 
 (use-package which-key
   :demand t
