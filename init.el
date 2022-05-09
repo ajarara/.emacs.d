@@ -26,106 +26,23 @@
 (defvar is-personal-profile
   (string-prefix-p "personal" (symbol-name profile)))
 
-(use-package project)
+(use-package diminish)
+(use-package magit)
+(use-package key-chord)
 
-(use-package meow
+(use-package evil
+  :demand t
+  :init
+  (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+  (setq evil-want-keybinding nil)
+  :config
+  (evil-mode 1))
+
+(use-package evil-collection
+  :after evil
   :demand t
   :config
-    (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-    (meow-motion-overwrite-define-key
-     '("j" . meow-next)
-     '("k" . meow-prev)
-     '("<escape>" . ignore))
-    (meow-leader-define-key
-     ;; SPC j/k will run the original command in MOTION state.
-     '("j" . "H-j")
-     '("k" . "H-k")
-     ;; Use SPC (0-9) for digit arguments.
-     '("1" . meow-digit-argument)
-     '("2" . meow-digit-argument)
-     '("3" . meow-digit-argument)
-     '("4" . meow-digit-argument)
-     '("5" . meow-digit-argument)
-     '("6" . meow-digit-argument)
-     '("7" . meow-digit-argument)
-     '("8" . meow-digit-argument)
-     '("9" . meow-digit-argument)
-     '("0" . meow-digit-argument)
-     '("/" . meow-keypad-describe-key)
-     '("?" . meow-cheatsheet))
-    (meow-normal-define-key
-     '("0" . meow-expand-0)
-     '("9" . meow-expand-9)
-     '("8" . meow-expand-8)
-     '("7" . meow-expand-7)
-     '("6" . meow-expand-6)
-     '("5" . meow-expand-5)
-     '("4" . meow-expand-4)
-     '("3" . meow-expand-3)
-     '("2" . meow-expand-2)
-     '("1" . meow-expand-1)
-     '("-" . negative-argument)
-     '(";" . meow-reverse)
-     '("," . meow-inner-of-thing)
-     '("." . meow-bounds-of-thing)
-     '("[" . meow-beginning-of-thing)
-     '("]" . meow-end-of-thing)
-     '("a" . meow-append)
-     '("A" . meow-open-below)
-     '("b" . meow-back-word)
-     '("B" . meow-back-symbol)
-     '("c" . meow-change)
-     '("d" . meow-delete)
-     '("D" . meow-backward-delete)
-     '("e" . meow-next-word)
-     '("E" . meow-next-symbol)
-     '("f" . meow-find)
-     '("g" . meow-cancel-selection)
-     '("G" . meow-grab)
-     '("h" . meow-left)
-     '("H" . meow-left-expand)
-     '("i" . meow-insert)
-     '("I" . meow-open-above)
-     '("j" . meow-next)
-     '("J" . meow-next-expand)
-     '("k" . meow-prev)
-     '("K" . meow-prev-expand)
-     '("l" . meow-right)
-     '("L" . meow-right-expand)
-     '("m" . meow-join)
-     '("n" . meow-search)
-     '("o" . meow-block)
-     '("O" . meow-to-block)
-     '("p" . meow-yank)
-     '("q" . meow-quit)
-     '("Q" . meow-goto-line)
-     '("r" . meow-replace)
-     '("R" . meow-swap-grab)
-     '("s" . meow-kill)
-     '("t" . meow-till)
-     '("u" . meow-undo)
-     '("U" . meow-undo-in-selection)
-     '("v" . meow-visit)
-     '("w" . meow-mark-word)
-     '("W" . meow-mark-symbol)
-     '("x" . meow-line)
-     '("X" . meow-goto-line)
-     '("y" . meow-save)
-     '("Y" . meow-sync-grab)
-     '("z" . meow-pop-selection)
-     '("'" . repeat)
-     '("<escape>" . ignore))
-    (meow-global-mode))
-(use-package diminish)
-
-(use-package magit)
-
-(use-package key-chord
-  :config
-  ;; hmm.. when grabbing this key chord is not respected
-  (key-chord-define
-   meow-insert-state-keymap "jj" 'meow-normal-mode)
-  (key-chord-mode))
+  (evil-collection-init))
 
 (use-package general
   :demand t
@@ -155,17 +72,22 @@
    :prefix "C-c"))
 
 (use-package lsp-mode
+  :disabled (not is-personal-profile)
   :hook ((lsp-mode . lsp-enable-which-key-integration)))
 
+;; shouldn't be in here: We should just use general to write keybinds.
+(require 'bind-key)
+
 (use-package ace-window
-  :bind*
-  (("C-t" . ace-window))
   :config
   (setq aw-scope 'frame))
 
-(use-package password-store)
+
+(use-package password-store
+  :disabled (not is-personal-profile))
 
 (use-package circe
+  :disabled (not is-personal-profile)
   :requires password-store
   :config
   (setq circe-network-defaults nil)
@@ -206,16 +128,18 @@
                       (circe-channel-nicks))))
         (message (prin1-to-string (-intersection names1 names2))))))
 
-(straight-use-package
- '(circe-actions :type git :host github :repo "alphor/circe-actions"))
-(use-package circe-actions)
+;; (straight-use-package
+;;  '(circe-actions :type git :host github :repo "alphor/circe-actions"))
+;; (use-package circe-actions)
 
-(when is-personal-profile
-  (use-package ag)
-  (use-package counsel
-    :bind* (("M-x" . counsel-M-x)
-            ("C-c a" . counsel-ag))))
+(use-package ag
+  :disabled (not is-personal-profile))
 
+(use-package counsel
+  :disabled (not is-personal-profile)
+  :bind* (("M-x" . counsel-M-x)
+          ("C-c a" . counsel-ag)))
+                 
 (defvar backup-directory
   (concat user-emacs-directory "backup"))
 
@@ -431,15 +355,10 @@ point reaches the beginning or end of the buffer, stop there."
   ;; shadows isearch
   :bind* (("C-s" . swiper)))
 
-  ;; why is this not the default? 
-  (defun my-term-use-utf8 ()
-    (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
-  (add-hook 'term-exec-hook 'my-term-use-utf8)
-
-;; (use-package monokai-theme
-;;   :config
-;;   (setq monokai-comments "chocolate")
-;;   (load-theme `monokai t))
+(use-package monokai-theme
+  :config
+  (setq monokai-comments "chocolate")
+  (load-theme `monokai t))
 
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -450,9 +369,6 @@ point reaches the beginning or end of the buffer, stop there."
 (visual-line-mode 1)
 
 (column-number-mode)
-
-;; pretty quotes can't be jumped to easily.
-    (setq text-quoting-style 'grave)
 
 (setq scroll-conservatively 10000)
 (setq auto-window-vscroll nil)
@@ -475,12 +391,14 @@ point reaches the beginning or end of the buffer, stop there."
   (setq ring-bell-function 'ignore))
 
 (use-package geiser
+  :disabled (not is-personal-profile)
   :config
   (with-eval-after-load 'geiser-guile
     (add-to-list 'geiser-guile-load-path "~/src/guix")
     (add-to-list 'geiser-guile-load-path "~/src/nonguix")))
 
-(use-package geiser-guile)
+(use-package geiser-guile
+  :disabled (not is-personal-profile))
 
 (use-package dumb-jump
   :config
