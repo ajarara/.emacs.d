@@ -282,23 +282,6 @@ point reaches the beginning or end of the buffer, stop there."
   :config
   (add-hook 'rust-mode-hook 'lsp))
 
-
-(use-package tide
-  :disabled t
-  :config
-  (setq typescript-indent-level 2)
-  (defun tide-setup-hanger ()
-    (interactive)
-    (tide-setup)
-    (flycheck-mode 1)
-    (setq flycheck-check-syntax-automatically '(save mode-enabled))
-    (eldoc-mode 1)
-
-    (tide-hl-identifier-mode 1)
-    (local-set-key (kbd "M-?") 'tide-references)
-    (company-mode 1))
-  (add-hook 'typescript-mode-hook 'tide-setup-hanger))
-
 (use-package typescript-mode
   :config
   (add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
