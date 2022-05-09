@@ -201,14 +201,28 @@ point reaches the beginning or end of the buffer, stop there."
     (setq scroll-conservatively 10000)
     (setq auto-window-vscroll nil))
 
-
   (general-define-key
    "M-0" 'text-scale-adjust
    "M-1" 'shell-command
    "M-7" 'async-shell-command
-   "M-s" 'switch-to-buffer))
+   "M-s" 'switch-to-buffer)
+
+  (defun node-repl ()
+    (interactive)
+    (setenv "NODE_NO_READLINE" "1") ;avoid fancy terminal codes
+    (pop-to-buffer (make-comint "node-repl" "node" nil "--interactive")))
+
+  ;; just type y or n without hitting enter
+  (fset `yes-or-no-p `y-or-n-p)
+
+  (setq echo-keystrokes 0.1)
+  (setq mouse-yank-at-point t)
+  (setq vc-follow-symlinks nil)
+  (setq disabled-command-function nil)
+)
 
 ;; ------ BANKRUPTCY LINE ----------
+;; anything below this must be migrated above ASAP: move off of bind-key
 ;; shouldn't be in here: We should just use general to write keybinds.
 (require 'bind-key)
 
@@ -304,22 +318,10 @@ point reaches the beginning or end of the buffer, stop there."
   (setq js-indent-level 2))
 
 
-(defun node-repl ()
-  (interactive)
-  (setenv "NODE_NO_READLINE" "1") ;avoid fancy terminal codes
-  (pop-to-buffer (make-comint "node-repl" "node" nil "--interactive")))
 
 (use-package cargo
   :config
   (add-hook 'rust-mode-hook 'cargo-minor-mode))
-
-;; just type y or n without hitting enter
-(fset `yes-or-no-p `y-or-n-p)
-
-(setq echo-keystrokes 0.1)
-(setq mouse-yank-at-point t)
-(setq vc-follow-symlinks nil)
-(setq disabled-command-function nil)
 
   
 (use-package swiper
