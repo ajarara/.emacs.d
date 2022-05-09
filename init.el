@@ -177,7 +177,8 @@ point reaches the beginning or end of the buffer, stop there."
              (file-truename
               (concat user-emacs-directory "init.el")))
             (current-location
-             (file-truename (buffer-file-name))))
+             (and buffer-file-name
+                  (file-truename buffer-file-name))))
         (if (string= init-file-location current-location)
             (previous-buffer)
           (find-file init-file-location))))
