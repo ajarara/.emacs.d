@@ -14,6 +14,7 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
+(setq use-package-enable-imenu-support t)
 (straight-use-package 'use-package)
 
 ;; load up the profile. This is an untracked file that sets
@@ -31,6 +32,7 @@
 (use-package key-chord)
 (use-package markdown-mode)
 (use-package company)
+(use-package git-link)
 
 (use-package evil
   :demand t
@@ -173,7 +175,39 @@
   (setq monokai-comments "chocolate")
   (load-theme `monokai t))
 
-;; tie it all together
+(use-package which-key
+  :demand t
+  :diminish which-key-mode
+  :config
+  (general-define-key
+   "SPC" 'which-key-show-top-level
+   :prefix "C-h")
+  (which-key-mode))
+
+(use-package geiser
+  :disabled (not (eq profile 'personal-guix))
+  :config
+  (with-eval-after-load 'geiser-guile
+    (add-to-list 'geiser-guile-load-path "~/src/guix")
+    (add-to-list 'geiser-guile-load-path "~/src/nonguix")))
+
+
+ (use-package srfi
+   :config
+   (add-hook
+    'srfi-mode-hook
+    (lambda ()
+      (setq-local browse-url-browser-function 'eww))))
+
+(use-package dumb-jump
+  :disabled (not is-personal-profile)
+  :config
+  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
+
+(use-package lsp-mode 
+  :disabled (not is-personal-profile)
+  :hook ((lsp-mode . lsp-enable-which-key-integration)))
+
 (use-package emacs
   :config
   (let ((backup-directory (concat user-emacs-directory "backup")))
@@ -258,16 +292,31 @@ point reaches the beginning or end of the buffer, stop there."
   (setq mouse-yank-at-point t)
   (setq vc-follow-symlinks nil)
   (setq disabled-command-function nil)
-)
+
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1)
+  (blink-cursor-mode -1)
+
+  ;; horizontal scrolling bad
+  (visual-line-mode 1)
+  (column-number-mode)
+
+  (setq scroll-conservatively 10000)
+  (setq auto-window-vscroll nil)
+
+  (dolist (this-mode-hook `(prog-mode-hook
+                            circe-mode-hook))
+    (add-hook this-mode-hook `hl-line-mode)
+    (general-define-key "M-c" 'comment-dwim))
+  (setq ring-bell-function 'ignore)
+
+  (setq ns-right-command-modifier 'control))
 
 ;; ------ BANKRUPTCY LINE ----------
 ;; anything below this must be migrated above ASAP: move off of bind-key
 ;; shouldn't be in here: We should just use general to write keybinds.
 (require 'bind-key)
-
-(use-package lsp-mode 
-  :disabled (not is-personal-profile)
-  :hook ((lsp-mode . lsp-enable-which-key-integration)))
 
 (use-package circe
   :disabled (not is-personal-profile)
@@ -284,22 +333,18 @@ point reaches the beginning or end of the buffer, stop there."
            :sasl-strict t
            :sasl-username "ajarara"
            :sasl-password (lambda (host)
-                            (password-store-get host))
-           )))
-    ;; I have no idea why colored nicks are not enabled by default. Much
-    ;; prettier! (This is the default option I was complaining about
-    ;; earlier)
-    (enable-circe-color-nicks)
+                            (password-store-get host)))))
+  (enable-circe-color-nicks)
     
     ;; Unfortunately, swiper calls font-lock-ensure-function which has
     ;; the annoying habit of washing out all the color. I add a
     ;; function to circe's mode hook that sets font-lock-ensure to the
     ;; ignore function.
-    (add-hook 'circe-mode-hook
-              (lambda ()
-                (setq-local font-lock-ensure-function 'ignore)))
+    ;; (add-hook 'circe-mode-hook
+    ;;           (lambda ()
+    ;;             (setq-local font-lock-ensure-function 'ignore)))
 
-    ;; Don't bombard me with leaves if the leaver hasn't spoke in a while.
+    ;; Don't bombard me with leaves if the leaver hasn't spoke in a while
     (setq circe-reduce-lurker-spam t)
 
     (defun my-circe-intersect-nicks (buf1 buf2)
@@ -316,11 +361,6 @@ point reaches the beginning or end of the buffer, stop there."
 ;; (use-package circe-actions)
 
 
-(use-package counsel
-  :disabled (not is-personal-profile)
-  :bind* (("M-x" . counsel-M-x)
-          ("C-c a" . counsel-ag)))
-                 
 (use-package org
   :config
   (setq org-directory "~/notes/org/")
@@ -343,64 +383,7 @@ point reaches the beginning or end of the buffer, stop there."
   (add-hook `org-mode-hook `org-indent-mode)
   (add-hook `org-mode-hook `visual-line-mode))
 
-  
 
-(tool-bar-mode -1)
-(menu-bar-mode -1)
-(scroll-bar-mode -1)
-(blink-cursor-mode -1)
-
-;; horizontal scrolling bad
-(visual-line-mode 1)
-
-(column-number-mode)
-
-(setq scroll-conservatively 10000)
-(setq auto-window-vscroll nil)
-
-(dolist (this-mode-hook `(prog-mode-hook
-                          circe-mode-hook))
-  (add-hook this-mode-hook `hl-line-mode)
-  (general-define-key "M-c" 'comment-dwim))
-
-(use-package which-key
-  :demand t
-  :diminish which-key-mode
-  :bind* 
-  (("C-h SPC" . which-key-show-top-level))
-  :config
-  (which-key-mode))
-
-(use-package git-link)
-
-(when (eq profile 'personal-macOS)
-  (setq ring-bell-function 'ignore))
-
-(use-package geiser
-  :disabled (not is-personal-profile)
-  :config
-  (with-eval-after-load 'geiser-guile
-    (add-to-list 'geiser-guile-load-path "~/src/guix")
-    (add-to-list 'geiser-guile-load-path "~/src/nonguix")))
-
-(use-package geiser-guile
-  :disabled (not is-personal-profile))
-
-(use-package dumb-jump
-  :config
-  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
-
-(use-package deft
-  :init
-  (setq deft-extension "gpg"))
-
- (use-package srfi
-   :config
-   (add-hook
-    'srfi-mode-hook
-    (lambda ()
-      (setq-local browse-url-browser-function 'eww))))
-(setq ns-right-command-modifier 'control)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
