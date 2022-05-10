@@ -29,7 +29,6 @@
 
 (use-package diminish)
 (use-package magit)
-(use-package key-chord)
 (use-package markdown-mode)
 (use-package company)
 (use-package git-link)
@@ -47,6 +46,13 @@
   :demand t
   :config
   (evil-collection-init))
+
+(use-package key-chord
+  :after evil
+  :demand t
+  :config
+  (key-chord-define evil-insert-state-map "jj" 'evil-normal-state)
+  (key-chord-mode))
 
 (use-package general
   :demand t
@@ -208,7 +214,72 @@
   :disabled (not is-personal-profile)
   :hook ((lsp-mode . lsp-enable-which-key-integration)))
 
+(use-package org
+  :disabled (not is-personal-profile)
+  :config
+  (cond
+   ((eq profile 'personal-guix)
+    (setq org-directory "~/notes/org/")
+    (setq org-default-notes-file (concat org-directory "sink.org"))
+    (setq org-capture-templates
+          (cond
+           ((eq profile 'personal-guix)
+            `(("j"
+               "journal"
+               entry
+               (file+datetree ,(concat org-directory "journal-second.org"))
+               "* %?\nEntered on %U\n  %i\n  %a")
+              ("t"
+               "todo"
+               entry
+               (file+datetree ,(concat org-directory "todo.org"))
+               "* TODO %?\n  %i\n  %a")))
+           (t nil)))
+    (add-hook `org-mode-hook `org-indent-mode)
+    (add-hook `org-mode-hook `visual-line-mode))
+   (t nil)))
+
+(use-package circe
+  :disabled (not is-personal-profile)
+  :requires password-store
+  :config
+  (setq circe-network-defaults nil)
+  (setq lui-fill-column 63)
+  
+  (setq circe-network-options
+        `(("libera"
+           :tls t
+           :host "irc.libera.chat"
+           :port 6697
+           :sasl-strict t
+           :sasl-username "ajarara"
+           :sasl-password (lambda (host)
+                            (password-store-get host)))))
+  (enable-circe-color-nicks)
+    
+    ;; Unfortunately, swiper calls font-lock-ensure-function which has
+    ;; the annoying habit of washing out all the color. I add a
+    ;; function to circe's mode hook that sets font-lock-ensure to the
+    ;; ignore function.
+    ;; (add-hook 'circe-mode-hook
+    ;;           (lambda ()
+    ;;             (setq-local font-lock-ensure-function 'ignore)))
+
+    ;; Don't bombard me with leaves if the leaver hasn't spoke in a while
+    (setq circe-reduce-lurker-spam t)
+
+    (defun my-circe-intersect-nicks (buf1 buf2)
+      "Does what you think it does. It would make a little sense to remove your own nick from this list, but meh"
+      (interactive "b\nb")
+      (let ((names1 (with-current-buffer (set-buffer buf1)
+                      (circe-channel-nicks)))
+            (names2 (with-current-buffer (set-buffer buf2)
+                      (circe-channel-nicks))))
+        (message (prin1-to-string (-intersection names1 names2))))))
+
 (use-package emacs
+  :init
+  (server-start)
   :config
   (let ((backup-directory (concat user-emacs-directory "backup")))
     (make-directory backup-directory t)
@@ -312,78 +383,6 @@ point reaches the beginning or end of the buffer, stop there."
   (setq ring-bell-function 'ignore)
 
   (setq ns-right-command-modifier 'control))
-
-;; ------ BANKRUPTCY LINE ----------
-;; anything below this must be migrated above ASAP: move off of bind-key
-;; shouldn't be in here: We should just use general to write keybinds.
-(require 'bind-key)
-
-(use-package circe
-  :disabled (not is-personal-profile)
-  :requires password-store
-  :config
-  (setq circe-network-defaults nil)
-  (setq lui-fill-column 63)
-  
-  (setq circe-network-options
-        `(("libera"
-           :tls t
-           :host "irc.libera.chat"
-           :port 6697
-           :sasl-strict t
-           :sasl-username "ajarara"
-           :sasl-password (lambda (host)
-                            (password-store-get host)))))
-  (enable-circe-color-nicks)
-    
-    ;; Unfortunately, swiper calls font-lock-ensure-function which has
-    ;; the annoying habit of washing out all the color. I add a
-    ;; function to circe's mode hook that sets font-lock-ensure to the
-    ;; ignore function.
-    ;; (add-hook 'circe-mode-hook
-    ;;           (lambda ()
-    ;;             (setq-local font-lock-ensure-function 'ignore)))
-
-    ;; Don't bombard me with leaves if the leaver hasn't spoke in a while
-    (setq circe-reduce-lurker-spam t)
-
-    (defun my-circe-intersect-nicks (buf1 buf2)
-      "Does what you think it does. It would make a little sense to remove your own nick from this list, but meh"
-      (interactive "b\nb")
-      (let ((names1 (with-current-buffer (set-buffer buf1)
-                      (circe-channel-nicks)))
-            (names2 (with-current-buffer (set-buffer buf2)
-                      (circe-channel-nicks))))
-        (message (prin1-to-string (-intersection names1 names2))))))
-
-;; (straight-use-package
-;;  '(circe-actions :type git :host github :repo "alphor/circe-actions"))
-;; (use-package circe-actions)
-
-
-(use-package org
-  :config
-  (setq org-directory "~/notes/org/")
-
-  (setq org-default-notes-file (concat org-directory "sink.org"))
-  (setq org-capture-templates
-        (cond
-         ((eq profile 'personal-guix)
-          `(("j"
-             "journal"
-             entry
-             (file+datetree ,(concat org-directory "journal-second.org"))
-             "* %?\nEntered on %U\n  %i\n  %a")
-            ("t"
-             "todo"
-             entry
-             (file+datetree ,(concat org-directory "todo.org"))
-             "* TODO %?\n  %i\n  %a")))
-         (t nil)))
-  (add-hook `org-mode-hook `org-indent-mode)
-  (add-hook `org-mode-hook `visual-line-mode))
-
-
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
