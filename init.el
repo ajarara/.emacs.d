@@ -134,6 +134,45 @@
   :config
   (setq reb-re-syntax 'string))
 
+(use-package rust-mode
+  :mode "\\.rs"
+  :config
+  (add-hook 'rust-mode-hook 'lsp))
+
+(use-package cargo
+  :after 'rust-mode
+  :config
+  (add-hook 'rust-mode-hook 'cargo-minor-mode))
+
+(use-package swiper
+  :config
+  (setq swiper-action-recenter t)
+
+  (general-define-key
+   "C-s" 'swiper))
+
+(use-package counsel
+  :disabled (not is-personal-profile)
+  :config
+  (general-define-key
+   "M-x" 'counsel-M-x)
+  (general-define-key
+   "a" 'counsel-ag
+   :prefix "C-c"))
+
+(use-package typescript-mode
+  :config
+  (add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
+  (add-to-list 'auto-mode-alist '("\\.tsx" . typescript-mode))
+  (setq typescript-indent-level 2)
+  (setq js-indent-level 2))
+
+
+(use-package monokai-theme
+  :config
+  (setq monokai-comments "chocolate")
+  (load-theme `monokai t))
+
 ;; tie it all together
 (use-package emacs
   :config
@@ -304,37 +343,7 @@ point reaches the beginning or end of the buffer, stop there."
   (add-hook `org-mode-hook `org-indent-mode)
   (add-hook `org-mode-hook `visual-line-mode))
 
-
-(use-package rust-mode
-  :mode "\\.rs"
-  :config
-  (add-hook 'rust-mode-hook 'lsp))
-
-(use-package typescript-mode
-  :config
-  (add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
-  (add-to-list 'auto-mode-alist '("\\.tsx" . typescript-mode))
-  (setq typescript-indent-level 2)
-  (setq js-indent-level 2))
-
-
-
-(use-package cargo
-  :config
-  (add-hook 'rust-mode-hook 'cargo-minor-mode))
-
   
-(use-package swiper
-  :config
-  (setq swiper-action-recenter t)
-
-  ;; shadows isearch
-  :bind* (("C-s" . swiper)))
-
-(use-package monokai-theme
-  :config
-  (setq monokai-comments "chocolate")
-  (load-theme `monokai t))
 
 (tool-bar-mode -1)
 (menu-bar-mode -1)
