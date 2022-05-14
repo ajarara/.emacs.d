@@ -216,6 +216,8 @@
   :disabled (not is-personal-profile)
   :hook ((lsp-mode . lsp-enable-which-key-integration)))
 
+(use-package shelldon)
+
 (use-package org
   :disabled (not is-personal-profile)
   :config
