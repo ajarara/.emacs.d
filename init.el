@@ -62,23 +62,12 @@
   (general-define-key
    "g" 'keyboard-quit
    "C-g" 'keyboard-quit
-   "SPC" 'ace-window
 
    "w" 'save-buffer
    "v" 'visual-line-mode
    "t" 'toggle-word-wrap
    
-   "a" 'counsel-ag
-   
    "m" 'fill-region
-
-   "f" 'projectile-find-file
-   "c" 'projectile-compile-project
-   
-   "p" 'my-find-projects
-   "o" 'my-find-org-files
-
-   "r" 'org-capture
 
    "i" 'imenu
    :prefix "C-c"))
@@ -93,6 +82,12 @@
   :config
   (general-define-key
    "M-o" 'ace-window)
+  (general-define-key
+   "SPC" 'ace-window
+   :prefix "C-c")
+  (general-define-key
+   "C-w" 'ace-window
+   :keymap 'evil-window-map)
   (setq aw-scope 'frame))
 
 (use-package password-store
@@ -254,7 +249,10 @@
                "* TODO %?\n  %i\n  %a")))
            (t nil)))
     (add-hook `org-mode-hook `org-indent-mode)
-    (add-hook `org-mode-hook `visual-line-mode))
+    (add-hook `org-mode-hook `visual-line-mode)
+    (general-define-key
+     "r" 'org-capture
+     :prefix "C-c"))
    (t nil)))
 
 (use-package circe
