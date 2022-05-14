@@ -200,12 +200,12 @@
   (add-to-list 'geiser-guile-load-path "~/src/guix")
   (add-to-list 'geiser-guile-load-path "~/src/nonguix"))
 
- (use-package srfi
-   :config
-   (add-hook
-    'srfi-mode-hook
-    (lambda ()
-      (setq-local browse-url-browser-function 'eww))))
+(use-package srfi
+  :config
+  (add-hook
+   'srfi-mode-hook
+   (lambda ()
+     (setq-local browse-url-browser-function 'eww))))
 
 (use-package dumb-jump
   :disabled (not is-personal-profile)
@@ -220,12 +220,12 @@
   :disabled (not is-personal-profile)
   :config
   (cond
-   ((eq profile 'personal-guix)
+   ((equal profile 'personal-guix)
     (setq org-directory "~/notes/org/")
     (setq org-default-notes-file (concat org-directory "sink.org"))
     (setq org-capture-templates
           (cond
-           ((eq profile 'personal-guix)
+           ((equal profile 'personal-guix)
             `(("j"
                "journal"
                entry
@@ -327,7 +327,7 @@ point reaches the beginning or end of the buffer, stop there."
 
     ;; maybe the only legitimate use of global-set-key here.
     (general-define-key [remap move-beginning-of-line]
-                    'my-smarter-move-beginning-of-line))
+                        'my-smarter-move-beginning-of-line))
 
   (progn
     (defun my-toggle-init ()
@@ -380,8 +380,8 @@ point reaches the beginning or end of the buffer, stop there."
 
   (dolist (this-mode-hook `(prog-mode-hook
                             circe-mode-hook))
-    (add-hook this-mode-hook `hl-line-mode)
-    (general-define-key "M-c" 'comment-dwim))
+    (add-hook this-mode-hook `hl-line-mode))
+  (general-define-key "M-c" 'comment-dwim)
   (setq ring-bell-function 'ignore)
 
   (setq ns-right-command-modifier 'control))
