@@ -83,9 +83,16 @@
    "i" 'imenu
    :prefix "C-c"))
 
+(use-package expand-region
+  :config
+  (general-define-key
+   "m" 'er/expand-region
+   :states 'visual))
 
 (use-package ace-window
   :config
+  (general-define-key
+   "M-o" 'ace-window)
   (setq aw-scope 'frame))
 
 (use-package password-store
@@ -101,7 +108,8 @@
 (use-package go-mode
   :config
   (add-hook 'go-mode-hook 'lsp)
-  (add-hook 'go-mode-hook 'direnv-mode)
+  (when (featurep 'direnv)
+  (add-hook 'go-mode-hook 'direnv-mode))
   (add-to-list 'auto-mode-alist'("\\.go" . go-mode)))
 
 (use-package ivy
@@ -217,7 +225,12 @@
   :if is-personal-profile
   :hook ((lsp-mode . lsp-enable-which-key-integration)))
 
-(use-package shelldon)
+(use-package shelldon
+  :config
+  (general-define-key
+   "!" 'shelldon
+   "1" 'shelldon
+   :prefix "C-c"))
 
 (use-package org
   :if is-personal-profile
