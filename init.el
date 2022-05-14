@@ -192,12 +192,13 @@
   (which-key-mode))
 
 (use-package geiser
-  :disabled (not (eq profile 'personal-guix))
-  :config
-  (with-eval-after-load 'geiser-guile
-    (add-to-list 'geiser-guile-load-path "~/src/guix")
-    (add-to-list 'geiser-guile-load-path "~/src/nonguix")))
+  :disabled (not (equal profile 'personal-guix)))
 
+(use-package geiser-guile
+  :after geiser
+  :config
+  (add-to-list 'geiser-guile-load-path "~/src/guix")
+  (add-to-list 'geiser-guile-load-path "~/src/nonguix"))
 
  (use-package srfi
    :config
