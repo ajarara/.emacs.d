@@ -56,6 +56,7 @@
   (key-chord-mode))
 
 (use-package general
+  :after evil
   :demand t
   :config
   (general-define-key
@@ -88,10 +89,10 @@
   (setq aw-scope 'frame))
 
 (use-package password-store
-  :disabled (not is-personal-profile))
+  :if is-personal-profile)
 
 (use-package ag
-  :disabled (not is-personal-profile))
+  :if is-personal-profile)
 
 (use-package direnv
   :config
@@ -117,7 +118,7 @@
   (ivy-mode t))
 
 (use-package guix
-  :disabled (not is-personal-profile)
+  :if is-personal-profile
   :config
   (setq guix-dot-program "xt"))
 
@@ -161,7 +162,7 @@
    "C-s" 'swiper))
 
 (use-package counsel
-  :disabled (not is-personal-profile)
+  :if is-personal-profile
   :config
   (general-define-key
    "M-x" 'counsel-M-x)
@@ -208,18 +209,18 @@
      (setq-local browse-url-browser-function 'eww))))
 
 (use-package dumb-jump
-  :disabled (not is-personal-profile)
+  :if is-personal-profile
   :config
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
 (use-package lsp-mode 
-  :disabled (not is-personal-profile)
+  :if is-personal-profile
   :hook ((lsp-mode . lsp-enable-which-key-integration)))
 
 (use-package shelldon)
 
 (use-package org
-  :disabled (not is-personal-profile)
+  :if is-personal-profile
   :config
   (cond
    ((equal profile 'personal-guix)
@@ -244,7 +245,7 @@
    (t nil)))
 
 (use-package circe
-  :disabled (not is-personal-profile)
+  :if is-personal-profile
   :requires password-store
   :config
   (setq circe-network-defaults nil)
