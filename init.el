@@ -27,6 +27,7 @@
 (defvar is-personal-profile
   (string-prefix-p "personal" (symbol-name profile)))
 
+(use-package project)
 (use-package diminish)
 (use-package magit)
 (use-package markdown-mode)
