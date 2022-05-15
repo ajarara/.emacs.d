@@ -364,7 +364,7 @@ point reaches the beginning or end of the buffer, stop there."
   (general-define-key
    "M-0" 'text-scale-adjust
    "M-1" 'shell-command
-   "M-7" 'async-shell-command
+   "M-c" 'async-shell-command
    "M-s" 'switch-to-buffer)
 
   (defun node-repl ()
@@ -395,7 +395,6 @@ point reaches the beginning or end of the buffer, stop there."
   (dolist (this-mode-hook `(prog-mode-hook
                             circe-mode-hook))
     (add-hook this-mode-hook `hl-line-mode))
-  (general-define-key "M-c" 'comment-dwim)
   (setq ring-bell-function 'ignore)
 
   (setq ns-right-command-modifier 'control))
