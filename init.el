@@ -293,9 +293,11 @@
                       (circe-channel-nicks))))
         (message (prin1-to-string (-intersection names1 names2))))))
 
+(use-package server
+  :config
+  (unless (server-running-p) (server-start)))
+
 (use-package emacs
-  :init
-  (server-start)
   :config
   (let ((backup-directory (concat user-emacs-directory "backup")))
     (make-directory backup-directory t)
