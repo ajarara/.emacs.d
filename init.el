@@ -45,6 +45,7 @@
 (use-package evil-collection
   :after evil
   :demand t
+  :diminish evil-collection-unimpaired-mode
   :config
   (evil-collection-init))
 
@@ -396,6 +397,8 @@ point reaches the beginning or end of the buffer, stop there."
   (dolist (this-mode-hook `(prog-mode-hook
                             circe-mode-hook))
     (add-hook this-mode-hook `hl-line-mode))
+
+  (add-hook 'shell-mode-hook 'read-only-mode)
   (setq ring-bell-function 'ignore)
 
   (setq ns-right-command-modifier 'control))
