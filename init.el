@@ -273,25 +273,17 @@
                             (password-store-get host)))))
   (enable-circe-color-nicks)
     
-    ;; Unfortunately, swiper calls font-lock-ensure-function which has
-    ;; the annoying habit of washing out all the color. I add a
-    ;; function to circe's mode hook that sets font-lock-ensure to the
-    ;; ignore function.
-    ;; (add-hook 'circe-mode-hook
-    ;;           (lambda ()
-    ;;             (setq-local font-lock-ensure-function 'ignore)))
+  ;; Don't bombard me with leaves if the leaver hasn't spoke in a while
+  (setq circe-reduce-lurker-spam t)
 
-    ;; Don't bombard me with leaves if the leaver hasn't spoke in a while
-    (setq circe-reduce-lurker-spam t)
-
-    (defun my-circe-intersect-nicks (buf1 buf2)
-      "Does what you think it does. It would make a little sense to remove your own nick from this list, but meh"
-      (interactive "b\nb")
-      (let ((names1 (with-current-buffer (set-buffer buf1)
-                      (circe-channel-nicks)))
-            (names2 (with-current-buffer (set-buffer buf2)
-                      (circe-channel-nicks))))
-        (message (prin1-to-string (-intersection names1 names2))))))
+  (defun my-circe-intersect-nicks (buf1 buf2)
+    "Does what you think it does. It would make a little sense to remove your own nick from this list, but meh"
+    (interactive "b\nb")
+    (let ((names1 (with-current-buffer (set-buffer buf1)
+                    (circe-channel-nicks)))
+          (names2 (with-current-buffer (set-buffer buf2)
+                    (circe-channel-nicks))))
+      (message (prin1-to-string (-intersection names1 names2))))))
 
 (use-package server
   :config
