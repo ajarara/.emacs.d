@@ -38,6 +38,7 @@
   :demand t
   :init
   (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+  (setq evil-undo-system 'undo-redo)
   (setq evil-want-keybinding nil)
   :config
   (evil-mode 1))
@@ -45,8 +46,9 @@
 (use-package evil-collection
   :after evil
   :demand t
-  :diminish evil-collection-unimpaired-mode
   :config
+  ; for some reason the use-package keyword doesn't work here.
+  (diminish 'evil-collection-unimpaired-mode)
   (evil-collection-init))
 
 (use-package key-chord
@@ -98,7 +100,8 @@
 
 (use-package direnv
   :config
-  (setq direnv-always-show-summary nil))
+  (setq direnv-always-show-summary nil)
+  (direnv-mode))
 
 (use-package go-mode
   :config
@@ -123,6 +126,8 @@
 (use-package guix
   :if is-personal-profile
   :config
+  (setq geiser-repl-company-p nil) ; geiser removed in https://gitlab.com/emacs-geiser/geiser/-/merge_requests/7
+  (defalias 'geiser-company--setup 'ignore)
   (setq guix-dot-program "xt"))
 
 (use-package paren
@@ -201,7 +206,7 @@
 (use-package geiser-guile
   :after geiser
   :config
-  (add-to-list 'geiser-guile-load-path "~/src/guix")
+  ; (add-to-list 'geiser-guile-load-path "~/src/guix")
   (add-to-list 'geiser-guile-load-path "~/src/nonguix"))
 
 (use-package srfi
