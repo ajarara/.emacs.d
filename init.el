@@ -117,6 +117,11 @@
   :config
   (setq ivy-ignore-buffers `("\\` "))
 
+  (general-define-key
+   "b" 'ivy-switch-buffer
+   :prefix "g"
+   :keymaps 'evil-motion-state-map)
+
   ;; I like completion in the minibuffer, completion in region is
   ;; obnoxious when you have hl-line-mode active. This must be set
   ;; before ivy-mode is called.
@@ -229,6 +234,8 @@
 (use-package shelldon
   :config
   (general-define-key
+   "M-c" 'shelldon)
+  (general-define-key
    "!" 'shelldon
    "1" 'shelldon
    :prefix "C-c"))
@@ -339,7 +346,6 @@ point reaches the beginning or end of the buffer, stop there."
         (when (= orig-point (point))
           (move-beginning-of-line 1))))
 
-    ;; maybe the only legitimate use of global-set-key here.
     (general-define-key [remap move-beginning-of-line]
                         'my-smarter-move-beginning-of-line))
 
@@ -364,7 +370,6 @@ point reaches the beginning or end of the buffer, stop there."
   (general-define-key
    "M-0" 'text-scale-adjust
    "M-1" 'shell-command
-   "M-c" 'async-shell-command
    "M-s" 'switch-to-buffer)
 
   (defun node-repl ()
