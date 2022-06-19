@@ -247,20 +247,18 @@
    ((equal profile 'personal-guix)
     (setq org-directory "~/notes/org/")
     (setq org-default-notes-file (concat org-directory "sink.org"))
+    (setq org-agenda-files "~/self/private/notes.org")
     (setq org-capture-templates
-          (cond
-           ((equal profile 'personal-guix)
-            `(("j"
-               "journal"
-               entry
-               (file+datetree ,(concat org-directory "journal-second.org"))
-               "* %?\nEntered on %U\n  %i\n  %a")
-              ("t"
-               "todo"
-               entry
-               (file+datetree ,(concat org-directory "todo.org"))
-               "* TODO %?\n  %i\n  %a")))
-           (t nil)))
+          `(("j"
+             "journal"
+             entry
+             (file+datetree ,(concat org-directory "journal-second.org"))
+             "* %?\nEntered on %U\n  %i\n  %a")
+            ("t"
+             "todo"
+             entry
+             (file+datetree ,(concat org-directory "todo.org"))
+             "* TODO %?\n  %i\n  %a")))
     (add-hook `org-mode-hook `org-indent-mode)
     (add-hook `org-mode-hook `visual-line-mode)
     (general-define-key
