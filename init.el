@@ -111,23 +111,17 @@
   (add-hook 'go-mode-hook 'direnv-mode))
   (add-to-list 'auto-mode-alist'("\\.go" . go-mode)))
 
-(use-package ivy
-  :demand t
-  :diminish ivy-mode
+(use-package selectrum
   :config
-  (setq ivy-ignore-buffers `("\\` "))
+  (selectrum-mode 1))
 
-  (general-define-key
-   "b" 'ivy-switch-buffer
-   :prefix "g"
-   :keymaps 'evil-motion-state-map)
+(use-package selectrum-prescient
+  :after selectrum
+  :config
+  (selectrum-prescient-mode 1))
 
-  ;; I like completion in the minibuffer, completion in region is
-  ;; obnoxious when you have hl-line-mode active. This must be set
-  ;; before ivy-mode is called.
-  (setcdr (assoc 'ivy-completion-in-region ivy-display-functions-alist) nil)
-
-  (ivy-mode t))
+(use-package consult
+  :after selectrum)
 
 (use-package guix
   :if is-personal-profile
@@ -168,29 +162,12 @@
   :config
   (add-hook 'rust-mode-hook 'cargo-minor-mode))
 
-(use-package swiper
-  :config
-  (setq swiper-action-recenter t)
-
-  (general-define-key
-   "C-s" 'swiper))
-
-(use-package counsel
-  :if is-personal-profile
-  :config
-  (general-define-key
-   "M-x" 'counsel-M-x)
-  (general-define-key
-   "a" 'counsel-ag
-   :prefix "C-c"))
-
 (use-package typescript-mode
   :config
   (add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
   (add-to-list 'auto-mode-alist '("\\.tsx" . typescript-mode))
   (setq typescript-indent-level 2)
   (setq js-indent-level 2))
-
 
 (use-package monokai-theme
   :config
