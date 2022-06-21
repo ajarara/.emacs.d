@@ -207,7 +207,7 @@
   (which-key-mode))
 
 (use-package geiser
-  :disabled (not (equal profile 'personal-guix)))
+  :if (equal profile 'personal-guix))
 
 (use-package geiser-guile
   :after geiser
