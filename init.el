@@ -47,9 +47,9 @@
   :after evil
   :demand t
   :config
+  (evil-collection-init)
   ; for some reason the use-package keyword doesn't work here.
-  (diminish 'evil-collection-unimpaired-mode)
-  (evil-collection-init))
+  (diminish 'evil-collection-unimpaired-mode))
 
 (use-package key-chord
   :after evil
