@@ -87,6 +87,9 @@
   (general-define-key
    "M-o" 'ace-window)
   (general-define-key
+   "C-w" 'ace-window
+   :keymaps '(evil-window-map))
+  (general-define-key
    "SPC" 'ace-window
    :prefix "C-c")
   (setq aw-keys
@@ -100,15 +103,17 @@
   :if is-personal-profile)
 
 (use-package direnv
+  :if is-personal-profile
   :config
   (setq direnv-always-show-summary nil)
   (direnv-mode))
 
 (use-package go-mode
   :config
-  (add-hook 'go-mode-hook 'lsp)
-  (when (featurep 'direnv)
-  (add-hook 'go-mode-hook 'direnv-mode))
+  (eval-after-load "lsp-mode"
+    (add-hook 'go-mode-hook 'lsp-mode))
+  (eval-after-load "direnv"
+    (add-hook 'go-mode-hook 'direnv-mode))
   (add-to-list 'auto-mode-alist'("\\.go" . go-mode)))
 
 (use-package selectrum
@@ -121,7 +126,10 @@
   (selectrum-prescient-mode 1))
 
 (use-package consult
-  :after selectrum)
+  :after selectrum
+  :config
+  (general-define-key "C-s" 'consult-line)
+  (general-define-key "C-S-s" 'consult-line-multi))
 
 (use-package guix
   :if is-personal-profile
@@ -155,7 +163,9 @@
 (use-package rust-mode
   :mode "\\.rs"
   :config
-  (add-hook 'rust-mode-hook 'lsp))
+  (eval-when-load
+   "lsp-mode"
+   (add-hook 'rust-mode-hook 'lsp)))
 
 (use-package cargo
   :after 'rust-mode
