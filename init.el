@@ -210,6 +210,8 @@
    (lambda ()
      (setq-local browse-url-browser-function 'eww))))
 
+(use-package nov)
+
 (use-package dumb-jump
   :if is-personal-profile
   :config
