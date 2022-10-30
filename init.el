@@ -110,8 +110,9 @@
 
 (use-package go-mode
   :config
-  (eval-after-load "lsp-mode"
-    (add-hook 'go-mode-hook 'lsp-mode))
+  ;; why is lsp not defined after lsp-mode is loaded?
+  ;; (eval-after-load "lsp-mode"
+  ;;   (add-hook 'go-mode-hook 'lsp))
   (eval-after-load "direnv"
     (add-hook 'go-mode-hook 'direnv-mode))
   (add-to-list 'auto-mode-alist'("\\.go" . go-mode)))
@@ -397,7 +398,38 @@ point reaches the beginning or end of the buffer, stop there."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(safe-local-variable-values
-   '((geiser-default-implementation quote guix)
+   '((eval progn
+           (require 'lisp-mode)
+           (defun emacs27-lisp-fill-paragraph
+               (&optional justify)
+             (interactive "P")
+             (or
+              (fill-comment-paragraph justify)
+              (let
+                  ((paragraph-start
+                    (concat paragraph-start "\\|\\s-*\\([(;\"]\\|\\s-:\\|`(\\|#'(\\)"))
+                   (paragraph-separate
+                    (concat paragraph-separate "\\|\\s-*\".*[,\\.]$"))
+                   (fill-column
+                    (if
+                        (and
+                         (integerp emacs-lisp-docstring-fill-column)
+                         (derived-mode-p 'emacs-lisp-mode))
+                        emacs-lisp-docstring-fill-column fill-column)))
+                (fill-paragraph justify))
+              t))
+           (setq-local fill-paragraph-function #'emacs27-lisp-fill-paragraph))
+     (eval with-eval-after-load 'yasnippet
+           (let
+               ((guix-yasnippets
+                 (expand-file-name "etc/snippets/yas"
+                                   (locate-dominating-file default-directory ".dir-locals.el"))))
+             (unless
+                 (member guix-yasnippets yas-snippet-dirs)
+               (add-to-list 'yas-snippet-dirs guix-yasnippets)
+               (yas-reload-all))))
+     (eval add-to-list 'completion-ignored-extensions ".go")
+     (geiser-default-implementation quote guix)
      (eval let
            ((root-dir-unexpanded
              (locate-dominating-file default-directory ".dir-locals.el")))
