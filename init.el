@@ -56,6 +56,7 @@
   :demand t
   :config
   (key-chord-define evil-insert-state-map "jj" 'evil-normal-state)
+  (key-chord-define evil-insert-state-map "df" 'evil-normal-state)
   (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
   (key-chord-mode))
 
@@ -110,9 +111,6 @@
 
 (use-package go-mode
   :config
-  ;; why is lsp not defined after lsp-mode is loaded?
-  ;; (eval-after-load "lsp-mode"
-  ;;   (add-hook 'go-mode-hook 'lsp))
   (eval-after-load "direnv"
     (add-hook 'go-mode-hook 'direnv-mode))
   (add-to-list 'auto-mode-alist'("\\.go" . go-mode)))
@@ -210,16 +208,16 @@
    (lambda ()
      (setq-local browse-url-browser-function 'eww))))
 
-(use-package nov)
+(use-package nov
+  :config
+  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
 
 (use-package dumb-jump
   :if is-personal-profile
   :config
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
-(use-package lsp-mode 
-  :if is-personal-profile
-  :hook ((lsp-mode . lsp-enable-which-key-integration)))
+(use-package eglot)
 
 (use-package shelldon
   :config
@@ -289,6 +287,33 @@
 (use-package server
   :config
   (unless (server-running-p) (server-start)))
+
+;; TODO figure out why test code below hangs indefinitely
+;; my guess is start-file-process needs to be of type pipe
+;; which may mean we can't do this in tramp
+;;  (cl-defun make-anonymous-file-process (program &optional stdin-process)
+;;   (let* ((stdout-buffer (generate-new-buffer " *temp*" t))
+;;          (outgoing-process
+;;           (apply 'start-file-process "anon" stdout-buffer program)))
+;;     (if stdin-process
+;;         (set-process-sentinel stdin-process
+;;                               (lambda (&rest _)
+;;                                 (if (not (process-live-p stdin-process))
+;;                                     (process-send-string
+;;                                      outgoing-process
+;;                                      (with-current-buffer (process-buffer stdin-process)
+;;                                        (buffer-string)))
+;;                                   (process-send-eof outgoing-process)))))
+;;     outgoing-process))
+
+;; (let ((process (make-anonymous-file-process '("cat") (make-anonymous-file-process '("sleep" "3")))))
+;;   (set-process-sentinel process
+;;                         (lambda (&rest _)
+;;                           (unless (process-live-p process)
+;;                             (with-current-buffer (process-buffer process)
+;;                               (message (buffer-string)))
+;;                             (kill-buffer (process-buffer process))))))
+
 
 (use-package emacs
   :config
@@ -400,7 +425,9 @@ point reaches the beginning or end of the buffer, stop there."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(safe-local-variable-values
-   '((eval progn
+   '((diff-add-log-use-relative-names . t)
+     (vc-git-annotate-switches . "-w")
+     (eval progn
            (require 'lisp-mode)
            (defun emacs27-lisp-fill-paragraph
                (&optional justify)
