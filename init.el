@@ -288,32 +288,9 @@
   :config
   (unless (server-running-p) (server-start)))
 
-;; TODO figure out why test code below hangs indefinitely
-;; my guess is start-file-process needs to be of type pipe
-;; which may mean we can't do this in tramp
-;;  (cl-defun make-anonymous-file-process (program &optional stdin-process)
-;;   (let* ((stdout-buffer (generate-new-buffer " *temp*" t))
-;;          (outgoing-process
-;;           (apply 'start-file-process "anon" stdout-buffer program)))
-;;     (if stdin-process
-;;         (set-process-sentinel stdin-process
-;;                               (lambda (&rest _)
-;;                                 (if (not (process-live-p stdin-process))
-;;                                     (process-send-string
-;;                                      outgoing-process
-;;                                      (with-current-buffer (process-buffer stdin-process)
-;;                                        (buffer-string)))
-;;                                   (process-send-eof outgoing-process)))))
-;;     outgoing-process))
-
-;; (let ((process (make-anonymous-file-process '("cat") (make-anonymous-file-process '("sleep" "3")))))
-;;   (set-process-sentinel process
-;;                         (lambda (&rest _)
-;;                           (unless (process-live-p process)
-;;                             (with-current-buffer (process-buffer process)
-;;                               (message (buffer-string)))
-;;                             (kill-buffer (process-buffer process))))))
-
+;; (async-shell-command "asdf")
+;; (lambda (buf) ; operate on buf)
+;; (lambda (buf) (async-shell-command "fdsa" (buffer-string buf)))
 
 (use-package emacs
   :config
