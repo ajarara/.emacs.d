@@ -34,7 +34,6 @@
 (use-package company)
 (use-package git-link)
 
-
 (use-package general
   :demand t
   :config
@@ -53,20 +52,28 @@
 
 (use-package winner
   :config
+  (general-define-key
+   "M-o" 'winner-undo
+   "M-O" 'winner-redo)
+  
   (winner-mode))
+
+(use-package savehist
+  :config
+  (savehist-mode))
+
 
 (use-package expand-region
   :config
-  (general-define-key
-   "m" 'er/expand-region
-   :states 'visual))
+  ;; (general-define-key
+  ;;  "m" 'er/expand-region
+  ;;  )
+  )
 
 (use-package ace-window
   :config
   (general-define-key
-   "M-o" 'ace-window)
-  (general-define-key
-   "SPC" 'ace-window
+   "C-c" 'ace-window
    :prefix "C-c")
   (setq aw-keys
         '(?h ?j ?k ?l ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9 ?0))
