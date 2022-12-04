@@ -34,34 +34,8 @@
 (use-package company)
 (use-package git-link)
 
-(use-package evil
-  :demand t
-  :init
-  (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
-  (setq evil-undo-system 'undo-redo)
-  (setq evil-want-keybinding nil)
-  :config
-  (evil-mode 1))
-
-(use-package evil-collection
-  :after evil
-  :demand t
-  :config
-  (evil-collection-init)
-  ; for some reason the use-package keyword doesn't work here.
-  (diminish 'evil-collection-unimpaired-mode))
-
-(use-package key-chord
-  :after evil
-  :demand t
-  :config
-  (key-chord-define evil-insert-state-map "jj" 'evil-normal-state)
-  (key-chord-define evil-insert-state-map "df" 'evil-normal-state)
-  (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
-  (key-chord-mode))
 
 (use-package general
-  :after evil
   :demand t
   :config
   (general-define-key
@@ -77,6 +51,10 @@
    "i" 'imenu
    :prefix "C-c"))
 
+(use-package winner
+  :config
+  (winner-mode))
+
 (use-package expand-region
   :config
   (general-define-key
@@ -87,9 +65,6 @@
   :config
   (general-define-key
    "M-o" 'ace-window)
-  (general-define-key
-   "C-w" 'ace-window
-   :keymaps '(evil-window-map))
   (general-define-key
    "SPC" 'ace-window
    :prefix "C-c")
@@ -128,7 +103,8 @@
   :after selectrum
   :config
   (general-define-key "C-s" 'consult-line)
-  (general-define-key "C-S-s" 'consult-line-multi))
+  (general-define-key "C-S-s" 'consult-line-multi)
+  (general-define-key "C-h a" 'consult-apropos))
 
 (use-package guix
   :if is-personal-profile
