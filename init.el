@@ -65,10 +65,8 @@
 
 (use-package expand-region
   :config
-  ;; (general-define-key
-  ;;  "m" 'er/expand-region
-  ;;  )
-  )
+  (general-define-key
+   "C-\\" 'er/expand-region))
 
 (use-package ace-window
   :config
