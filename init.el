@@ -72,9 +72,14 @@
   :config
   (general-define-key
    "C-c" 'ace-window
+   "C-SPC" 'ace-window
    :prefix "C-c")
+  (general-define-key
+   "C-o" 'ace-window
+   "o" 'ace-window
+   :prefix "C-x")
   (setq aw-keys
-        '(?h ?j ?k ?l ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9 ?0))
+        '(?j ?k ?l ?\; ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9 ?0))
   (setq aw-scope 'frame))
 
 (use-package password-store
