@@ -53,7 +53,6 @@
 (use-package winner
   :config
   (general-define-key
-   "M-o" 'winner-undo
    "M-O" 'winner-redo)
   
   (winner-mode))
@@ -73,7 +72,10 @@
   (general-define-key
    "C-c" 'ace-window
    "C-SPC" 'ace-window
+   "C-o" 'ace-window
+   "o" 'ace-window
    :prefix "C-c")
+  (general-define-key "M-o" 'ace-window)
   (general-define-key
    "C-o" 'ace-window
    "o" 'ace-window
