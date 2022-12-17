@@ -53,7 +53,8 @@
 (use-package winner
   :config
   (general-define-key
-   "C-O" 'winner-undo)
+   "M-[" 'winner-undo
+   "M-]" 'winner-redo)
   (winner-mode))
 
 (use-package savehist
@@ -69,7 +70,6 @@
 (use-package ace-window
   :config
   (general-define-key
-   "C-c" 'ace-window
    "C-SPC" 'ace-window
    "C-o" 'ace-window
    "o" 'ace-window
