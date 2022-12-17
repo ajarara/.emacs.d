@@ -53,8 +53,7 @@
 (use-package winner
   :config
   (general-define-key
-   "M-O" 'winner-redo)
-  
+   "C-O" 'winner-undo)
   (winner-mode))
 
 (use-package savehist
