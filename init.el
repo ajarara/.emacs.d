@@ -138,8 +138,7 @@
          :sentinel (lambda (process state)
                      (when (equal state "finished\n")
                        (with-current-buffer proc-buffer
-                         (write-region (point-min) (point-max) "/home/ajarara/self/manifest/installed.scm" nil))))))))
-
+                         (write-region (point-min) (point-max) "/home/ajarara/self/home/installed-packages.scm" nil))))))))
       
   (add-hook 'guix-repl-after-operation-hook 'my-sync-manifest-after-operation)
             
