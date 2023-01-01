@@ -102,17 +102,18 @@
     (add-hook 'go-mode-hook 'direnv-mode))
   (add-to-list 'auto-mode-alist'("\\.go" . go-mode)))
 
-(use-package selectrum
-  :config
-  (selectrum-mode 1))
 
-(use-package selectrum-prescient
-  :after selectrum
+(use-package vertico
   :config
-  (selectrum-prescient-mode 1))
+  (vertico-mode))
 
+(use-package orderless
+  :init
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
 (use-package consult
-  :after selectrum
+  :after vertico
   :config
   (general-define-key "C-s" 'consult-line)
   (general-define-key "C-S-s" 'consult-line-multi)
