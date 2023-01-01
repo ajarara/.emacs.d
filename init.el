@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t -*-
 (setq straight-use-package-version 'straight)
 (setq straight-use-package-by-default t)
 
@@ -126,16 +127,18 @@
     (let* ((proc-buffer (get-buffer-create "*sync manifest results*"))
            (existing-process (get-buffer-process proc-buffer)))
       (unless (and existing-process (equal (process-status existing-process) "exit"))
-        ;; wipe the buffer of the previous run
-        (with-current-buffer proc-buffer)
+        (with-current-buffer proc-buffer
+          (erase-buffer))
         (make-process
          :name "sync-manifest-after-operation"
          :command '("guix" "package" "--export-manifest")
          :buffer proc-buffer
-         :stderr (get-buffer-create "*sync-manifest-after-operation-errors")
+         :stderr (get-buffer-create "*sync manifest after operation errors*")
          :sentinel (lambda (process state)
-                     (unless (equal state "finished\n")
-                       (message "process finished!")))))))
+                     (when (equal state "finished\n")
+                       (with-current-buffer proc-buffer
+                         (write-region (point-min) (point-max) "/home/ajarara/self/manifest/installed.scm" nil))))))))
+
       
   (add-hook 'guix-repl-after-operation-hook 'my-sync-manifest-after-operation)
             
@@ -291,10 +294,6 @@
 (use-package server
   :config
   (unless (server-running-p) (server-start)))
-
-;; (async-shell-command "asdf")
-;; (lambda (buf) ; operate on buf)
-;; (lambda (buf) (async-shell-command "fdsa" (buffer-string buf)))
 
 (use-package emacs
   :config
