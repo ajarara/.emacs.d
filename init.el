@@ -122,6 +122,23 @@
   :config
   (setq geiser-repl-company-p nil) ; geiser removed in https://gitlab.com/emacs-geiser/geiser/-/merge_requests/7
   (defalias 'geiser-company--setup 'ignore)
+  (defun my-sync-manifest-after-operation ()
+    (let* ((proc-buffer (get-buffer-create "*sync manifest results*"))
+           (existing-process (get-buffer-process proc-buffer)))
+      (unless (and existing-process (equal (process-status existing-process) "exit"))
+        ;; wipe the buffer of the previous run
+        (with-current-buffer proc-buffer)
+        (make-process
+         :name "sync-manifest-after-operation"
+         :command '("guix" "package" "--export-manifest")
+         :buffer proc-buffer
+         :stderr (get-buffer-create "*sync-manifest-after-operation-errors")
+         :sentinel (lambda (process state)
+                     (unless (equal state "finished\n")
+                       (message "process finished!")))))))
+      
+  (add-hook 'guix-repl-after-operation-hook 'my-sync-manifest-after-operation)
+            
   (setq guix-dot-program "xt"))
 
 (use-package paren
