@@ -51,6 +51,32 @@
    "i" 'imenu
    :prefix "C-c"))
 
+(use-package org
+  :if is-personal-profile
+  :config
+  (cond
+   ((equal profile 'personal-guix)
+    (setq org-directory "~/notes/org/")
+    (setq org-default-notes-file (concat org-directory "sink.org"))
+    (setq org-agenda-files "~/self/private/notes.org")
+    (setq org-capture-templates
+          `(("j"
+             "journal"
+             entry
+             (file+datetree ,(concat org-directory "journal-second.org"))
+             "* %?\nEntered on %U\n  %i\n  %a")
+            ("t"
+             "todo"
+             entry
+             (file+datetree ,(concat org-directory "todo.org"))
+             "* TODO %?\n  %i\n  %a")))
+    (add-hook `org-mode-hook `org-indent-mode)
+    (add-hook `org-mode-hook `visual-line-mode)
+    (general-define-key
+     "r" 'org-capture
+     :prefix "C-c"))
+   (t nil)))
+
 (use-package winner
   :config
   (general-define-key
@@ -84,6 +110,11 @@
         '(?j ?k ?l ?\; ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9 ?0))
   (setq aw-scope 'frame))
 
+(use-package avy
+  :config
+  (general-define-key
+   "M-l" 'avy-goto-char-timer))
+
 (use-package password-store
   :if is-personal-profile)
 
@@ -112,6 +143,7 @@
   (setq completion-styles '(orderless basic)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
+
 (use-package consult
   :after vertico
   :config
@@ -235,31 +267,7 @@
    "1" 'shelldon
    :prefix "C-c"))
 
-(use-package org
-  :if is-personal-profile
-  :config
-  (cond
-   ((equal profile 'personal-guix)
-    (setq org-directory "~/notes/org/")
-    (setq org-default-notes-file (concat org-directory "sink.org"))
-    (setq org-agenda-files "~/self/private/notes.org")
-    (setq org-capture-templates
-          `(("j"
-             "journal"
-             entry
-             (file+datetree ,(concat org-directory "journal-second.org"))
-             "* %?\nEntered on %U\n  %i\n  %a")
-            ("t"
-             "todo"
-             entry
-             (file+datetree ,(concat org-directory "todo.org"))
-             "* TODO %?\n  %i\n  %a")))
-    (add-hook `org-mode-hook `org-indent-mode)
-    (add-hook `org-mode-hook `visual-line-mode)
-    (general-define-key
-     "r" 'org-capture
-     :prefix "C-c"))
-   (t nil)))
+
 
 (use-package circe
   :if is-personal-profile
