@@ -77,6 +77,34 @@
      :prefix "C-c"))
    (t nil)))
 
+(use-package promise
+  :config
+  ;; we can't use start-file-process because that doesn't allow us
+  ;; to set our stderr
+  (defun start-anon-proc (command)
+    (let ((fh (find-file-name-handler default-directory 'make-process)))
+      (if fh (apply fh
+                    'make-process
+                    :name " "
+                    :buffer (generate-new-buffer " ")
+                    :stderr (generate-new-buffer " ")
+                    :command command)
+        (make-process
+         :name " "
+         :buffer (generate-new-buffer " ")
+         :stderr (generate-new-buffer " ")
+         :command command))))
+  ;; return a promise, attach sentinel wrapping resolve-reject-lambda
+  ;; when sentinel fires, that lambda may call resolve or reject
+  ;; for the returned promise
+  (defun promise-sentinel (process resolve-reject-lambda)
+    (promise-new
+     (lambda (resolve reject)
+       (set-process-sentinel
+        process
+        (lambda (_proc _event)
+          (funcall resolve-reject-lambda resolve reject)))))))
+
 (use-package winner
   :config
   (general-define-key
