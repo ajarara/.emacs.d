@@ -34,7 +34,7 @@
 (use-package markdown-mode)
 (use-package company)
 (use-package git-link)
-(use-package async-await)
+
 
 (use-package general
   :demand t
@@ -89,6 +89,9 @@
   :config
   (savehist-mode))
 
+(use-package async-await
+  :config
+  (promise-rejection-tracking-enable '((all-rejections . t))))
 
 (use-package expand-region
   :config
@@ -157,11 +160,6 @@
   :config
   (setq geiser-repl-company-p nil) ; geiser removed in https://gitlab.com/emacs-geiser/geiser/-/merge_requests/7
   (defalias 'geiser-company--setup 'ignore)
-
-  (funcall (async-lambda ()
-    (let* ((echo (await (promise:make-process '("echo" "-n" "5"))))
-           (sleep (await (promise:make-process `("sleep" ,(car echo))))))
-      (message "sleep results %s" sleep))))
 
   (async-defun my-sync-manifest-after-operation ()
     (let* ((manifest-path (expand-file-name "~/self/home/installed-packages.scm"))
