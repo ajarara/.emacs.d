@@ -34,7 +34,7 @@
 (use-package markdown-mode)
 (use-package company)
 (use-package git-link)
-(use-package promise)
+(use-package async-await)
 
 (use-package general
   :demand t
@@ -157,22 +157,26 @@
   :config
   (setq geiser-repl-company-p nil) ; geiser removed in https://gitlab.com/emacs-geiser/geiser/-/merge_requests/7
   (defalias 'geiser-company--setup 'ignore)
-  (defun my-sync-manifest-after-operation ()
-    (let* ((proc-buffer (get-buffer-create "*sync manifest results*"))
-           (existing-process (get-buffer-process proc-buffer)))
-      (unless (and existing-process (equal (process-status existing-process) "exit"))
-        (with-current-buffer proc-buffer
-          (erase-buffer))
-        (make-process
-         :name "sync-manifest-after-operation"
-         :command '("guix" "package" "--export-manifest")
-         :buffer proc-buffer
-         :stderr (get-buffer-create "*sync manifest after operation errors*")
-         :sentinel (lambda (process state)
-                     (when (equal state "finished\n")
-                       (with-current-buffer proc-buffer
-                         (write-region (point-min) (point-max) "/home/ajarara/self/home/installed-packages.scm" nil))))))))
-      
+
+  (funcall (async-lambda ()
+    (let* ((echo (await (promise:make-process '("echo" "-n" "5"))))
+           (sleep (await (promise:make-process `("sleep" ,(car echo))))))
+      (message "sleep results %s" sleep))))
+
+  (async-defun my-sync-manifest-after-operation ()
+    (let* ((manifest-path (expand-file-name "~/self/home/installed-packages.scm"))
+           (current-md5-of-manifest
+            (car
+             (split-string
+              (car (await (promise:make-process `("md5sum" ,manifest-path))))
+              " ")))
+           (manifest-export (car (await (promise:make-process '("guix" "package" "--export-manifest")))))
+           (new-md5-of-manifest (md5 manifest-export)))
+      (if (not (equal current-md5-of-manifest new-md5-of-manifest))
+          (with-temp-buffer
+            (insert manifest-export)
+            (write-file manifest-path)))))
+  
   (add-hook 'guix-repl-after-operation-hook 'my-sync-manifest-after-operation)
             
   (setq guix-dot-program "xt"))
@@ -472,5 +476,5 @@ point reaches the beginning or end of the buffer, stop there."
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
+   ;; If there is more than one, they won't work right.
  )
