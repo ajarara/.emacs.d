@@ -52,6 +52,14 @@
    "i" 'imenu
    :prefix "C-c"))
 
+(use-package desktop-environment
+  :config
+  (let ((screenies (expand-file-name "~/screenies")))
+    (unless (file-exists-p screenies)
+      (mkdir screenies))
+    (setq desktop-environment-screenshot-directory screenies)))
+        
+
 (use-package org
   :if is-personal-profile
   :config
@@ -172,21 +180,25 @@
   (setq geiser-repl-company-p nil) ; geiser removed in https://gitlab.com/emacs-geiser/geiser/-/merge_requests/7
   (defalias 'geiser-company--setup 'ignore)
 
+  (defvar my-manifest-path (expand-file-name "~/self/home/installed-packages.scm"))
   (async-defun my-sync-manifest-after-operation ()
-    (let* ((manifest-path (expand-file-name "~/self/home/installed-packages.scm"))
-           (current-md5-of-manifest
-            (car
-             (split-string
-              (car (await (promise:make-process `("md5sum" ,manifest-path))))
-              " ")))
+    (let* ((current-md5-of-manifest
+           (car
+            (split-string
+             (car (await (promise:make-process `("md5sum" ,my-manifest-path))))
+             " ")))
            (manifest-export (car (await (promise:make-process '("guix" "package" "--export-manifest")))))
            (new-md5-of-manifest (md5 manifest-export)))
       (if (not (equal current-md5-of-manifest new-md5-of-manifest))
           (with-temp-buffer
             (insert manifest-export)
-            (write-file manifest-path)))))
+            (write-file my-manifest-path)))))
   
   (add-hook 'guix-repl-after-operation-hook 'my-sync-manifest-after-operation)
+  (async-defun my-guix-update-all ()
+    (interactive)
+    (await (promise:make-process '("guix" "pull")))
+    (await (promise:make-process `("guix" "package" "-m" ,my-manifest-path))))
             
   (setq guix-dot-program "xt"))
 
