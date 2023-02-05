@@ -34,7 +34,7 @@
 (use-package markdown-mode)
 (use-package company)
 (use-package git-link)
-
+(use-package buttercup)
 
 (use-package general
   :demand t
@@ -78,6 +78,18 @@
      :prefix "C-c"))
    (t nil)))
 
+(use-package compile
+  :if is-personal-profile
+  :config
+  ; https://stackoverflow.com/a/20788581 more or less
+  (ignore-errors
+    (require 'ansi-color)
+    
+    (defun my-colorize-compilation-buffer ()
+      (when (eq major-mode 'compilation-mode)
+        (ansi-color-compilation-filter)))
+    (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer)))
+
 (use-package winner
   :config
   (general-define-key
@@ -105,7 +117,7 @@
    "C-o" 'ace-window
    "o" 'ace-window
    :prefix "C-c")
-  (general-define-key "M-o" 'ace-window)
+  (general-define-key "M-o" 'ace-window :keymaps '(general-override-mode-map))
   (general-define-key
    "C-o" 'ace-window
    "o" 'ace-window
@@ -136,7 +148,6 @@
   (eval-after-load "direnv"
     (add-hook 'go-mode-hook 'direnv-mode))
   (add-to-list 'auto-mode-alist'("\\.go" . go-mode)))
-
 
 (use-package vertico
   :config
@@ -260,6 +271,11 @@
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
 (use-package eglot)
+
+(use-package tui
+  :if is-personal-profile
+  :straight
+   '(:host github :repo "ebpa/tui.el" :files ("*.el" "components" "layout" "demo" "snippets")))
 
 (use-package shelldon
   :config
