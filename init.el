@@ -285,11 +285,13 @@
 (use-package eglot)
 
 (use-package tui
+  :disabled
   :if is-personal-profile
   :straight
    '(:host github :repo "ebpa/tui.el" :files ("*.el" "components" "layout" "demo" "snippets")))
 
 (use-package shelldon
+  :disabled
   :config
   (general-define-key
    "M-c" 'shelldon)
@@ -298,7 +300,7 @@
    "1" 'shelldon
    :prefix "C-c"))
 
-
+(use-package flycheck)
 
 (use-package circe
   :if is-personal-profile
@@ -365,8 +367,7 @@ If point is already there, move to the beginning of the line.
 Effectively toggle between the first non-whitespace character and
 the beginning of the line.
 
-If ARG is not nil or 1, move forward ARG - 1 lines first.  If
-point reaches the beginning or end of the buffer, stop there."
+If ARG is not nil or 1, move forward ARG - 1 lines first.  Ifpoint reaches the beginning or end of the buffer, stop there."
       (interactive "^p")
       (setq arg (or arg 1))
       ;; Move lines first
