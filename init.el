@@ -330,7 +330,10 @@
                     (circe-channel-nicks)))
           (names2 (with-current-buffer (set-buffer buf2)
                     (circe-channel-nicks))))
+
       (message (prin1-to-string (-intersection names1 names2))))))
+
+(use-package heap)
 
 (use-package server
   :config
