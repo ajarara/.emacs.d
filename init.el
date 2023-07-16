@@ -18,16 +18,39 @@
 (setq use-package-enable-imenu-support t)
 (straight-use-package 'use-package)
 
-;; load up the profile. This is an untracked file that sets
-;; `profile' to either `personal-macOS', `personal-guix'.
-(let ((profile-path (concat user-emacs-directory "profile.el")))
+(require 'cl-lib)
+
+(defvar attributes
+  '(is-personal is-guix)
+  "Attributes are minor modes that are enabled on a per host basis
+(and in some cases can be flipped on or off interactively)")
+
+(cl-loop for attribute in attributes
+         do (eval `(define-minor-mode ,attribute nil :global t)))
+
+;; convenience wrapper that adds a hook to the profile attribute. After adding,
+;; if the profile attribute mode is enabled, it runs the hook. It otherwise
+;; behaves like add-hook, calling on teardown, which means uses
+;; should still inspect  whether the minor mode is enabled and do
+;; teardown if needed
+(defmacro subscribe-to-attribute (attribute &rest body)
+  (declare (indent defun))
+  (cl-assert (memq attribute attributes))
+  `(progn
+     (add-hook ',attribute (lambda () ,@body))
+     ,(when attribute
+        `(progn ,@body nil))))
+
+;; load up the profile
+(let ((profile-path (concat user-emacs-directory "profile.json")))
   (if (file-exists-p profile-path)
-      (load profile-path)
-    (defvar profile 'nil)))
-
-(defvar is-personal-profile
-  (string-prefix-p "personal" (symbol-name profile)))
-
+      (let ((parsed (json-read-file profile-path)))
+        (cl-assert (vectorp parsed))
+        (cl-loop for enabled-attr-str across parsed
+                 for interned-attr = (intern enabled-attr-str)
+                 do (cl-assert (memq interned-attr attributes))
+                 do (funcall interned-attr)))))
+    
 (use-package project)
 (use-package diminish)
 (use-package magit)
@@ -60,43 +83,19 @@
     (setq desktop-environment-screenshot-directory screenies)))
         
 
-(use-package org
-  :if is-personal-profile
-  :config
-  (cond
-   ((equal profile 'personal-guix)
-    (setq org-directory "~/notes/org/")
-    (setq org-default-notes-file (concat org-directory "sink.org"))
-    (setq org-agenda-files "~/self/private/notes.org")
-    (setq org-capture-templates
-          `(("j"
-             "journal"
-             entry
-             (file+datetree ,(concat org-directory "journal-second.org"))
-             "* %?\nEntered on %U\n  %i\n  %a")
-            ("t"
-             "todo"
-             entry
-             (file+datetree ,(concat org-directory "todo.org"))
-             "* TODO %?\n  %i\n  %a")))
-    (add-hook `org-mode-hook `org-indent-mode)
-    (add-hook `org-mode-hook `visual-line-mode)
-    (general-define-key
-     "r" 'org-capture
-     :prefix "C-c"))
-   (t nil)))
+(use-package org)
 
 (use-package compile
-  :if is-personal-profile
   :config
-  ; https://stackoverflow.com/a/20788581 more or less
-  (ignore-errors
-    (require 'ansi-color)
-    
-    (defun my-colorize-compilation-buffer ()
-      (when (eq major-mode 'compilation-mode)
-        (ansi-color-compilation-filter)))
-    (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer)))
+  ;; https://stackoverflow.com/a/20788581 more or less
+  (when is-personal
+    (ignore-errors
+      (require 'ansi-color)
+      
+      (defun my-colorize-compilation-buffer ()
+        (when (eq major-mode 'compilation-mode)
+          (ansi-color-compilation-filter)))
+      (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer))))
 
 (use-package winner
   :config
@@ -140,22 +139,16 @@
    "M-l" 'avy-goto-char-timer))
 
 (use-package password-store
-  :if is-personal-profile)
+  :if is-personal)
 
 (use-package ag
-  :if is-personal-profile)
+  :if is-personal)
 
 (use-package direnv
-  :if is-personal-profile
+  :if is-personal
   :config
   (setq direnv-always-show-summary nil)
   (direnv-mode))
-
-(use-package go-mode
-  :config
-  (eval-after-load "direnv"
-    (add-hook 'go-mode-hook 'direnv-mode))
-  (add-to-list 'auto-mode-alist'("\\.go" . go-mode)))
 
 (use-package vertico
   :config
@@ -175,7 +168,7 @@
   (general-define-key "C-h a" 'consult-apropos))
 
 (use-package guix
-  :if is-personal-profile
+  :if is-guix
   :config
   (setq geiser-repl-company-p nil) ; geiser removed in https://gitlab.com/emacs-geiser/geiser/-/merge_requests/7
   (defalias 'geiser-company--setup 'ignore)
@@ -204,7 +197,7 @@
 
 (use-package paren
   :config
-  (setq show-paren-style 'expression)
+  (setq show-paren-style 'mixed)
   (setq show-paren-when-point-in-periphery t)
   (setq show-paren-when-point-inside-paren nil)
   :hook
@@ -225,6 +218,7 @@
   (setq reb-re-syntax 'string))
 
 (use-package rust-mode
+  :if is-personal
   :mode "\\.rs"
   :config
   (eval-when-load
@@ -237,6 +231,7 @@
   (add-hook 'rust-mode-hook 'cargo-minor-mode))
 
 (use-package typescript-mode
+  :if is-personal
   :config
   (add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
   (add-to-list 'auto-mode-alist '("\\.tsx" . typescript-mode))
@@ -258,7 +253,7 @@
   (which-key-mode))
 
 (use-package geiser
-  :if (equal profile 'personal-guix))
+  :if is-personal)
 
 (use-package geiser-guile
   :after geiser
@@ -267,6 +262,7 @@
   (add-to-list 'geiser-guile-load-path "~/src/nonguix"))
 
 (use-package srfi
+  :if is-personal
   :config
   (add-hook
    'srfi-mode-hook
@@ -274,36 +270,26 @@
      (setq-local browse-url-browser-function 'eww))))
 
 (use-package nov
+  :if is-personal
   :config
   (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
 
 (use-package dumb-jump
-  :if is-personal-profile
+  :if is-personal
   :config
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
 (use-package eglot)
 
 (use-package tui
-  :disabled
-  :if is-personal-profile
+  :if is-personal
   :straight
    '(:host github :repo "ebpa/tui.el" :files ("*.el" "components" "layout" "demo" "snippets")))
-
-(use-package shelldon
-  :disabled
-  :config
-  (general-define-key
-   "M-c" 'shelldon)
-  (general-define-key
-   "!" 'shelldon
-   "1" 'shelldon
-   :prefix "C-c"))
 
 (use-package flycheck)
 
 (use-package circe
-  :if is-personal-profile
+  :if is-personal
   :requires password-store
   :config
   (setq circe-network-defaults nil)
@@ -332,8 +318,6 @@
                     (circe-channel-nicks))))
 
       (message (prin1-to-string (-intersection names1 names2))))))
-
-(use-package heap)
 
 (use-package server
   :config
