@@ -1,6 +1,7 @@
 /*
 !.gitignore
 !init.el
+!early-init.el
 !README.md
 !straight
 straight/*
