@@ -1,24 +1,52 @@
 ;; -*- lexical-binding: t -*-
-(setq straight-use-package-version 'straight)
-(setq straight-use-package-by-default t)
 
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+(defvar elpaca-installer-version 0.5)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                              :ref nil
+                              :files (:defaults (:exclude "extensions"))
+                              :build (:not elpaca--activate-package)))
+(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+       (build (expand-file-name "elpaca/" elpaca-builds-directory))
+       (order (cdr elpaca-order))
+       (default-directory repo))
+  (add-to-list 'load-path (if (file-exists-p build) build repo))
+  (unless (file-exists-p repo)
+    (make-directory repo t)
+    (when (< emacs-major-version 28) (require 'subr-x))
+    (condition-case-unless-debug err
+        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                 ((zerop (call-process "git" nil buffer t "clone"
+                                       (plist-get order :repo) repo)))
+                 ((zerop (call-process "git" nil buffer t "checkout"
+                                       (or (plist-get order :ref) "--"))))
+                 (emacs (concat invocation-directory invocation-name))
+                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                 ((require 'elpaca))
+                 ((elpaca-generate-autoloads "elpaca" repo)))
+            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+          (error "%s" (with-current-buffer buffer (buffer-string))))
+      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  (unless (require 'elpaca-autoloads nil t)
+    (require 'elpaca)
+    (elpaca-generate-autoloads "elpaca" repo)
+    (load "./elpaca-autoloads")))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
 
-(setq use-package-enable-imenu-support t)
-(straight-use-package 'use-package)
+;; Install use-package support
+(elpaca elpaca-use-package
+  ;; Enable :elpaca use-package keyword.
+  (elpaca-use-package-mode)
+  ;; Assume :elpaca t unless otherwise specified.
+  (setq elpaca-use-package-by-default t))
+(elpaca-wait)
 
 (require 'cl-lib)
+(require 'json)
 
 (defvar attributes
   '(is-personal is-guix)
@@ -48,16 +76,9 @@
         (cl-assert (vectorp parsed))
         (cl-loop for enabled-attr-str across parsed
                  for interned-attr = (intern enabled-attr-str)
-                 do (cl-assert (memq interned-attr attributes))
+                 do (unless (memq interned-attr attributes)
+                      (error "unrecognized attribute from profile: %s"))
                  do (funcall interned-attr)))))
-    
-(use-package project)
-(use-package diminish)
-(use-package magit)
-(use-package markdown-mode)
-(use-package company)
-(use-package git-link)
-(use-package buttercup)
 
 (use-package general
   :demand t
@@ -75,6 +96,16 @@
    "i" 'imenu
    :prefix "C-c"))
 
+(use-package project :elpaca nil)
+(use-package diminish)
+(use-package magit)
+(use-package markdown-mode)
+(use-package company)
+(use-package git-link)
+(use-package buttercup)
+
+
+
 (use-package desktop-environment
   :config
   (let ((screenies (expand-file-name "~/screenies")))
@@ -83,9 +114,10 @@
     (setq desktop-environment-screenshot-directory screenies)))
         
 
-(use-package org)
+(use-package org :elpaca nil)
 
 (use-package compile
+  :elpaca nil
   :config
   ;; https://stackoverflow.com/a/20788581 more or less
   (when is-personal
@@ -98,6 +130,8 @@
       (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer))))
 
 (use-package winner
+  :elpaca nil
+  :after general
   :config
   (general-define-key
    "M-I" 'winner-undo
@@ -105,6 +139,7 @@
   (winner-mode))
 
 (use-package savehist
+  :elpaca nil
   :config
   (savehist-mode))
 
@@ -113,11 +148,13 @@
   (promise-rejection-tracking-enable '((all-rejections . t))))
 
 (use-package expand-region
+  :after general
   :config
   (general-define-key
    "C-\\" 'er/expand-region))
 
 (use-package ace-window
+  :after general
   :config
   (general-define-key
    "C-SPC" 'ace-window
@@ -134,6 +171,7 @@
   (setq aw-scope 'frame))
 
 (use-package avy
+  :after general
   :config
   (general-define-key
    "M-l" 'avy-goto-char-timer))
@@ -161,7 +199,7 @@
         completion-category-overrides '((file (styles partial-completion)))))
 
 (use-package consult
-  :after vertico
+  :after (vertico general)
   :config
   (general-define-key "C-s" 'consult-line)
   (general-define-key "C-S-s" 'consult-line-multi)
@@ -196,6 +234,7 @@
   (setq guix-dot-program "xt"))
 
 (use-package paren
+  :elpaca nil
   :config
   (setq show-paren-style 'mixed)
   (setq show-paren-when-point-in-periphery t)
@@ -204,6 +243,8 @@
   (after-init-hook . show-paren-mode))
 
 (use-package ibuffer
+  :elpaca nil
+  :after general
   :config
   (general-define-key
    "C-b" 'ibuffer
@@ -214,6 +255,7 @@
   (setq xref-show-definitions-function 'xref--show-defs-buffer-at-bottom))
 
 (use-package re-builder
+  :elpaca nil
   :config
   (setq reb-re-syntax 'string))
 
@@ -245,6 +287,7 @@
 
 (use-package which-key
   :demand t
+  :after general
   :diminish which-key-mode
   :config
   (general-define-key
@@ -270,6 +313,7 @@
      (setq-local browse-url-browser-function 'eww))))
 
 (use-package nov
+  :disabled
   :if is-personal
   :config
   (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
@@ -279,12 +323,12 @@
   :config
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
-(use-package eglot)
+(use-package eglot :disabled)
 
-(use-package tui
-  :if is-personal
-  :straight
-   '(:host github :repo "ebpa/tui.el" :files ("*.el" "components" "layout" "demo" "snippets")))
+;; (use-package tui
+;;   :if is-personal
+;;   :elpaca
+;;    '(:host github :repo "ebpa/tui.el" :files ("*.el" "components" "layout" "demo" "snippets")))
 
 (use-package flycheck)
 
@@ -320,10 +364,13 @@
       (message (prin1-to-string (-intersection names1 names2))))))
 
 (use-package server
+  :elpaca nil
   :config
   (unless (server-running-p) (server-start)))
 
 (use-package emacs
+  :elpaca nil
+  :after general
   :config
   (let ((backup-directory (concat user-emacs-directory "backup")))
     (make-directory backup-directory t)
