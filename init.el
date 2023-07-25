@@ -290,6 +290,8 @@
 
 (use-package tui
   :if is-personal
+  :config
+  (add-hook 'kill-buffer-hook #'tui-unmount-current-buffer-content-trees)
   :straight
    '(:host github :repo "ebpa/tui.el" :files ("*.el" "components" "layout" "demo" "snippets")))
 
