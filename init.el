@@ -319,9 +319,9 @@
   (defun my-circe-intersect-nicks (buf1 buf2)
     "Does what you think it does. It would make a little sense to remove your own nick from this list, but meh"
     (interactive "b\nb")
-    (let ((names1 (with-current-buffer (set-buffer buf1)
+    (let ((names1 (with-current-buffer buf1
                     (circe-channel-nicks)))
-          (names2 (with-current-buffer (set-buffer buf2)
+          (names2 (with-current-buffer buf2
                     (circe-channel-nicks))))
 
       (message (prin1-to-string (-intersection names1 names2))))))
@@ -434,85 +434,5 @@ If ARG is not nil or 1, move forward ARG - 1 lines first.  Ifpoint reaches the b
 
   (setq ns-right-command-modifier 'control))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(safe-local-variable-values
-   '((eval let
-           ((root-dir-unexpanded
-             (locate-dominating-file default-directory ".dir-locals.el")))
-           (when root-dir-unexpanded
-             (let*
-                 ((root-dir
-                   (file-local-name
-                    (expand-file-name root-dir-unexpanded)))
-                  (root-dir*
-                   (directory-file-name root-dir)))
-               (unless
-                   (boundp 'geiser-guile-load-path)
-                 (defvar geiser-guile-load-path 'nil))
-               (make-local-variable 'geiser-guile-load-path)
-               (require 'cl-lib)
-               (cl-pushnew root-dir* geiser-guile-load-path :test #'string-equal))))
-     (diff-add-log-use-relative-names . t)
-     (vc-git-annotate-switches . "-w")
-     (eval progn
-           (require 'lisp-mode)
-           (defun emacs27-lisp-fill-paragraph
-               (&optional justify)
-             (interactive "P")
-             (or
-              (fill-comment-paragraph justify)
-              (let
-                  ((paragraph-start
-                    (concat paragraph-start "\\|\\s-*\\([(;\"]\\|\\s-:\\|`(\\|#'(\\)"))
-                   (paragraph-separate
-                    (concat paragraph-separate "\\|\\s-*\".*[,\\.]$"))
-                   (fill-column
-                    (if
-                        (and
-                         (integerp emacs-lisp-docstring-fill-column)
-                         (derived-mode-p 'emacs-lisp-mode))
-                        emacs-lisp-docstring-fill-column fill-column)))
-                (fill-paragraph justify))
-              t))
-           (setq-local fill-paragraph-function #'emacs27-lisp-fill-paragraph))
-     (eval with-eval-after-load 'yasnippet
-           (let
-               ((guix-yasnippets
-                 (expand-file-name "etc/snippets/yas"
-                                   (locate-dominating-file default-directory ".dir-locals.el"))))
-             (unless
-                 (member guix-yasnippets yas-snippet-dirs)
-               (add-to-list 'yas-snippet-dirs guix-yasnippets)
-               (yas-reload-all))))
-     (eval add-to-list 'completion-ignored-extensions ".go")
-     (geiser-default-implementation quote guix)
-     (eval let
-           ((root-dir-unexpanded
-             (locate-dominating-file default-directory ".dir-locals.el")))
-           (when root-dir-unexpanded
-             (let*
-                 ((root-dir
-                   (expand-file-name root-dir-unexpanded))
-                  (root-dir*
-                   (directory-file-name root-dir)))
-               (unless
-                   (boundp 'geiser-guile-load-path)
-                 (defvar geiser-guile-load-path 'nil))
-               (make-local-variable 'geiser-guile-load-path)
-               (require 'cl-lib)
-               (cl-pushnew root-dir* geiser-guile-load-path :test #'string-equal))))
-     (eval setq-local guix-directory
-           (locate-dominating-file default-directory ".dir-locals.el"))
-     (eval modify-syntax-entry 43 "'")
-     (eval modify-syntax-entry 36 "'")
-     (eval modify-syntax-entry 126 "'"))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+(setq custom-file (concat user-emacs-directory "custom.el"))
+(load custom-file)
