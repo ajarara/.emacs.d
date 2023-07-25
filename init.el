@@ -292,6 +292,29 @@
   :if is-personal
   :config
   (add-hook 'kill-buffer-hook #'tui-unmount-current-buffer-content-trees)
+  (progn
+    (defun my-anonymous-buffer ()
+      (get-buffer-create (symbol-name (gensym " anonymous-buffer-"))))
+
+    (defun my-plist-overwrite (key plist overwriter)
+      (let* ((prev (plist-get plist key))
+             (overwritten (funcall overwriter prev))
+             (copy (copy-sequence plist)))
+        (plist-put plist key overwritten)))
+
+    (defun my-tui-process (component state-key command)
+      (make-process
+       :name "tui-process"
+       :command command
+       :stderr (my-anonymous-buffer)
+       :filter (let* ((deltas))
+                 (lambda (proc delta)
+                   (setq deltas (nconc deltas (list delta)))
+                   (let* ((overwritten-state (my-plist-overwrite state-key (tui-get-state component)
+                                                                 (lambda (_) (string-join deltas)))))
+                     (message "proc filter triggered: %s" overwritten-state)
+                     (tui-set-state component overwritten-state))))
+       :sentinel #'ignore)))
   :straight
    '(:host github :repo "ebpa/tui.el" :files ("*.el" "components" "layout" "demo" "snippets")))
 
