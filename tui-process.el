@@ -65,11 +65,12 @@
                                      :stderr-deltas (cons text (tui-process-state-stderr-deltas proc-state))
                                      :dependencies (tui-process-state-dependencies proc-state)))))))
                (new-proc-state
-                (tui-process-state--create
-                 :process (tui-process--execute command stdout-filter stderr-filter)
-                 :stdout-deltas '()
-                 :stderr-deltas '()
-                 :dependencies dependencies)))
+                (and command
+                     (tui-process-state--create
+                      :process (tui-process--execute command stdout-filter stderr-filter)
+                      :stdout-deltas '()
+                      :stderr-deltas '()
+                      :dependencies dependencies))))
           (tui-set-state
            component
            (tui-process--plist-overwrite
