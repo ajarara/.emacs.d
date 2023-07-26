@@ -2,6 +2,7 @@
 !.gitignore
 !init.el
 !custom.el
+!tui-process.el
 !early-init.el
 !README.md
 !straight
