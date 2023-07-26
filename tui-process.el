@@ -55,11 +55,22 @@
                                (lambda (proc-state)
                                  ;; update the stdout deltas, keep everything else
                                  (tui-process-state--create
-                                  (tui-process-state-process proc-state)
-                                  (cons text (tui-process-state-stdout-deltas proc-state))
-                                  (tui-process-state-stderr-deltas proc-state)
-                                  (tui-process-state-dependencies proc-state)))))))
+                                  :process (tui-process-state-process proc-state)
+                                  :stdout-deltas (cons text (tui-process-state-stdout-deltas proc-state))
+                                  :stderr-deltas (tui-process-state-stderr-deltas proc-state)
+                                  :dependencies (tui-process-state-dependencies proc-state)))))))
             (stderr-filter (lambda (proc text)
+                             (let ((new-state
+                                    (tui-process--plist-overwrite
+                                     state-key
+                                     (tui-get-state component)
+                                     (lambda (proc-state)
+                                       ;; update the stderr deltas, keep everything else
+                                       (tui-process-state--create
+                                        :process (tui-process-state-process proc-state)
+                                        :stdout-deltas (tui-process-state-stdout-deltas proc-state)
+                                        :stderr-deltas (cons text (tui-process-state-stderr-deltas proc-state))
+                                        :dependencies (tui-process-state-dependencies proc-state))))))
                              (tui-set-state
                               component
                               (tui-process--plist-overwrite
@@ -69,10 +80,10 @@
                                (lambda (proc-state)
                                  ;; update the stderr deltas, keep everything else
                                  (tui-process-state--create
-                                  (tui-process-state-process proc-state)
-                                  (tui-process-state-stdout-deltas proc-state)
-                                  (cons text (tui-process-state-stderr-deltas proc-state)
-                                        (tui-process-state-dependencies proc-state)))))))))
+                                  :process (tui-process-state-process proc-state)
+                                  :stdout-deltas (tui-process-state-stdout-deltas proc-state)
+                                  :stderr-deltas (cons text (tui-process-state-stderr-deltas proc-state))
+                                  :dependencies (tui-process-state-dependencies proc-state))))))))
         (tui-set-state
          component
          (tui-process--plist-overwrite
@@ -83,18 +94,19 @@
             (when prev-state
               (kill-process (tui-process-state-process prev-state)))
             (tui-process-state--create
-             (tui-process--execute command stdout-filter stderr-filter)
-             '()
-             '()
-             dependencies)))))
+             :process (tui-process--execute command stdout-filter stderr-filter)
+             :stdout-deltas '()
+             :stderr-deltas '()
+             :dependencies dependencies)))))
       prev-state)))
 
-(tui-defun-2 my-component (&this this)
+(tui-defun-2 my-component (&this this &state example)
   "documentation is good"
   (let ((proc (tui-process-create this :example (lambda () '("logger" "-s" "'please clap'")) nil)))
-    (tui-div
-     (format "stdout: %s" (join-string (reverse (tui-process-state-stdout-deltas proc))))
-     (format "stderr: %s" (join-string (reverse (tui-process-state-stderr-deltas proc)))))))
+    ;; (tui-div
+    ;;  (format "stdout: %s" (string-join (reverse (tui-process-state-stdout-deltas proc))))
+    ;;  (format "stderr: %s" (string-join (reverse (tui-process-state-stderr-deltas proc)))))))
+    (string-join (reverse (tui-process-state-stderr-deltas proc)))))
 
 (let* ((buffer (get-buffer-create "*my-component*"))
        (component (my-component)))
