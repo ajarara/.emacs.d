@@ -173,6 +173,7 @@
 
 (use-package guix
   :if is-guix
+  :after tui
   :config
   (setq geiser-repl-company-p nil) ; geiser removed in https://gitlab.com/emacs-geiser/geiser/-/merge_requests/7
   (defalias 'geiser-company--setup 'ignore)
@@ -192,10 +193,34 @@
             (write-file my-manifest-path)))))
   
   (add-hook 'guix-repl-after-operation-hook 'my-sync-manifest-after-operation)
-  (async-defun my-guix-update-all ()
+  (tui-defun-2 my-guix-update-all-component (&this this)
+    "Pull package definitions and install the current manifest"
+    (let* ((pull (tui-process-create this :guix-pull (lambda () '("guix" "pull")) '()))
+           (pull-completion (process-status (tui-process-state-process pull)))
+           (pull-completion-success (eq pull-completion 'exit))
+           (package (tui-process-create this :guix-package
+                                        (lambda ()
+                                          (and pull-completion-success
+                                               `("guix" "package" "-m" ,my-manifest-path))
+                                        (list pull-completion-success)))))
+      (cond
+       (pull-completion-success (string-join (reverse (tui-process-state-stdout-deltas package))))
+       ((eq pull-completion 'run) (string-join (reverse (tui-process-state-stdout-deltas pull))))
+       (t (string-join (reverse (tui-process-state-stdin pull)))))))
+    
+  (defun my-guix-update-all ()
     (interactive)
-    (await (promise:make-process '("guix" "pull")))
-    (await (promise:make-process `("guix" "package" "-m" ,my-manifest-path))))
+    (let* ((buffer (get-buffer-create "*guix-update-all*"))
+           (component (my-guix-update-all-component)))
+      (tui-render-element
+       (tui-buffer
+        :buffer buffer
+        component))
+      (switch-to-buffer buffer)))
+    
+    
+    ;; (await (promise:make-process '("guix" "pull")))
+    ;; (await (promise:make-process `("guix" "package" "-m" ,my-manifest-path))))
             
   (setq guix-dot-program "xt"))
 
@@ -291,32 +316,10 @@
 (use-package tui
   :if is-personal
   :config
+  (require 'tui-process (expand-file-name "tui-process.el" user-emacs-directory))
   (add-hook 'kill-buffer-hook #'tui-unmount-current-buffer-content-trees)
-  (progn
-    (defun my-anonymous-buffer ()
-      (get-buffer-create (symbol-name (gensym " anonymous-buffer-"))))
-
-    (defun my-plist-overwrite (key plist overwriter)
-      (let* ((prev (plist-get plist key))
-             (overwritten (funcall overwriter prev))
-             (copy (copy-sequence plist)))
-        (plist-put plist key overwritten)))
-
-    (defun my-tui-process (component state-key command)
-      (make-process
-       :name "tui-process"
-       :command command
-       :stderr (my-anonymous-buffer)
-       :filter (let* ((deltas))
-                 (lambda (proc delta)
-                   (setq deltas (nconc deltas (list delta)))
-                   (let* ((overwritten-state (my-plist-overwrite state-key (tui-get-state component)
-                                                                 (lambda (_) (string-join deltas)))))
-                     (message "proc filter triggered: %s" overwritten-state)
-                     (tui-set-state component overwritten-state))))
-       :sentinel #'ignore)))
   :straight
-   '(:host github :repo "ebpa/tui.el" :files ("*.el" "components" "layout" "demo" "snippets")))
+  '(:host github :repo "ebpa/tui.el" :files ("*.el" "components" "layout" "demo" "snippets")))
 
 (use-package flycheck)
 

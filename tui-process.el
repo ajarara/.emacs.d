@@ -29,9 +29,24 @@
          (copy (copy-sequence plist)))
     (plist-put plist key overwritten)))
 
+;; analog for use-effect
+(defun tui-process--add-teardown-hook (component state-key)
+  (let* ((teardown-state-key (intern (format ":%s--teardown-hook" state-key)))
+         (has-teardown-for-state-key (plist-get (tui-get-state component) teardown-state-key)))
+    (unless has-teardown-for-state-key
+      (tui-set-state component
+                     (tui-process--plist-overwrite
+                      teardown-state-key
+                      (tui-get-state component)
+                      (lambda (_) t)))
+      (cl-defmethod tui-component-will-unmount (eql component) :before (component)
+        (if-let ((process (plist-get (tui-get-state component) state-key)))
+          (kill-process process))))))
+
 ;; it's likely possible to infer non-special dependencies if we go through the trouble of writing a macro
 ;; but react developers are used to defining dependencies, so no biggie
-(cl-defun tui-process-create (component state-key command-creator dependencies)
+(defun tui-process-create (component state-key command-creator dependencies)
+  ;; (tui-process--add-teardown-hook component state-key)
   (let ((prev-state (plist-get (tui-get-state component) state-key)))
     (if (or (not prev-state)
             (not (eq dependencies (tui-process-state-dependencies prev-state))))
@@ -84,21 +99,23 @@
           new-proc-state)
       prev-state)))
 
-(tui-defun-2 my-component (&this this)
-  "documentation is good"
-  (let ((proc (tui-process-create this :example (lambda () '("logger" "-s" "'please clap'")) nil)))
-    (tui-div
-     (format "stdout: %s\n" (string-join (reverse (tui-process-state-stdout-deltas proc))))
-     (format "stderr: %s" (string-join (reverse (tui-process-state-stderr-deltas proc)))))))
+(tui-defun-2 tui-process-test-component (&this this)
+  "tui-process-test-component"
+  (let ((proc
+         (tui-process-create this :foo
+                             (lambda () `("sh" "-c" "sleep 3; logger -s 'my-stderr'; sleep 1; echo 'howdy'"))
+                             nil)))
+    (prin1-to-string proc)))
 
-
-(let* ((buffer (get-buffer-create "*my-component*"))
-       (component (my-component)))
-  (tui-render-element
-   (tui-buffer
-    :buffer buffer
-    component))
-  (switch-to-buffer buffer))
-
+  
+(defun tui-process-test ()
+  (interactive)
+  (let* ((buffer (get-buffer-create "*tui-process-test*"))
+         (component (tui-process-test-component)))
+    (tui-render-element
+     (tui-buffer
+      :buffer buffer
+      component))
+    (switch-to-buffer buffer)))
 
 (provide 'tui-process)
