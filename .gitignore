@@ -5,6 +5,7 @@
 !tui-process.el
 !early-init.el
 !README.md
+!COPYING
 !straight
 straight/*
 !straight/versions
