@@ -33,20 +33,23 @@
 (defun tui-process--add-teardown-hook (component state-key)
   (let* ((teardown-state-key (intern (format ":%s--teardown-hook" state-key)))
          (has-teardown-for-state-key (plist-get (tui-get-state component) teardown-state-key)))
+    (message "teardown-hook-started")
     (unless has-teardown-for-state-key
       (tui-set-state component
                      (tui-process--plist-overwrite
                       teardown-state-key
                       (tui-get-state component)
                       (lambda (_) t)))
+      (message "teardown-hook-registered")
       (cl-defmethod tui-component-will-unmount (eql component) :before (component)
+        (message "teardown-hook-invoked")
         (if-let ((process (plist-get (tui-get-state component) state-key)))
           (kill-process process))))))
 
 ;; it's likely possible to infer non-special dependencies if we go through the trouble of writing a macro
 ;; but react developers are used to defining dependencies, so no biggie
 (defun tui-process-create (component state-key command-creator dependencies)
-  ;; (tui-process--add-teardown-hook component state-key)
+  (tui-process--add-teardown-hook component state-key)
   (let ((prev-state (plist-get (tui-get-state component) state-key)))
     (if (or (not prev-state)
             (not (eq dependencies (tui-process-state-dependencies prev-state))))
