@@ -104,11 +104,20 @@
 
 (tui-defun-2 tui-process-test-component (&this this)
   "tui-process-test-component"
-  (let ((proc
-         (tui-process-create this :foo
-                             (lambda () `("sh" "-c" "sleep 3; logger -s 'my-stderr'; sleep 1; echo 'howdy'"))
-                             nil)))
-    (prin1-to-string proc)))
+  (let ((state (tui-use-state this 15)))
+    (cond
+     ((eql 15 (car state))
+      (message "first render!")
+      (funcall (cadr state) 16))
+     ((eql 16 (car state))
+      (message "second render!")
+      (funcall (cadr state) 17)))
+    (format "curr-state: %s trailing" (car state))))
+  ;; (let ((proc
+  ;;        (tui-process-create this :foo
+  ;;                            (lambda () `("sh" "-c" "sleep 3; logger -s 'my-stderr'; sleep 1; echo 'howdy'"))
+  ;;                            nil)))
+  ;;   (prin1-to-string proc)))
 
   
 (defun tui-process-test ()
