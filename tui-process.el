@@ -112,12 +112,8 @@
      ((eql 16 (car state))
       (message "second render!")
       (funcall (cadr state) 17)))
-    (format "curr-state: %s trailing" (car state))))
-  ;; (let ((proc
-  ;;        (tui-process-create this :foo
-  ;;                            (lambda () `("sh" "-c" "sleep 3; logger -s 'my-stderr'; sleep 1; echo 'howdy'"))
-  ;;                            nil)))
-  ;;   (prin1-to-string proc)))
+     (format "curr-state: %s trailing" (car state))))
+
 
   
 (defun tui-process-test ()
@@ -128,6 +124,6 @@
      (tui-buffer
       :buffer buffer
       component))
-    (switch-to-buffer buffer)))
+    (switch-to-buffer buffer))) 
 
 (provide 'tui-process)

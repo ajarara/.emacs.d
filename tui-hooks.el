@@ -72,19 +72,24 @@
 (cl-defmethod tui-hooks-set ((state tui-hooks--state) reference)
   (let ((idx (tui-hooks--state-reference-index state))
         (component (tui-hooks--state-component state)))
-    (tui--set-state
-     component
-     (lambda (prev-component-state)
-       (let* ((prev-hook-state (plist-get prev-component-state :tui-hooks--state))
-              (prev-references (tui-hooks--state-references prev-hook-state))
-              (updated-references
-               (tui-hooks--replace-and-pad-if-needed idx reference prev-references))
-              (updated-state
-               (tui-hooks--state-create
-                :component component
-                :reference-index (tui-hooks--state-reference-index prev-hook-state)
-                :references updated-references)))
-         (list :tui-hooks--state updated-state))))))
+    ;; we wrap the set state call in a run-at-time to post it
+    ;; so that the reconciler can drain the update queue
+    (run-at-time 0
+                 nil
+                 (lambda ()
+                   (tui--set-state
+                    component
+                    (lambda (prev-component-state)
+                      (let* ((prev-hook-state (plist-get prev-component-state :tui-hooks--state))
+                             (prev-references (tui-hooks--state-references prev-hook-state))
+                             (updated-references
+                              (tui-hooks--replace-and-pad-if-needed idx reference prev-references))
+                             (updated-state
+                              (tui-hooks--state-create
+                               :component component
+                               :reference-index (tui-hooks--state-reference-index prev-hook-state)
+                               :references updated-references)))
+                        (list :tui-hooks--state updated-state))))))))
 
 ;; (tui-hooks--replace-and-pad-if-needed 0 "my-ref" '())
 ;; (tui-hooks--replace-and-pad-if-needed 1 "my-ref" '())
