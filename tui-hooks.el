@@ -31,7 +31,7 @@
         (tui-hooks-set hook-state (tui-hooks--effect-reference-create
                                    :current (funcall effect)
                                    :dependencies dependencies))
-      ;; (cl-assert (cl-typep prev-state 'tui-hooks--effect-reference))
+      (cl-assert (cl-typep prev-state 'tui-hooks--effect-reference))
       (let ((prev-dependencies
              (tui-hooks--effect-reference-dependencies prev-state)))
         (unless (equal dependencies prev-dependencies)
@@ -82,8 +82,14 @@
     hook-state))
 
 (cl-defmethod tui-hooks-get ((state tui-hooks--state))
-  (let* ((curr-idx (tui-hooks--state-reference-index state)))
-    (nth curr-idx (tui-hooks--state-references state))))
+  (let* ((curr-idx (tui-hooks--state-reference-index state))
+         (references (tui-hooks--state-references state))
+         ;; we assign these in reverse order
+         ;; 0 is last
+         ;; 1 is next-to-last
+         (idx (- (length references) 1 curr-idx)))
+    (when (wholenump idx)
+      (nth idx references))))
 
 (cl-defmethod tui-hooks-set ((state tui-hooks--state) reference)
   (let ((idx (tui-hooks--state-reference-index state))
@@ -106,6 +112,8 @@
                                :reference-index (tui-hooks--state-reference-index prev-hook-state)
                                :references updated-references)))
                         (list :tui-hooks--state updated-state))))))))
+
+  
 
 ;; (tui-hooks--replace-and-pad-if-needed 0 "my-ref" '())
 ;; (tui-hooks--replace-and-pad-if-needed 1 "my-ref" '())
