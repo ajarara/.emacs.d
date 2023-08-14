@@ -5,23 +5,6 @@
 
 ;; assuming users want the hook state to be in the state of the component
 
-(defun tui-use-effect (effect dependencies))
-
-(defun tui-use-state (component state)
-  (let* ((hook-state (tui-hooks-advance component))
-         (curr-state (or
-                      (tui-hooks-get hook-state)
-                      state)))
-    (list curr-state
-          (lambda (next-state)
-            (tui-hooks-set hook-state next-state)))))
-
-(defun tui-use-ref ())
-
-(defun tui-use-memo ())
-
-(defun tui-use-callback ())
-
 (cl-defstruct (tui-hooks--state-reference (:constructor tui-hooks--state-reference-create)
                                           (:copier nil))
   current)
@@ -41,6 +24,39 @@
   reference-index
   references)
 
+(defun tui-use-effect (component effect dependencies)
+  (let* ((hook-state (tui-hooks-advance component))
+         (prev-state (tui-hooks-get hook-state)))
+    (if (not prev-state)
+        (tui-hooks-set hook-state (tui-hooks--effect-reference-create
+                                   :current (funcall effect)
+                                   :dependencies dependencies))
+      ;; (cl-assert (cl-typep prev-state 'tui-hooks--effect-reference))
+      (let ((prev-dependencies
+             (tui-hooks--effect-reference-dependencies prev-state)))
+        (unless (equal dependencies prev-dependencies)
+          (let ((prev-effect-teardown
+                 (tui-hooks--effect-reference-current prev-state)))
+            (if (functionp prev-effect-teardown)
+                (funcall prev-effect-teardown)))
+          (tui-hooks-set hook-state (tui-hooks--effect-reference-create
+                                     :current (funcall effect)
+                                     :dependencies dependencies)))))))
+
+(defun tui-use-state (component state)
+  (let* ((hook-state (tui-hooks-advance component))
+         (curr-state (or
+                      (tui-hooks-get hook-state)
+                      state)))
+    (list curr-state
+          (lambda (next-state)
+            (tui-hooks-set hook-state next-state)))))
+
+(defun tui-use-ref ())
+
+(defun tui-use-memo ())
+
+(defun tui-use-callback ())
 
 (cl-defgeneric tui-hooks-advance (component)
   "Statefully return the current tui-hooks--state for the component. Hooks _must_ call this _exactly_ once")

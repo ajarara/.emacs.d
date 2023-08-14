@@ -102,7 +102,7 @@
           new-proc-state)
       prev-state)))
 
-(tui-defun-2 tui-process-test-component (&this this)
+(tui-defun-2 tui-process-test-component-states (&this this)
   "tui-process-test-component"
   (let ((state (tui-use-state this 15)))
     (cond
@@ -112,10 +112,25 @@
      ((eql 16 (car state))
       (message "second render!")
       (funcall (cadr state) 17)))
+    (format "curr-state: %s trailing" (car state))))
+
+(tui-defun-2 tui-process-test-component (&this this)
+  "tui-process-test-component"
+  (let* ((state (tui-use-state this 15))
+         (_ (tui-use-effect this
+                            (lambda ()
+                              (cond
+                               ((eql 15 (car state))
+                                (message "first render!")
+                                (funcall (cadr state) 16)
+                                (lambda () (message "teardown of first observing %s" (car state))))
+                               ((eql 16 (car state))
+                                (message "second render!")
+                                (funcall (cadr state) 17)
+                                (lambda () (message "teardown of second observing %s" (car state))))))
+                            (list (car state)))))
      (format "curr-state: %s trailing" (car state))))
 
-
-  
 (defun tui-process-test ()
   (interactive)
   (let* ((buffer (get-buffer-create "*tui-process-test*"))
