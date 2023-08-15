@@ -123,11 +123,16 @@
                                ((eql 15 (car state))
                                 (message "first render!")
                                 (funcall (cadr state) 16)
+                                (message "first render after set-state")
+                                ;; why is this being run _after_ second render?
                                 (lambda () (message "teardown of first observing %s" (car state))))
                                ((eql 16 (car state))
                                 (message "second render!")
                                 (funcall (cadr state) 17)
-                                (lambda () (message "teardown of second observing %s" (car state))))))
+                                (lambda () (message "teardown of second observing %s" (car state))))
+                               ((eql 17 (car state))
+                                (message "third render!")
+                                (lambda () (message "teardown of component!")))))
                             (list (car state)))))
      (format "curr-state: %s trailing" (car state))))
 

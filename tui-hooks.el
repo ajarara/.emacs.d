@@ -26,11 +26,17 @@
 
 (defun tui-use-effect (component effect dependencies)
   (let* ((hook-state (tui-hooks-advance component))
-         (prev-state (tui-hooks-get hook-state)))
+         (prev-state (tui-hooks-get hook-state))
+         (invoke-and-update
+          (lambda ()
+            (tui-hooks-set
+             hook-state
+             (tui-hooks--effect-reference-create
+              :current (funcall effect)
+              :dependencies dependencies)
+             t))))
     (if (not prev-state)
-        (tui-hooks-set hook-state (tui-hooks--effect-reference-create
-                                   :current (funcall effect)
-                                   :dependencies dependencies))
+        (funcall invoke-and-update)
       (cl-assert (cl-typep prev-state 'tui-hooks--effect-reference))
       (let ((prev-dependencies
              (tui-hooks--effect-reference-dependencies prev-state)))
@@ -39,9 +45,7 @@
                  (tui-hooks--effect-reference-current prev-state)))
             (if (functionp prev-effect-teardown)
                 (funcall prev-effect-teardown)))
-          (tui-hooks-set hook-state (tui-hooks--effect-reference-create
-                                     :current (funcall effect)
-                                     :dependencies dependencies)))))))
+          (funcall invoke-and-update))))))
 
 (defun tui-use-state (component state)
   (let* ((hook-state (tui-hooks-advance component))
@@ -64,7 +68,7 @@
 (cl-defgeneric tui-hooks-get (state)
   "Return the current reference")
 
-(cl-defgeneric tui-hooks-set (state next-reference)
+(cl-defgeneric tui-hooks-set (state next-reference &optional no-update)
   "Set the next reference. Can be called throughout the lifetime of the component")
 
 (cl-defmethod tui-hooks-advance ((component tui-component))
@@ -91,29 +95,31 @@
     (when (wholenump idx)
       (nth idx references))))
 
-(cl-defmethod tui-hooks-set ((state tui-hooks--state) reference)
+(cl-defmethod tui-hooks-set ((state tui-hooks--state) reference &optional no-update)
   (let ((idx (tui-hooks--state-reference-index state))
         (component (tui-hooks--state-component state)))
     ;; we wrap the set state call in a run-at-time to post it
-    ;; so that the reconciler can drain the update queue
-    (run-at-time 0
-                 nil
-                 (lambda ()
-                   (tui--set-state
-                    component
-                    (lambda (prev-component-state)
-                      (let* ((prev-hook-state (plist-get prev-component-state :tui-hooks--state))
-                             (prev-references (tui-hooks--state-references prev-hook-state))
-                             (updated-references
-                              (tui-hooks--replace-and-pad-if-needed idx reference prev-references))
-                             (updated-state
-                              (tui-hooks--state-create
-                               :component component
-                               :reference-index (tui-hooks--state-reference-index prev-hook-state)
-                               :references updated-references)))
-                        (list :tui-hooks--state updated-state))))))))
+    ;; so that the reconciler has the opportunity to diff
+    (let ((update-state
+           (lambda ()
+             (tui--set-state
+              component
+              (lambda (prev-component-state)
+                (let* ((prev-hook-state (plist-get prev-component-state :tui-hooks--state))
+                       (prev-references (tui-hooks--state-references prev-hook-state))
+                       (updated-references
+                        (tui-hooks--replace-and-pad-if-needed idx reference prev-references))
+                       (updated-state
+                        (tui-hooks--state-create
+                         :component component
+                         :reference-index (tui-hooks--state-reference-index prev-hook-state)
+                         :references updated-references)))
+                  (list :tui-hooks--state updated-state)))
+              no-update))))
+      (if no-update
+          (funcall update-state)
+        (run-at-time 0 nil update-state)))))
 
-  
 
 ;; (tui-hooks--replace-and-pad-if-needed 0 "my-ref" '())
 ;; (tui-hooks--replace-and-pad-if-needed 1 "my-ref" '())
@@ -147,6 +153,20 @@
                                           (tui-hooks--state-references prev-hook-state))))))
                   t))
 
-  
+
+;; teardown for effects
+(cl-defmethod tui-component-will-unmount :after ((component tui-component))
+  (let* ((hook-state (plist-get (tui-get-state component)
+                                 :tui-hooks--state))
+         (hook-state-references
+          (and hook-state
+               (tui-hooks--state-references hook-state))))
+    
+    (cl-loop for ref in hook-state-references
+             do (if (tui-hooks--effect-reference-p ref)
+                    (let ((maybe-teardown-func (tui-hooks--effect-reference-current ref)))
+                      (if (functionp maybe-teardown-func)
+                          (funcall maybe-teardown-func)))))))
+
 ;; todo:
 ;; - tear down effects on unmount
