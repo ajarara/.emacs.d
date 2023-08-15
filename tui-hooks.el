@@ -168,5 +168,4 @@
                       (if (functionp maybe-teardown-func)
                           (funcall maybe-teardown-func)))))))
 
-;; todo:
-;; - tear down effects on unmount
+(provide 'tui-hooks)
