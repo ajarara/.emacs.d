@@ -53,8 +53,12 @@
                       (tui-hooks-get hook-state)
                       state)))
     (list curr-state
-          (lambda (next-state)
-            (tui-hooks-set hook-state next-state)))))
+          (lambda (next-state-or-updater)
+            (let ((next-state
+                   (if (functionp next-state-or-updater)
+                       (funcall next-state-or-updater curr-state)
+                     next-state-or-updater)))
+              (tui-hooks-set hook-state next-state))))))
 
 (defun tui-use-ref ())
 
