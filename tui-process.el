@@ -25,7 +25,8 @@
     process))
 
 (defun tui-use-process (component command)
-  (let* ((deltas-state (tui-use-state component '(nil nil)))
+  (let* ((stdout-state (tui-use-state component '()))
+         (stderr-state (tui-use-state component '()))
          (just-proc-state (tui-use-state component nil)))
     (tui-use-effect
      component
@@ -36,38 +37,38 @@
                (tui-process--execute
                 command
                 (lambda (proc stdout-delta)
-                  (let ((deltas-updater (cadr deltas-state)))
+                  (let ((stdout-updater (cadr stdout-state)))
                     (funcall
-                     deltas-updater
-                     (lambda (prev-deltas-state)
-                       (list
-                        (cons stdout-delta
-                              (car prev-deltas-state))
-                        (cadr prev-deltas-state))))))
+                     stdout-updater
+                     (lambda (prev-stdout)
+                       (cons stdout-delta
+                             prev-stdout)))))
                 (lambda (proc stderr-delta)
-                  (let ((deltas-updater (cadr deltas-state)))
+                  (let ((stderr-updater (cadr stderr-state)))
                     (funcall
-                     deltas-updater
-                     (lambda (prev-deltas-state)
-                       (list
-                        (car prev-deltas-state)
-                        (cons stderr-delta
-                              (cadr prev-deltas-state)))))))))))
+                     stderr-updater
+                     (lambda (prev-stderr)
+                       (cons
+                        stderr-delta
+                        prev-stderr)))))))))
          (funcall (cadr just-proc-state)
                   maybe-process)
          (lambda ()
            (if maybe-process
-               (kill-process maybe-process)))))
+               ;; might be dead already
+               (condition-case nil
+                   (kill-process maybe-process)
+                 (error nil))))))
      command)
     (tui-process-state--create
      :process (car just-proc-state)
-     :stdout-deltas (caar deltas-state)
-     :stderr-deltas (cdar deltas-state))))
+     :stdout-deltas (car stdout-state)
+     :stderr-deltas (car stderr-state))))
 
 (tui-defun-2 tui-process-test-process (&this this)
   "tui-process-test-process"
   (let* ((proc-state (tui-use-process this '("logger" "-s" "'this will be sent to stderr'")))
-         (_ (message (tui-process-state-stderr-deltas proc-state)))
+         ;;(_ (message "%s" (tui-process-state-stderr-deltas proc-state)))
          (stderr (string-join (reverse (tui-process-state-stderr-deltas proc-state)) " ")))
     stderr))
          
