@@ -179,34 +179,51 @@
   (defalias 'geiser-company--setup 'ignore)
 
   (defvar my-manifest-path (expand-file-name "~/self/home/installed-packages.scm"))
-  (async-defun my-sync-manifest-after-operation ()
-    (let* ((current-md5-of-manifest
-           (car
-            (split-string
-             (car (await (promise:make-process `("md5sum" ,my-manifest-path))))
-             " ")))
-           (manifest-export (car (await (promise:make-process '("guix" "package" "--export-manifest")))))
-           (new-md5-of-manifest (md5 manifest-export)))
-      (if (not (equal current-md5-of-manifest new-md5-of-manifest))
-          (with-temp-buffer
-            (insert manifest-export)
-            (write-file my-manifest-path)))))
+  (tui-defun-2 my-sync-manifest-after-operation-component (&this this)
+    "Represent process state of manifest sync"
+    (let* ((md5-of-curr-manifest (tui-use-process component `("md5sum" ,my-manifest-path))))
+      (tui-span (reverse (tui-process-state-stdout-deltas md5-of-curr-manifest))
+                (prin1-to-string (tui-process-state-process-status md5-of-curr-manifest)))))
+
+  (progn
+    (let* ((buffer (get-buffer-create "*guix-manifest-management*"))
+           (component (my-sync-manifest-after-operation-component)))
+      (tui-render-element
+       (tui-buffer
+        :buffer buffer
+        component))
+      (switch-to-buffer buffer)))
+           
+  ;; (defun my-sync-manifest-after-operation ()
+  ;;   (let*
+  ;; (async-defun my-sync-manifest-after-operation ()
+  ;;   (let* ((current-md5-of-manifest
+  ;;          (car
+  ;;           (split-string
+  ;;            (car (await (promise:make-process `("md5sum" ,my-manifest-path))))
+  ;;            " ")))
+  ;;          (manifest-export (car (await (promise:make-process '("guix" "package" "--export-manifest")))))
+  ;;          (new-md5-of-manifest (md5 manifest-export)))
+  ;;     (if (not (equal current-md5-of-manifest new-md5-of-manifest))
+  ;;         (with-temp-buffer
+  ;;           (insert manifest-export)
+  ;;           (write-file my-manifest-path)))))
   
-  (add-hook 'guix-repl-after-operation-hook 'my-sync-manifest-after-operation)
-  (tui-defun-2 my-guix-update-all-component (&this this)
-    "Pull package definitions and install the current manifest"
-    (let* ((pull (tui-process-create this :guix-pull (lambda () '("guix" "pull")) '()))
-           (pull-completion (process-status (tui-process-state-process pull)))
-           (pull-completion-success (eq pull-completion 'exit))
-           (package (tui-process-create this :guix-package
-                                        (lambda ()
-                                          (and pull-completion-success
-                                               `("guix" "package" "-m" ,my-manifest-path))
-                                        (list pull-completion-success)))))
-      (cond
-       (pull-completion-success (string-join (reverse (tui-process-state-stdout-deltas package))))
-       ((eq pull-completion 'run) (string-join (reverse (tui-process-state-stdout-deltas pull))))
-       (t (string-join (reverse (tui-process-state-stdin pull)))))))
+  ;; (add-hook 'guix-repl-after-operation-hook 'my-sync-manifest-after-operation)
+  ;; (tui-defun-2 my-guix-update-all-component (&this this)
+  ;;   "Pull package definitions and install the current manifest"
+  ;;   (let* ((pull (tui-process-create this :guix-pull (lambda () '("guix" "pull")) '()))
+  ;;          (pull-completion (process-status (tui-process-state-process pull)))
+  ;;          (pull-completion-success (eq pull-completion 'exit))
+  ;;          (package (tui-process-create this :guix-package
+  ;;                                       (lambda ()
+  ;;                                         (and pull-completion-success
+  ;;                                              `("guix" "package" "-m" ,my-manifest-path))
+  ;;                                       (list pull-completion-success)))))
+  ;;     (cond
+  ;;      (pull-completion-success (string-join (reverse (tui-process-state-stdout-deltas package))))
+  ;;      ((eq pull-completion 'run) (string-join (reverse (tui-process-state-stdout-deltas pull))))
+  ;;      (t (string-join (reverse (tui-process-state-stdin pull)))))))
     
   (defun my-guix-update-all ()
     (interactive)
