@@ -181,9 +181,35 @@
   (defvar my-manifest-path (expand-file-name "~/self/home/installed-packages.scm"))
   (tui-defun-2 my-sync-manifest-after-operation-component (&this this)
     "Represent process state of manifest sync"
-    (let* ((md5-of-curr-manifest (tui-use-process component `("md5sum" ,my-manifest-path))))
-      (tui-span (reverse (tui-process-state-stdout-deltas md5-of-curr-manifest))
-                (prin1-to-string (tui-process-state-process-status md5-of-curr-manifest)))))
+    (let* ((md5-of-curr-manifest-proc (tui-use-process component `("md5sum" ,my-manifest-path)))
+           (manifest-export-proc (tui-use-process component '("guix" "package" "--export-manifest")))
+           (md5-of-curr-manifest (and
+                                  (tui-process-state-is-done md5-of-curr-manifest-proc)
+                                  (car
+                                   (split-string
+                                    (string-join
+                                     (reverse
+                                      (tui-process-state-stdout-deltas md5-of-curr-manifest-proc))
+                                     "")
+                                    " ")))))
+      (tui-span
+       (tui-div
+        (if md5-of-curr-manifest
+            (format "Previous manifest md5: %s" md5-of-curr-manifest)
+          "Obtaining previous manifest md5"))
+       (tui-div
+        (if (tui-process-state-is-done manifest-export-proc)
+            (format "New manifest md5: %s" (md5 (string-join (reverse (tui-process-state-stdout-deltas manifest-export-proc)) "")))
+          "Obtaining current manifest md5"))))) 
+       
+      ;;  (format "previous-manifest md5: %s" (or md5-of-curr-manifest "<calculating>"))
+      ;;  (format "new-manifest md5: %s" (if (tui-process-state-is-done manifest-export-proc)
+      ;;                                     (md5 (reverse (tui-process-state-stdout-deltas manifest-export-proc)
+      ;; (tui-div
+      ;;  (tui-span (reverse (tui-process-state-stdout-deltas md5-of-curr-manifest-proc)))
+      ;;  (tui-span (reverse (tui-process-state-stdout-deltas manifest-export-proc)))
+      ;;  (prin1-to-string (tui-process-state-process-status manifest-export-proc))
+      ;;  md5-of-curr-manifest)))
 
   (progn
     (let* ((buffer (get-buffer-create "*guix-manifest-management*"))

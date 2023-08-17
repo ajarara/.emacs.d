@@ -13,7 +13,7 @@
   stderr-deltas)                   ; ibid
 
 (defun tui-process-state-is-done (tui-process-state)
-  (let ((proc-status (tui-process-state-status tui-process-state))
+  (let ((proc-status (tui-process-state-process-status tui-process-state))
         (done-states '(exit signal)))
     (memql proc-status done-states)))
 
