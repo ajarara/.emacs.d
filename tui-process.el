@@ -78,7 +78,6 @@
      :process-status (car proc-status-state)
      :stdout-deltas (car stdout-state)
      :stderr-deltas (car stderr-state))))
-     
 
 (tui-defun-2 tui-process-test-process (&this this)
   "tui-process-test-process"

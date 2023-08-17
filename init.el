@@ -181,37 +181,46 @@
   (defvar my-manifest-path (expand-file-name "~/self/home/installed-packages.scm"))
   (tui-defun-2 my-sync-manifest-after-operation-component (&this this)
     "Represent process state of manifest sync"
-    (let* ((md5-of-curr-manifest-proc (tui-use-process component `("md5sum" ,my-manifest-path)))
-           (manifest-export-proc (tui-use-process component '("guix" "package" "--export-manifest")))
-           (md5-of-curr-manifest (and
-                                  (tui-process-state-is-done md5-of-curr-manifest-proc)
+    (let* ((md5-of-checked-in-manifest-proc (tui-use-process component `("md5sum" ,my-manifest-path)))
+           (md5-of-checked-in-manifest (and
+                                  (tui-process-state-is-done md5-of-checked-in-manifest-proc)
                                   (car
                                    (split-string
                                     (string-join
                                      (reverse
-                                      (tui-process-state-stdout-deltas md5-of-curr-manifest-proc))
+                                      (tui-process-state-stdout-deltas md5-of-checked-in-manifest-proc))
                                      "")
-                                    " ")))))
+                                    " "))))
+           (manifest-export-proc (tui-use-process component '("guix" "package" "--export-manifest")))
+           (manifest-export (and
+                             (tui-process-state-is-done manifest-export-proc)
+                             (string-join (reverse (tui-process-state-stdout-deltas manifest-export-proc)))))
+           (md5-of-curr-manifest (and manifest-export
+                                      (md5 manifest-export))))
+      (tui-use-effect
+       component
+       (lambda ()
+         (when (and (tui-process-state-is-done manifest-export-proc)
+                    (tui-process-state-is-done md5-of-checked-in-manifest-proc)
+                    (not (equal md5-of-checked-in-manifest md5-of-curr-manifest)))
+           (with-temp-buffer
+             (insert manifest-export)
+             (write-file my-manifest-path))))
+       (list md5-of-checked-in-manifest-proc
+             manifest-export-proc
+             md5-of-checked-in-manifest
+             md5-of-curr-manifest))
       (tui-span
        (tui-div
         (if md5-of-curr-manifest
-            (format "Previous manifest md5: %s" md5-of-curr-manifest)
+            (format "Previous manifest md5: %s" md5-of-checked-in-manifest)
           "Obtaining previous manifest md5"))
        (tui-div
         (if (tui-process-state-is-done manifest-export-proc)
-            (format "New manifest md5: %s" (md5 (string-join (reverse (tui-process-state-stdout-deltas manifest-export-proc)) "")))
+            (format "New manifest md5: %s" md5-of-curr-manifest)
           "Obtaining current manifest md5"))))) 
        
-      ;;  (format "previous-manifest md5: %s" (or md5-of-curr-manifest "<calculating>"))
-      ;;  (format "new-manifest md5: %s" (if (tui-process-state-is-done manifest-export-proc)
-      ;;                                     (md5 (reverse (tui-process-state-stdout-deltas manifest-export-proc)
-      ;; (tui-div
-      ;;  (tui-span (reverse (tui-process-state-stdout-deltas md5-of-curr-manifest-proc)))
-      ;;  (tui-span (reverse (tui-process-state-stdout-deltas manifest-export-proc)))
-      ;;  (prin1-to-string (tui-process-state-process-status manifest-export-proc))
-      ;;  md5-of-curr-manifest)))
-
-  (progn
+  (defun my-sync-manifest-after-operation ()
     (let* ((buffer (get-buffer-create "*guix-manifest-management*"))
            (component (my-sync-manifest-after-operation-component)))
       (tui-render-element
@@ -220,22 +229,7 @@
         component))
       (switch-to-buffer buffer)))
            
-  ;; (defun my-sync-manifest-after-operation ()
-  ;;   (let*
-  ;; (async-defun my-sync-manifest-after-operation ()
-  ;;   (let* ((current-md5-of-manifest
-  ;;          (car
-  ;;           (split-string
-  ;;            (car (await (promise:make-process `("md5sum" ,my-manifest-path))))
-  ;;            " ")))
-  ;;          (manifest-export (car (await (promise:make-process '("guix" "package" "--export-manifest")))))
-  ;;          (new-md5-of-manifest (md5 manifest-export)))
-  ;;     (if (not (equal current-md5-of-manifest new-md5-of-manifest))
-  ;;         (with-temp-buffer
-  ;;           (insert manifest-export)
-  ;;           (write-file my-manifest-path)))))
-  
-  ;; (add-hook 'guix-repl-after-operation-hook 'my-sync-manifest-after-operation)
+  (add-hook 'guix-repl-after-operation-hook 'my-sync-manifest-after-operation)
   ;; (tui-defun-2 my-guix-update-all-component (&this this)
   ;;   "Pull package definitions and install the current manifest"
   ;;   (let* ((pull (tui-process-create this :guix-pull (lambda () '("guix" "pull")) '()))
@@ -250,7 +244,27 @@
   ;;      (pull-completion-success (string-join (reverse (tui-process-state-stdout-deltas package))))
   ;;      ((eq pull-completion 'run) (string-join (reverse (tui-process-state-stdout-deltas pull))))
   ;;      (t (string-join (reverse (tui-process-state-stdin pull)))))))
-    
+
+  (tui-defun-2 my-guix-update-all-component (&this this)
+    "Pull package definitions and install the current manifest"
+    (let* ((guix-pull-proc (tui-use-process component '("guix" "pull")))
+           (guix-pull-proc-success (tui-process-state-is-done guix-pull-proc))
+           (guix-package-proc (tui-use-process component
+                                               (and guix-pull-proc-success
+                                                    `("guix" "package" "-m" ,my-manifest-path)))))
+      (if guix-pull-proc-success
+          (tui-span
+           (tui-div "guix pull complete")
+           (tui-span
+            (tui-div
+             (reverse (tui-process-state-stdout-deltas guix-package-proc)))
+            (tui-div
+             (reverse (tui-process-state-stderr-deltas guix-package-proc)))))
+        (tui-span (tui-div
+                   (reverse (tui-process-state-stdout-deltas guix-pull-proc)))
+                  (tui-div
+                   (reverse (tui-process-state-stderr-deltas guix-pull-proc)))))))
+      
   (defun my-guix-update-all ()
     (interactive)
     (let* ((buffer (get-buffer-create "*guix-update-all*"))
