@@ -17,6 +17,8 @@
 
 (straight-use-package 'use-package)
 
+(add-to-list 'load-path user-emacs-directory)
+
 (require 'cl-lib)
 (require 'json)
 
@@ -199,17 +201,17 @@
                                       (md5 manifest-export))))
       (tui-use-effect
        component
+       (list md5-of-checked-in-manifest-proc
+             manifest-export-proc
+             md5-of-checked-in-manifest
+             md5-of-curr-manifest)
        (lambda ()
          (when (and (tui-process-state-is-done manifest-export-proc)
                     (tui-process-state-is-done md5-of-checked-in-manifest-proc)
                     (not (equal md5-of-checked-in-manifest md5-of-curr-manifest)))
            (with-temp-buffer
              (insert manifest-export)
-             (write-file my-manifest-path))))
-       (list md5-of-checked-in-manifest-proc
-             manifest-export-proc
-             md5-of-checked-in-manifest
-             md5-of-curr-manifest))
+             (write-file my-manifest-path)))))
       (tui-span
        (tui-div
         (if md5-of-curr-manifest
@@ -218,7 +220,7 @@
        (tui-div
         (if (tui-process-state-is-done manifest-export-proc)
             (format "New manifest md5: %s" md5-of-curr-manifest)
-          "Obtaining current manifest md5"))))) 
+          "Obtaining current manifest md5")))))
        
   (defun my-sync-manifest-after-operation ()
     (let* ((buffer (get-buffer-create "*guix-manifest-management*"))
@@ -230,20 +232,6 @@
       (switch-to-buffer buffer)))
            
   (add-hook 'guix-repl-after-operation-hook 'my-sync-manifest-after-operation)
-  ;; (tui-defun-2 my-guix-update-all-component (&this this)
-  ;;   "Pull package definitions and install the current manifest"
-  ;;   (let* ((pull (tui-process-create this :guix-pull (lambda () '("guix" "pull")) '()))
-  ;;          (pull-completion (process-status (tui-process-state-process pull)))
-  ;;          (pull-completion-success (eq pull-completion 'exit))
-  ;;          (package (tui-process-create this :guix-package
-  ;;                                       (lambda ()
-  ;;                                         (and pull-completion-success
-  ;;                                              `("guix" "package" "-m" ,my-manifest-path))
-  ;;                                       (list pull-completion-success)))))
-  ;;     (cond
-  ;;      (pull-completion-success (string-join (reverse (tui-process-state-stdout-deltas package))))
-  ;;      ((eq pull-completion 'run) (string-join (reverse (tui-process-state-stdout-deltas pull))))
-  ;;      (t (string-join (reverse (tui-process-state-stdin pull)))))))
 
   (tui-defun-2 my-guix-update-all-component (&this this)
     "Pull package definitions and install the current manifest"
@@ -256,10 +244,8 @@
           (tui-span
            (tui-div "guix pull complete")
            (tui-span
-            (tui-div
              (reverse (tui-process-state-stdout-deltas guix-package-proc)))
-            (tui-div
-             (reverse (tui-process-state-stderr-deltas guix-package-proc)))))
+             (reverse (tui-process-state-stderr-deltas guix-package-proc)))
         (tui-span (tui-div
                    (reverse (tui-process-state-stdout-deltas guix-pull-proc)))
                   (tui-div
@@ -274,10 +260,6 @@
         :buffer buffer
         component))
       (switch-to-buffer buffer)))
-    
-    
-    ;; (await (promise:make-process '("guix" "pull")))
-    ;; (await (promise:make-process `("guix" "package" "-m" ,my-manifest-path))))
             
   (setq guix-dot-program "xt"))
 
@@ -376,7 +358,7 @@
   (require 'tui-process (expand-file-name "tui-process.el" user-emacs-directory))
   (add-hook 'kill-buffer-hook #'tui-unmount-current-buffer-content-trees)
   :straight
-  '(:host github :repo "ebpa/tui.el" :files ("*.el" "components" "layout" "demo" "snippets")))
+  '(:host github :repo "ajarara/tui.el" :branch "ajarara/add-use-effect-state" :files ("*.el" "components" "layout" "demo" "snippets")))
 
 (use-package flycheck)
 
