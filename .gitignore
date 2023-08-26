@@ -3,7 +3,6 @@
 !init.el
 !custom.el
 !tui-process.el
-!tui-hooks.el
 !early-init.el
 !README.md
 !COPYING
