@@ -39,6 +39,7 @@
          (just-proc-state (tui-use-state component nil)))
     (tui-use-effect
      component
+     command
      (lambda ()
        (let ((maybe-process
               (and
@@ -71,8 +72,7 @@
                ;; might be dead already
                (condition-case nil
                    (kill-process maybe-process)
-                 (error nil))))))
-     command)
+                 (error nil)))))))
     (tui-process-state--create
      :process (car just-proc-state)
      :process-status (car proc-status-state)
@@ -102,6 +102,7 @@
   "tui-process-test-component"
   (let* ((state (tui-use-state this 15))
          (_ (tui-use-effect this
+                            (car state)
                             (lambda ()
                               (cond
                                ((eql 15 (car state))
@@ -116,8 +117,7 @@
                                 (lambda () (message "teardown of second observing %s" (car state))))
                                ((eql 17 (car state))
                                 (message "third render!")
-                                (lambda () (message "teardown of component!")))))
-                            (list (car state)))))
+                                (lambda () (message "teardown of component!"))))) )))
      (format "curr-state: %s trailing" (car state))))
 
 (defun tui-process-test ()
@@ -128,6 +128,6 @@
      (tui-buffer
       :buffer buffer
       component))
-    (switch-to-buffer buffer))) 
+    (switch-to-buffer buffer)))
 
 (provide 'tui-process)
