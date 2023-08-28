@@ -2,8 +2,8 @@
 !.gitignore
 !init.el
 !custom.el
-!tui-process.el
-!tui-hook-dependencies.el
+!lisp
+
 !early-init.el
 !README.md
 !COPYING
