@@ -356,7 +356,7 @@
 (use-package tui
   :if is-personal
   :config
-  (require 'tui-process (expand-file-name "tui-process.el" user-emacs-directory))
+  (require 'tui-process)
   (add-hook 'kill-buffer-hook #'tui-unmount-current-buffer-content-trees)
   :straight
   '(:host github :repo "ajarara/tui.el" :branch "ajarara/add-use-effect-state" :files ("*.el" "components" "layout" "demo" "snippets")))
