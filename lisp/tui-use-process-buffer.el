@@ -29,6 +29,8 @@
 (defun tui-use-process-buffer--create-anon-symbol ()
   (gensym " anonymous-symbol-"))
 
+;; somewhere in this we leak the component and
+;; trigger endless render attempts.
 (defun tui-use-process-buffer (component command)
   (let* ((rerender-cb (cadr (tui-use-state component nil)))
          (trigger-rerender (tui-use-callback component
@@ -48,12 +50,11 @@
                           (let ((process-status (process-status proc)))
                             (funcall
                              proc-buffer-updater
-                             (lambda (prev-proc-buffer-state)
-                               (tui-process-buffer-state--create
-                                :process (tui-process-buffer-state-process prev-proc-buffer-state)
-                                :process-status process-status
-                                :stdout-buffer (tui-process-buffer-state-stdout-buffer prev-proc-buffer-state)
-                                :stderr-buffer (tui-process-buffer-state-stderr-buffer prev-proc-buffer-state)))))))
+                             (tui-process-buffer-state--create
+                              :process proc 
+                              :process-status process-status
+                              :stdout-buffer stdout-buffer 
+                              :stderr-buffer stderr-buffer)))))
               (_ (progn
                    (with-current-buffer stdout-buffer
                      (push trigger-rerender after-change-functions))
@@ -77,11 +78,13 @@
                (condition-case nil
                    (kill-process maybe-process)
                  (error nil)))
+           (with-current-buffer stdout-buffer
+             (delete trigger-rerender after-change-functions))
+           (with-current-buffer stderr-buffer
+             (delete trigger-rerender after-change-functions))
            (kill-buffer stdout-buffer)
            (kill-buffer stderr-buffer)))))
     (car proc-buffer-state)))
-           
-           
 
 (provide 'tui-use-process-buffer)
 
