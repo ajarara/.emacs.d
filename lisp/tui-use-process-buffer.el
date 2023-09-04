@@ -26,18 +26,19 @@
   (get-buffer-create
    (symbol-name (gensym " tui-use-process-buffer--anonymous-buffer-"))))
 
-(defun tui-use-process-buffer--create-anon-symbol ()
-  (gensym " anonymous-symbol-"))
+(defun tui-use-rerender (component)
+  (let* ((rerender-cb (cadr (tui-use-state component nil))))
+    (tui-use-callback
+     component
+     rerender-cb
+     (lambda (&rest _ignored)
+       (funcall rerender-cb
+                (gensym " anonymous-symbol"))))))
 
 ;; somewhere in this we leak the component and
 ;; trigger endless render attempts.
 (defun tui-use-process-buffer (component command)
-  (let* ((rerender-cb (cadr (tui-use-state component nil)))
-         (trigger-rerender (tui-use-callback component
-                                             rerender-cb
-                                             (lambda (&rest _ignored)
-                                               (funcall rerender-cb
-                                                        (tui-use-process-buffer--create-anon-symbol)))))
+  (let* ((trigger-rerender (tui-use-rerender component))
          (proc-buffer-state (tui-use-state component nil))
          (proc-buffer-updater (cadr proc-buffer-state)))
     (tui-use-effect
