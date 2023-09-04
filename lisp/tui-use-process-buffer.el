@@ -56,9 +56,9 @@
                                 :stderr-buffer (tui-process-buffer-state-stderr-buffer prev-proc-buffer-state)))))))
               (_ (progn
                    (with-current-buffer stdout-buffer
-                     (push #'trigger-rerender after-change-functions))
+                     (push trigger-rerender after-change-functions))
                    (with-current-buffer stderr-buffer
-                     (push #'trigger-rerender after-change-functions))))
+                     (push trigger-rerender after-change-functions))))
               (maybe-process
                (and
                 command
