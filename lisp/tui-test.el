@@ -4,7 +4,6 @@
 (require 'tui-hooks)
 (require 'tui-use-process-buffer)
 
-
 (tui-defun-2 tui-process-test-process (&this this)
   "tui-process-test-process"
   (let* ((proc-state (tui-use-process-buffer this '("logger" "-s" "'this will be sent to stderr'"))))

@@ -3,6 +3,7 @@
 (require 'tui)
 (require 'cl-lib)
 (require 'tui-hooks)
+(require 'tui-hooks-x)
 
 (defun tui-use-hook (component hook)
   "Rerender component whenever hook is invoked."
