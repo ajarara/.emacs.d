@@ -2,86 +2,67 @@
 
 (require 'tui)
 (require 'cl-lib)
-(require 'tui-hooks)
 (require 'tui-hooks-x)
-(require 'tui-use-hook)
-(require 'tui-process)
 
 (cl-defstruct (tui-process-buffer-state (:constructor tui-process-buffer-state--create)
                                         (:copier nil))
   process
-  process-status  ; updated after every sentinel call
   stdout-buffer
   stderr-buffer)
 
-
-(defun tui-use-process-buffer--execute (command stdout-buffer stderr-buffer sentinel)
-  (make-process
-   :name (format "tui-process-%s" (string-join command "-"))
-   :command command
-   :buffer stdout-buffer
-   :stderr stderr-buffer
-   :sentinel sentinel))
-
-(defun tui-use-process-buffer--create-anon-buffer ()
+(defun tui-use-process-buffer--anon-buffer ()
   (get-buffer-create
-   (symbol-name (gensym " tui-use-process-buffer--anonymous-buffer-"))))
+   (symbol-name
+    (gensym " tui-use-process-buffer--anon-buffer-"))))
 
 (defun tui-use-rerender (component)
-  (let* ((rerender-cb (cadr (tui-use-state component nil))))
-    (tui-use-inferred-callback
+  (let* ((arbitrary-state (tui-use-state component nil))
+         (set-arbitrary-state (cadr arbitrary-state)))
+    (tui-use-callback
      component
+     (list set-arbitrary-state)
      (lambda (&rest _ignored)
-       (funcall rerender-cb
-                (gensym " anonymous-symbol"))))))
+       (funcall set-arbitrary-state (gensym "tui-use-process-arbitrary"))))))
 
+;; create a pipe process, use that as stderr
 (defun tui-use-process-buffer (component command)
-  (let* ((trigger-rerender (tui-use-rerender component))
-         (proc-buffer-state (tui-use-state component nil))
-         (proc-buffer-updater (cadr proc-buffer-state)))
-    (tui-use-inferred-effect
+  (let* ((proc-state (tui-use-state component nil))
+         (set-proc-state (cadr proc-state))
+         (trigger-rerender (tui-use-rerender component)))
+    (tui-use-effect
      component
-     (let* ((stdout-buffer (tui-use-process-buffer--create-anon-buffer))
-            (stderr-buffer (tui-use-process-buffer--create-anon-buffer))
-            (sentinel (lambda (proc _)
-                        (let ((process-status (process-status proc)))
-                          (funcall
-                           proc-buffer-updater
-                           (tui-process-buffer-state--create
-                            :process proc 
-                            :process-status process-status
-                            :stdout-buffer stdout-buffer 
-                            :stderr-buffer stderr-buffer)))))
-            (_ (progn
-                 (with-current-buffer stdout-buffer
-                   (push trigger-rerender after-change-functions))
-                 (with-current-buffer stderr-buffer
-                   (push trigger-rerender after-change-functions))))
-            (maybe-process
-             (and
-              command
-              (tui-use-process-buffer--execute command
-                                               stdout-buffer
-                                               stderr-buffer
-                                               sentinel))))
-       (funcall proc-buffer-updater
-                (tui-process-buffer-state--create
-                 :process maybe-process
-                 :process-status (and maybe-process (process-status maybe-process))
-                 :stdout-buffer stdout-buffer
-                 :stderr-buffer stderr-buffer))
-       (lambda ()
-         (if maybe-process
-             (condition-case nil
-                 (kill-process maybe-process)
-               (error nil)))
-         (with-current-buffer stdout-buffer
-           (delete trigger-rerender after-change-functions))
-         (with-current-buffer stderr-buffer
-           (delete trigger-rerender after-change-functions))
-         (kill-buffer stdout-buffer)
-         (kill-buffer stderr-buffer))))
-    (car proc-buffer-state)))
+     (list command set-proc-state trigger-rerender)
+     (lambda ()
+       (when command
+         (let* ((stderr-buffer (tui-use-process-buffer--anon-buffer))
+                (stdout-buffer (tui-use-process-buffer--anon-buffer))
+                ;; we create a pipe process so we can install
+                ;; a filter before the upstream starts
+                (process
+                 (make-process
+                  :name (format "tui-process-%s" (string-join command "-"))
+                  :command command
+                  :buffer stdout-buffer
+                  :stderr stderr-buffer
+                  :noquery t
+                  :filter (lambda (_ stdout-delta)
+                            (with-current-buffer stdout-buffer
+                              (insert stdout-delta))
+                            (funcall trigger-rerender))
+                  :sentinel (lambda (&rest ignored) (funcall trigger-rerender)))))
+           (funcall set-proc-state
+                    (tui-process-buffer-state--create
+                     :process process
+                     :stdout-buffer stdout-buffer
+                     :stderr-buffer stderr-buffer))
+           (lambda ()
+             ;; could already be complete
+             (ignore-errors
+               (kill-process process))
+             ;; not sure if this is necessary
+             (kill-buffer stderr-buffer)
+             (kill-buffer stdout-buffer))))))
+    (car proc-state)))
 
 (provide 'tui-use-process-buffer)
 

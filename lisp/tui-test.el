@@ -32,4 +32,4 @@
   (interactive)
   (tui-render-with-buffer
       (get-buffer-create "*tui-process-test*")
-    (tui-process-test-counter)))
+    (tui-process-test-process)))
