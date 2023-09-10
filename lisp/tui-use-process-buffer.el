@@ -30,8 +30,6 @@
      (lambda (&rest _ignored)
        (funcall set-arbitrary-state (gensym "tui-use-process-arbitrary"))))))
 
-
-
 (defun tui-use-process-buffer (component command)
   (let* ((proc-state (tui-use-state component nil))
          (set-proc-state (cadr proc-state))
@@ -73,7 +71,6 @@
              ;; could already be complete
              (ignore-errors
                (kill-process process))
-             ;; not sure if this is necessary
              (ignore-errors
                (kill-process stderr-pipe-process))
              (kill-buffer stderr-buffer)
@@ -81,5 +78,3 @@
     (car proc-state)))
 
 (provide 'tui-use-process-buffer)
-
-

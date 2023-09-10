@@ -17,15 +17,18 @@
   (let* ((elapsed-time-state (tui-use-state this 0))
          (elapsed-time-updater (cadr elapsed-time-state))
          (elapsed-time (car elapsed-time-state)))
-    (tui-use-inferred-effect this
-      (let ((timer
-             (run-at-time
-              0
-              1
-              (lambda ()
-                (funcall elapsed-time-updater #'1+)))))
-        (lambda ()
-          (cancel-timer timer))))
+    (tui-use-effect
+     this
+     elapsed-time-updater
+     (lambda ()
+       (let ((timer
+              (run-at-time
+               0
+               1
+               (lambda ()
+                 (funcall elapsed-time-updater #'1+)))))
+         (lambda ()
+           (cancel-timer timer))))
     (format "%s" elapsed-time)))
 
 (defun tui-process-test ()
