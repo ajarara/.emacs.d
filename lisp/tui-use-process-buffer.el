@@ -2,7 +2,7 @@
 
 (require 'tui)
 (require 'cl-lib)
-(require 'tui-hooks-x)
+(require 'tui-hooks)
 
 (cl-defstruct (tui-process-buffer-state (:constructor tui-process-buffer-state--create)
                                         (:copier nil))
@@ -15,6 +15,12 @@
    (symbol-name
     (gensym " tui-use-process-buffer--anon-buffer-"))))
 
+(defun tui-use-process-buffer--process-filter (buffer-to-write trigger-rerender)
+  (lambda (_ delta)
+    (with-current-buffer buffer-to-write
+      (insert delta))
+    (funcall trigger-rerender)))
+
 (defun tui-use-rerender (component)
   (let* ((arbitrary-state (tui-use-state component nil))
          (set-arbitrary-state (cadr arbitrary-state)))
@@ -24,7 +30,8 @@
      (lambda (&rest _ignored)
        (funcall set-arbitrary-state (gensym "tui-use-process-arbitrary"))))))
 
-;; create a pipe process, use that as stderr
+
+
 (defun tui-use-process-buffer (component command)
   (let* ((proc-state (tui-use-state component nil))
          (set-proc-state (cadr proc-state))
@@ -36,19 +43,26 @@
        (when command
          (let* ((stderr-buffer (tui-use-process-buffer--anon-buffer))
                 (stdout-buffer (tui-use-process-buffer--anon-buffer))
-                ;; we create a pipe process so we can install
-                ;; a filter before the upstream starts
+                (stderr-pipe-process
+                 (make-pipe-process
+                  :name (format "tui-process-stderr-%s" (string-join command "-"))
+                  :buffer stderr-buffer
+                  :noquery t
+                  :filter (tui-use-process-buffer--process-filter
+                           stderr-buffer
+                           trigger-rerender)
+                  ;; suppress default sentinel writing to buffer
+                  :sentinel #'ignore))
                 (process
                  (make-process
                   :name (format "tui-process-%s" (string-join command "-"))
                   :command command
                   :buffer stdout-buffer
-                  :stderr stderr-buffer
+                  :stderr stderr-pipe-process
                   :noquery t
-                  :filter (lambda (_ stdout-delta)
-                            (with-current-buffer stdout-buffer
-                              (insert stdout-delta))
-                            (funcall trigger-rerender))
+                  :filter (tui-use-process-buffer--process-filter
+                           stdout-buffer
+                           trigger-rerender)
                   :sentinel (lambda (&rest ignored) (funcall trigger-rerender)))))
            (funcall set-proc-state
                     (tui-process-buffer-state--create
@@ -60,6 +74,8 @@
              (ignore-errors
                (kill-process process))
              ;; not sure if this is necessary
+             (ignore-errors
+               (kill-process stderr-pipe-process))
              (kill-buffer stderr-buffer)
              (kill-buffer stdout-buffer))))))
     (car proc-state)))
