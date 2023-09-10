@@ -182,6 +182,8 @@
   (defalias 'geiser-company--setup 'ignore)
 
   (defvar my-manifest-path (expand-file-name "~/self/home/installed-packages.scm"))
+  ;; rewrite these using process buffer hooks
+  ;; and also write a watcher over ~/self/manifest/ to update .direnv
   (tui-defun-2 my-sync-manifest-after-operation-component (&this this)
     "Represent process state of manifest sync"
     (let* ((md5-of-checked-in-manifest-proc (tui-use-process component `("md5sum" ,my-manifest-path)))
