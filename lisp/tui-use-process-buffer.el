@@ -1,42 +1,46 @@
 ;; -*- lexical-binding: t -*-
 
 (require 'tui)
+(require 'tui-components)
 (require 'cl-lib)
 (require 'tui-hooks)
 
 (cl-defstruct (tui-process-buffer-state (:constructor tui-process-buffer-state--create)
-                                        (:copier nil))
+                                        (:copier tui-process-buffer-state--copy))
   process
   stdout-buffer
-  stderr-buffer)
+  stderr-buffer
+  ;; a counter so that filter functions may trigger
+  ;; rerenders even when this struct is passed as a prop
+  -internal)
 
 (defun tui-use-process-buffer--anon-buffer ()
   (get-buffer-create
    (symbol-name
     (gensym " tui-use-process-buffer--anon-buffer-"))))
 
-(defun tui-use-process-buffer--process-filter (buffer-to-write trigger-rerender)
+(defun tui-use-process-buffer--signal-update (proc-state)
+  ;; we increment -internal so that we issue rerenders
+  ;; to all components that depend on it
+  ;; we use this in two places:
+  ;; - process filter functions
+  ;; - process sentinels
+  (let ((new-proc-state (tui-process-buffer-state--copy proc-state)))
+    (cl-incf (tui-process-buffer-state--internal new-proc-state))
+    new-proc-state))
+
+(defun tui-use-process-buffer--process-filter (buffer-to-write set-proc-state)
   (lambda (_ delta)
     (with-current-buffer buffer-to-write
       (insert delta))
-    (funcall trigger-rerender)))
-
-(defun tui-use-rerender (component)
-  (let* ((arbitrary-state (tui-use-state component nil))
-         (set-arbitrary-state (cadr arbitrary-state)))
-    (tui-use-callback
-     component
-     (list set-arbitrary-state)
-     (lambda (&rest _ignored)
-       (funcall set-arbitrary-state (gensym "tui-use-process-arbitrary"))))))
+    (funcall set-proc-state #'tui-use-process-buffer--signal-update)))
 
 (defun tui-use-process-buffer (component command)
   (let* ((proc-state (tui-use-state component nil))
-         (set-proc-state (cadr proc-state))
-         (trigger-rerender (tui-use-rerender component)))
+         (set-proc-state (cadr proc-state)))
     (tui-use-effect
      component
-     (list command set-proc-state trigger-rerender)
+     (list command set-proc-state)
      (lambda ()
        (when command
          (let* ((stderr-buffer (tui-use-process-buffer--anon-buffer))
@@ -48,7 +52,7 @@
                   :noquery t
                   :filter (tui-use-process-buffer--process-filter
                            stderr-buffer
-                           trigger-rerender)
+                           set-proc-state)
                   ;; suppress default sentinel writing to buffer
                   :sentinel #'ignore))
                 (process
@@ -60,13 +64,15 @@
                   :noquery t
                   :filter (tui-use-process-buffer--process-filter
                            stdout-buffer
-                           trigger-rerender)
-                  :sentinel (lambda (&rest ignored) (funcall trigger-rerender)))))
+                           set-proc-state)
+                  :sentinel (lambda (&rest ignored)
+                              (funcall set-proc-state #'tui-use-process-buffer--signal-update)))))
            (funcall set-proc-state
                     (tui-process-buffer-state--create
                      :process process
                      :stdout-buffer stdout-buffer
-                     :stderr-buffer stderr-buffer))
+                     :stderr-buffer stderr-buffer
+                     :-internal 0))
            (lambda ()
              ;; could already be complete
              (ignore-errors
@@ -76,5 +82,22 @@
              (kill-buffer stderr-buffer)
              (kill-buffer stdout-buffer))))))
     (car proc-state)))
+
+;; (tui-defun-2 tui-process-component (&this this &state process-buffer-state)
+;;   "Render a preview of the process, with buttons that take you to stdout/stderr buffers"
+;;   (when process-buffer-state
+;;     (let* ((process (tui-process-buffer-state-process process-buffer-state))
+;;            (stderr-buffer (tui-process-buffer-state-stdout-buffer process-buffer-state))
+;;            (stdout-buffer (tui-process-buffer-state-stderr-buffer process-buffer-state))
+;;            (process-command (process-command process))
+;;            (process-status (process-status process)))
+;;       (tui-div
+;;        (tui-heading
+       
+           
+      
+            
+  
+  
 
 (provide 'tui-use-process-buffer)
