@@ -59,6 +59,14 @@
   :demand t
   :config
   (general-define-key
+   "C-z" (make-sparse-keymap))
+                  
+  (general-define-key
+   "C-z" 'compile
+   "C-r" 'recompile
+   "C-a" 'async-shell-command
+   :prefix "C-z")
+  (general-define-key
    "g" 'keyboard-quit
    "C-g" 'keyboard-quit
 
