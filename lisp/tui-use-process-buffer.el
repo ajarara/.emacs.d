@@ -83,21 +83,43 @@
              (kill-buffer stdout-buffer))))))
     (car proc-state)))
 
-;; (tui-defun-2 tui-process-component (&this this &state process-buffer-state)
-;;   "Render a preview of the process, with buttons that take you to stdout/stderr buffers"
-;;   (when process-buffer-state
-;;     (let* ((process (tui-process-buffer-state-process process-buffer-state))
-;;            (stderr-buffer (tui-process-buffer-state-stdout-buffer process-buffer-state))
-;;            (stdout-buffer (tui-process-buffer-state-stderr-buffer process-buffer-state))
-;;            (process-command (process-command process))
-;;            (process-status (process-status process)))
-;;       (tui-div
-;;        (tui-heading
-       
-           
-      
-            
-  
-  
+
+;; (tui-process-component--get-buffer-preview (current-buffer))
+(defun tui-process-component--get-buffer-preview (buffer)
+  (with-current-buffer buffer
+    (save-excursion
+      (let ((pt-max (point-max)))
+        (goto-char pt-max)
+        (forward-line -5)
+        (buffer-substring-no-properties (point) pt-max)))))
+
+(tui-defun-2 tui-process-component (&props process-buffer-state &this this)
+  "Render a dashboard of the process, with buttons that take you to stdout/stderr buffers"
+  (when process-buffer-state
+    (let* ((process (tui-process-buffer-state-process process-buffer-state))
+           (stderr-buffer (tui-process-buffer-state-stdout-buffer process-buffer-state))
+           (stdout-buffer (tui-process-buffer-state-stderr-buffer process-buffer-state))
+           (process-command (process-command process))
+           (process-status (process-status process)))
+      (tui-div
+       (tui-heading (string-join process-command " "))
+       "\n"
+       (format "process-status: %s" process-status)
+       "\n"
+       (unless (zerop (buffer-size stdout-buffer))
+         (string-join
+          `("tail of stdout:"
+           "------"
+           ,(tui-process-component--get-buffer-preview stdout-buffer)
+           "------")
+          "\n"))
+       (unless (zerop (buffer-size stderr-buffer))
+         (string-join
+          `("tail of stderr:"
+            "-------"
+            ,(tui-process-component--get-buffer-preview stderr-buffer)
+            "-------")
+          "\n"))
+       ))))
 
 (provide 'tui-use-process-buffer)

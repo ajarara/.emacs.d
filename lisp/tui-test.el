@@ -13,6 +13,11 @@
         (with-current-buffer stderr-buffer
           (buffer-string)))))
 
+(tui-defun-2 tui-process-test-process (&this this)
+  "tui-process-test-process"
+  (let* ((process-buffer-state (tui-use-process-buffer this '("ping" "-c" "8" "8.8.8.8"))))
+    (tui-process-component :process-buffer-state process-buffer-state)))
+
 (tui-defun-2 tui-process-test-counter (&this this)
   "tui-process-test-counter"
   (let* ((elapsed-time-state (tui-use-state this 0))
@@ -30,7 +35,7 @@
                  (funcall elapsed-time-updater #'1+)))))
          (lambda ()
            (cancel-timer timer))))
-    (format "%s" elapsed-time)))
+    (format "%s" elapsed-time))))
 
 (defun tui-process-test ()
   (interactive)
