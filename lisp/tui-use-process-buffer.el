@@ -90,7 +90,7 @@
     (save-excursion
       (let ((pt-max (point-max)))
         (goto-char pt-max)
-        (forward-line -5)
+        (forward-line -10)
         (buffer-substring-no-properties (point) pt-max)))))
 
 (tui-defun-2 tui-process-component (&props process-buffer-state &this this)
