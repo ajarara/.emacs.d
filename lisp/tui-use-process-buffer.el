@@ -93,6 +93,9 @@
         (forward-line -10)
         (buffer-substring-no-properties (point) pt-max)))))
 
+;; todo pop to indirect buffers instead
+;; this way I don't accidentally kill the process
+
 (tui-defun-2 tui-process-component (&props process-buffer-state &this this)
   "Render a dashboard of the process, with buttons that take you to stdout/stderr buffers"
   (when process-buffer-state
@@ -105,21 +108,42 @@
        (tui-heading (string-join process-command " "))
        "\n"
        (format "process-status: %s" process-status)
-       "\n"
+       (when (eql process-status 'run)
+         (tui-div
+          (tui-button
+           :children "click to kill"
+           :action (lambda ()
+                     (interactive)
+                     (ignore-errors
+                       (kill-process process))))))
        (unless (zerop (buffer-size stdout-buffer))
-         (string-join
-          `("tail of stdout:"
-           "------"
-           ,(tui-process-component--get-buffer-preview stdout-buffer)
-           "------")
-          "\n"))
+         (tui-div
+          (tui-button
+           :children "click to visit stdout"
+           :action (lambda ()
+                     (interactive)
+                     (pop-to-buffer stdout-buffer)))
+          "\n"
+          (string-join
+           `("tail of stdout:"
+             "------"
+             ,(tui-process-component--get-buffer-preview stdout-buffer)
+             "------")
+          "\n")))
        (unless (zerop (buffer-size stderr-buffer))
-         (string-join
-          `("tail of stderr:"
-            "-------"
-            ,(tui-process-component--get-buffer-preview stderr-buffer)
-            "-------")
-          "\n"))
+         (tui-div
+          (tui-button
+           :children "click to visit stderr"
+           :action (lambda ()
+                     (interactive)
+                     (pop-to-buffer stderr-buffer)))
+          "\n"
+          (string-join
+           `("tail of stderr:"
+             "-------"
+             ,(tui-process-component--get-buffer-preview stderr-buffer)
+             "-------")
+           "\n")))
        ))))
 
 (provide 'tui-use-process-buffer)
