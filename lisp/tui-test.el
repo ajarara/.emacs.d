@@ -4,10 +4,9 @@
 (require 'tui-hooks)
 (require 'tui-use-process-buffer)
 
-(tui-defun-2 tui-process-test-process (&this this)
+(tui-defun-2 tui-process-test-stderr-process (&this this)
   "tui-process-test-process"
   (let* ((proc-state (tui-use-process-buffer this '("logger" "-s" "'this will be sent to stderr'"))))
-         ;; (proc-state (tui-use-process-buffer this '("ping" "-c" "8" "8.8.8.8"))))
     (if-let ((proc-state)
              (stderr-buffer (tui-process-buffer-state-stderr-buffer proc-state)))
         (with-current-buffer stderr-buffer
@@ -16,6 +15,11 @@
 (tui-defun-2 tui-process-test-process (&this this)
   "tui-process-test-process"
   (let* ((process-buffer-state (tui-use-process-buffer this '("ping" "-c" "8" "8.8.8.8"))))
+    (tui-process-component :process-buffer-state process-buffer-state)))
+
+(tui-defun-2 tui-process-test-composed-process (&this this)
+  "tui-process-test-process"
+  (let* ((process-buffer-state (tui-use-process-buffer this '("sh" "-c" "sleep 5; ping -c 8 8.8.8.8; echo 'Done'"))))
     (tui-process-component :process-buffer-state process-buffer-state)))
 
 (tui-defun-2 tui-process-test-counter (&this this)

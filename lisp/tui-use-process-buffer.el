@@ -35,6 +35,13 @@
       (insert delta))
     (funcall set-proc-state #'tui-use-process-buffer--signal-update)))
 
+(defun tui-use-process-buffer--view-indirect-action (buffer buffer-name)
+  (lambda ()
+    (interactive)
+    (pop-to-buffer
+     (or (get-buffer buffer-name)
+         (make-indirect-buffer buffer buffer-name)))))
+
 (defun tui-use-process-buffer (component command)
   (let* ((proc-state (tui-use-state component nil))
          (set-proc-state (cadr proc-state)))
@@ -93,9 +100,6 @@
         (forward-line -10)
         (buffer-substring-no-properties (point) pt-max)))))
 
-;; todo pop to indirect buffers instead
-;; this way I don't accidentally kill the process
-
 (tui-defun-2 tui-process-component (&props process-buffer-state &this this)
   "Render a dashboard of the process, with buttons that take you to stdout/stderr buffers"
   (when process-buffer-state
@@ -120,9 +124,9 @@
          (tui-div
           (tui-button
            :children "click to visit stdout"
-           :action (lambda ()
-                     (interactive)
-                     (pop-to-buffer stdout-buffer)))
+           :action (tui-use-process-buffer--view-indirect-action
+                    stdout-buffer
+                    (format "*%s*" (string-join `(,@process-command "stdout") "-"))))
           "\n"
           (string-join
            `("tail of stdout:"
@@ -134,9 +138,9 @@
          (tui-div
           (tui-button
            :children "click to visit stderr"
-           :action (lambda ()
-                     (interactive)
-                     (pop-to-buffer stderr-buffer)))
+           :action (tui-use-process-buffer--view-indirect-action
+                    stderr-buffer
+                    (format "*%s*" (string-join `(,@process-command "stderr") "-"))))
           "\n"
           (string-join
            `("tail of stderr:"
