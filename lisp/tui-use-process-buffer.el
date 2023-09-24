@@ -95,10 +95,25 @@
 (defun tui-process-component--get-buffer-preview (buffer)
   (with-current-buffer buffer
     (save-excursion
-      (let ((pt-max (point-max)))
-        (goto-char pt-max)
-        (forward-line -10)
-        (buffer-substring-no-properties (point) pt-max)))))
+      (let* ((pt-max (point-max))
+             (tail-size 10)
+             (_ (progn
+                  (goto-char pt-max)
+                  (forward-line (- tail-size))))
+             (pt-beginning (point))
+             (num-lines-to-append
+              (- tail-size (count-lines pt-beginning pt-max)))
+             (suffix
+              (and (wholenump num-lines-to-append)
+                   (make-list num-lines-to-append "\n"))))
+        ;; this exposes a reconciliation bug.. see tui-process-test
+        (string-join
+         (cons (buffer-substring-no-properties pt-beginning pt-max)
+               suffix))))))
+        ;; (concat (buffer-substring-no-properties pt-beginning pt-max)
+        ;;         suffix)))))
+        ;; `(,(buffer-substring-no-properties (point) pt-max)
+        ;;   ,@suffix)))))
 
 (tui-defun-2 tui-process-component (&props process-buffer-state &this this)
   "Render a dashboard of the process, with buttons that take you to stdout/stderr buffers"
@@ -108,46 +123,43 @@
            (stdout-buffer (tui-process-buffer-state-stderr-buffer process-buffer-state))
            (process-command (process-command process))
            (process-status (process-status process)))
-      (tui-div
+      (tui-span
        (tui-heading (string-join process-command " "))
        "\n"
        (format "process-status: %s" process-status)
        (when (eql process-status 'run)
-         (tui-div
+         (tui-span
+          " "
           (tui-button
-           :children "click to kill"
+           :children "(click to kill)"
            :action (lambda ()
                      (interactive)
                      (ignore-errors
                        (kill-process process))))))
        (unless (zerop (buffer-size stdout-buffer))
-         (tui-div
-          (tui-button
-           :children "click to visit stdout"
-           :action (tui-use-process-buffer--view-indirect-action
-                    stdout-buffer
-                    (format "*%s*" (string-join `(,@process-command "stdout") "-"))))
-          "\n"
-          (string-join
-           `("tail of stdout:"
-             "------"
-             ,(tui-process-component--get-buffer-preview stdout-buffer)
-             "------")
-          "\n")))
+         `("\n"
+           "tail of stdout: "
+           ,(tui-button
+             :children "(click to widen)"
+             :action (tui-use-process-buffer--view-indirect-action
+                      stdout-buffer
+                      (format "*%s*" (string-join `(,@process-command "stdout") "-"))))
+           "\n"
+           "------\n"
+           ,(tui-process-component--get-buffer-preview stdout-buffer)
+           "------\n"))
        (unless (zerop (buffer-size stderr-buffer))
-         (tui-div
-          (tui-button
-           :children "click to visit stderr"
-           :action (tui-use-process-buffer--view-indirect-action
-                    stderr-buffer
-                    (format "*%s*" (string-join `(,@process-command "stderr") "-"))))
-          "\n"
-          (string-join
-           `("tail of stderr:"
-             "-------"
-             ,(tui-process-component--get-buffer-preview stderr-buffer)
-             "-------")
-           "\n")))
+         `("\n"
+           "tail of stderr: "
+           ,(tui-button
+             :children "(click to widen)"
+             :action (tui-use-process-buffer--view-indirect-action
+                      stderr-buffer
+                      (format "*%s*" (string-join `(,@process-command "stderr") "-"))))
+           "\n"
+           "------\n"
+           ,(tui-process-component--get-buffer-preview stderr-buffer)
+           "------\n"))
        ))))
 
 (provide 'tui-use-process-buffer)
