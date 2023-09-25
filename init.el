@@ -190,35 +190,29 @@
   (defalias 'geiser-company--setup 'ignore)
 
   (defvar my-manifest-path (expand-file-name "~/self/home/installed-packages.scm"))
-  ;; rewrite these using process buffer hooks
-  ;; and also write a watcher over ~/self/manifest/ to update .direnv
+  
   (tui-defun-2 my-sync-manifest-after-operation-component (&this this)
     "Represent process state of manifest sync"
-    (let* ((md5-of-checked-in-manifest-proc (tui-use-process component `("md5sum" ,my-manifest-path)))
-           (md5-of-checked-in-manifest (and
-                                  (tui-process-state-is-done md5-of-checked-in-manifest-proc)
-                                  (car
-                                   (split-string
-                                    (string-join
-                                     (reverse
-                                      (tui-process-state-stdout-deltas md5-of-checked-in-manifest-proc))
-                                     "")
-                                    " "))))
-           (manifest-export-proc (tui-use-process component '("guix" "package" "--export-manifest")))
+    (let* ((md5-of-checked-in-manifest-proc (tui-use-process-buffer this `("md5sum" ,my-manifest-path)))
+           (md5-of-checked-in-manifest
+            (and
+             (tui-process-buffer-is-done md5-of-checked-in-manifest-proc)
+             (with-current-buffer (tui-process-buffer-state-stdout md5-of-checked-in-manifest-proc)
+               (buffer-string))))
+           (manifest-export-proc (tui-use-process-buffer this '("guix" "package" "--export-manifest")))
            (manifest-export (and
-                             (tui-process-state-is-done manifest-export-proc)
-                             (string-join (reverse (tui-process-state-stdout-deltas manifest-export-proc)))))
+                             (tui-process-buffer-is-done manifest-export-proc)
+                             (with-current-buffer (tui-process-buffer-state-stdout manifest-export-proc))))
            (md5-of-curr-manifest (and manifest-export
                                       (md5 manifest-export))))
       (tui-use-effect
-       component
-       (list md5-of-checked-in-manifest-proc
-             manifest-export-proc
+       this
+       (list manifest-export
              md5-of-checked-in-manifest
              md5-of-curr-manifest)
        (lambda ()
-         (when (and (tui-process-state-is-done manifest-export-proc)
-                    (tui-process-state-is-done md5-of-checked-in-manifest-proc)
+         (when (and manifest-export
+                    md5-of-checked-in-manifest
                     (not (equal md5-of-checked-in-manifest md5-of-curr-manifest)))
            (with-temp-buffer
              (insert manifest-export)
@@ -246,31 +240,22 @@
 
   (tui-defun-2 my-guix-update-all-component (&this this)
     "Pull package definitions and install the current manifest"
-    (let* ((guix-pull-proc (tui-use-process component '("guix" "pull")))
-           (guix-pull-proc-success (tui-process-state-is-done guix-pull-proc))
-           (guix-package-proc (tui-use-process component
-                                               (and guix-pull-proc-success
-                                                    `("guix" "package" "-m" ,my-manifest-path)))))
-      (if guix-pull-proc-success
-          (tui-span
-           (tui-div "guix pull complete")
-           (tui-span
-             (reverse (tui-process-state-stdout-deltas guix-package-proc)))
-             (reverse (tui-process-state-stderr-deltas guix-package-proc)))
-        (tui-span (tui-div
-                   (reverse (tui-process-state-stdout-deltas guix-pull-proc)))
-                  (tui-div
-                   (reverse (tui-process-state-stderr-deltas guix-pull-proc)))))))
+    (let* ((guix-pull-proc (tui-use-process-buffer this '("guix" "pull")))
+           (guix-pull-proc-success (tui-process-buffer-is-done guix-pull-proc))
+           (guix-package-proc (tui-use-process-buffer this
+                                                      (and guix-pull-proc-success
+                                                           `("guix" "package" "-m" ,my-manifest-path)))))
+      (tui-span
+       (tui-process-component :process-buffer-state guix-pull-proc)
+       (tui-process-component :process-buffer-state guix-package-proc))))
       
-  (defun my-guix-update-all ()
+  (defun my-guix-pull ()
     (interactive)
-    (let* ((buffer (get-buffer-create "*guix-update-all*"))
-           (component (my-guix-update-all-component)))
-      (tui-render-element
-       (tui-buffer
-        :buffer buffer
-        component))
-      (switch-to-buffer buffer)))
+    (let ((buf (get-buffer-create "*guix-update-all*")))
+      (tui-render-with-buffer buf
+        (my-guix-update-all-component))
+      (pop-to-buffer buf)))
+
             
   (setq guix-dot-program "xt"))
 
@@ -364,9 +349,8 @@
 (use-package eglot :disabled)
 
 (use-package tui
-  :if is-personal
   :config
-  (require 'tui-process)
+  (require 'tui-use-process-buffer)
   (add-hook 'kill-buffer-hook #'tui-unmount-current-buffer-content-trees)
   :straight
   '(:host github :repo "ajarara/tui.el" :branch "ajarara/add-use-effect-state" :files ("*.el" "components" "layout" "demo" "snippets")))

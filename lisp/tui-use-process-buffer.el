@@ -14,6 +14,12 @@
   ;; rerenders even when this struct is passed as a prop
   -internal)
 
+(defun tui-process-buffer-is-done (process-buffer-state)
+  (and process-buffer-state
+       (memq (process-status
+              (tui-process-buffer-state-process process-buffer-state))
+             '(exit signal))))
+    
 (defun tui-use-process-buffer--anon-buffer ()
   (get-buffer-create
    (symbol-name
@@ -25,9 +31,10 @@
   ;; we use this in two places:
   ;; - process filter functions
   ;; - process sentinels
-  (let ((new-proc-state (tui-process-buffer-state--copy proc-state)))
-    (cl-incf (tui-process-buffer-state--internal new-proc-state))
-    new-proc-state))
+  (and proc-state
+       (let ((new-proc-state (tui-process-buffer-state--copy proc-state)))
+         (cl-incf (tui-process-buffer-state--internal new-proc-state))
+         new-proc-state)))
 
 (defun tui-use-process-buffer--process-filter (buffer-to-write set-proc-state)
   (lambda (_ delta)
@@ -86,34 +93,33 @@
                (kill-process process))
              (ignore-errors
                (kill-process stderr-pipe-process))
-             (kill-buffer stderr-buffer)
-             (kill-buffer stdout-buffer))))))
+             (ignore-errors (kill-buffer stderr-buffer))
+             (ignore-errors (kill-buffer stdout-buffer)))))))
     (car proc-state)))
 
 
 ;; (tui-process-component--get-buffer-preview (current-buffer))
 (defun tui-process-component--get-buffer-preview (buffer)
-  (with-current-buffer buffer
-    (save-excursion
-      (let* ((pt-max (point-max))
-             (tail-size 10)
-             (_ (progn
-                  (goto-char pt-max)
-                  (forward-line (- tail-size))))
-             (pt-beginning (point))
-             (num-lines-to-append
-              (- tail-size (count-lines pt-beginning pt-max)))
-             (suffix
-              (and (wholenump num-lines-to-append)
-                   (make-list num-lines-to-append "\n"))))
-        ;; this exposes a reconciliation bug.. see tui-process-test
-        (string-join
-         (cons (buffer-substring-no-properties pt-beginning pt-max)
-               suffix))))))
-        ;; (concat (buffer-substring-no-properties pt-beginning pt-max)
-        ;;         suffix)))))
-        ;; `(,(buffer-substring-no-properties (point) pt-max)
-        ;;   ,@suffix)))))
+  (and (buffer-live-p buffer)
+       (with-current-buffer buffer
+         (save-excursion
+           (let* ((pt-max (point-max))
+                  (tail-size 10)
+                  (_ (progn
+                       (goto-char pt-max)
+                       (forward-line (- tail-size))))
+                  (pt-beginning (point))
+                  (num-lines-to-append
+                   (- tail-size (count-lines pt-beginning pt-max)))
+                  (suffix
+                   nil))
+             ;; (and (wholenump num-lines-to-append)
+             ;;      (make-list num-lines-to-append "\n"))))
+             ;; this exposes a reconciliation bug.. see tui-process-test
+             (string-join
+              (cons (buffer-substring-no-properties pt-beginning pt-max)
+                    suffix)))))))
+
 
 (tui-defun-2 tui-process-component (&props process-buffer-state &this this)
   "Render a dashboard of the process, with buttons that take you to stdout/stderr buffers"
