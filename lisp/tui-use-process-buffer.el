@@ -39,7 +39,8 @@
 (defun tui-use-process-buffer--process-filter (buffer-to-write set-proc-state)
   (lambda (_ delta)
     (with-current-buffer buffer-to-write
-      (insert delta))
+      (let ((inhibit-read-only t))
+        (insert delta)))
     (funcall set-proc-state #'tui-use-process-buffer--signal-update)))
 
 (defun tui-use-process-buffer--view-indirect-action (buffer buffer-name)
@@ -47,7 +48,7 @@
     (interactive)
     (pop-to-buffer
      (or (get-buffer buffer-name)
-         (make-indirect-buffer buffer buffer-name)))))
+         (make-indirect-buffer buffer buffer-name t)))))
 
 (defun tui-use-process-buffer (component command)
   (let* ((proc-state (tui-use-state component nil))
@@ -59,6 +60,11 @@
        (when command
          (let* ((stderr-buffer (tui-use-process-buffer--anon-buffer))
                 (stdout-buffer (tui-use-process-buffer--anon-buffer))
+                (_ (progn
+                     (with-current-buffer stderr-buffer
+                       (shell-mode))
+                     (with-current-buffer stdout-buffer
+                       (shell-mode))))
                 (stderr-pipe-process
                  (make-pipe-process
                   :name (format "tui-process-stderr-%s" (string-join command "-"))
@@ -112,9 +118,8 @@
                   (num-lines-to-append
                    (- tail-size (count-lines pt-beginning pt-max)))
                   (suffix
-                   nil))
-             ;; (and (wholenump num-lines-to-append)
-             ;;      (make-list num-lines-to-append "\n"))))
+                   (and (wholenump num-lines-to-append)
+                        (make-list num-lines-to-append "\n"))))
              ;; this exposes a reconciliation bug.. see tui-process-test
              (string-join
               (cons (buffer-substring-no-properties pt-beginning pt-max)
