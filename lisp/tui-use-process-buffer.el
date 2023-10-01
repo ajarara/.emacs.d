@@ -120,10 +120,8 @@
                   (suffix
                    (and (wholenump num-lines-to-append)
                         (make-list num-lines-to-append "\n"))))
-             ;; this exposes a reconciliation bug.. see tui-process-test
-             (string-join
-              (cons (buffer-substring-no-properties pt-beginning pt-max)
-                    suffix)))))))
+             (cons (buffer-substring-no-properties pt-beginning pt-max)
+                   suffix))))))
 
 
 (tui-defun-2 tui-process-component (&props process-buffer-state &this this)
@@ -138,7 +136,7 @@
        (tui-heading (string-join process-command " "))
        "\n"
        (format "process-status: %s" process-status)
-       (when (eql process-status 'run)
+       (if (eql process-status 'run)
          (tui-span
           " "
           (tui-button
@@ -146,7 +144,8 @@
            :action (lambda ()
                      (interactive)
                      (ignore-errors
-                       (kill-process process))))))
+                       (kill-process process)))))
+         "") ;; for some reason this prevents a reconciliation problem.
        (unless (zerop (buffer-size stdout-buffer))
          `("\n"
            "tail of stdout: "
@@ -157,7 +156,7 @@
                       (format "*%s*" (string-join `(,@process-command "stdout") "-"))))
            "\n"
            "------\n"
-           ,(tui-process-component--get-buffer-preview stdout-buffer)
+           ,@(tui-process-component--get-buffer-preview stdout-buffer)
            "------\n"))
        (unless (zerop (buffer-size stderr-buffer))
          `("\n"
@@ -169,7 +168,7 @@
                       (format "*%s*" (string-join `(,@process-command "stderr") "-"))))
            "\n"
            "------\n"
-           ,(tui-process-component--get-buffer-preview stderr-buffer)
+           ,@(tui-process-component--get-buffer-preview stderr-buffer)
            "------\n"))
        ))))
 

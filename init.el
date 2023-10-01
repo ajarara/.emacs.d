@@ -197,12 +197,15 @@
            (md5-of-checked-in-manifest
             (and
              (tui-process-buffer-is-done md5-of-checked-in-manifest-proc)
-             (with-current-buffer (tui-process-buffer-state-stdout md5-of-checked-in-manifest-proc)
-               (buffer-string))))
+             (with-current-buffer (tui-process-buffer-state-stdout-buffer md5-of-checked-in-manifest-proc)
+               (save-excursion
+                 (goto-char (point-min))
+                 (forward-word)
+                 (buffer-substring-no-properties (point-min) (point))))))
            (manifest-export-proc (tui-use-process-buffer this '("guix" "package" "--export-manifest")))
            (manifest-export (and
                              (tui-process-buffer-is-done manifest-export-proc)
-                             (with-current-buffer (tui-process-buffer-state-stdout manifest-export-proc))))
+                             (with-current-buffer (tui-process-buffer-state-stdout-buffer manifest-export-proc))))
            (md5-of-curr-manifest (and manifest-export
                                       (md5 manifest-export))))
       (tui-use-effect
@@ -214,8 +217,7 @@
          (when (and manifest-export
                     md5-of-checked-in-manifest
                     (not (equal md5-of-checked-in-manifest md5-of-curr-manifest)))
-           (with-temp-buffer
-             (insert manifest-export)
+           (with-current-buffer manifest-export
              (write-file my-manifest-path)))))
       (tui-span
        (tui-div
@@ -223,7 +225,7 @@
             (format "Previous manifest md5: %s" md5-of-checked-in-manifest)
           "Obtaining previous manifest md5"))
        (tui-div
-        (if (tui-process-state-is-done manifest-export-proc)
+        (if (tui-process-buffer-is-done manifest-export-proc)
             (format "New manifest md5: %s" md5-of-curr-manifest)
           "Obtaining current manifest md5")))))
        

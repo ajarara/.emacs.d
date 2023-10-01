@@ -11,14 +11,15 @@
 
 (tui-defun-2 tui-process-test-stderr-process (&this this)
   "tui-process-test-process"
-  (let* ((process-buffer-state (tui-use-process-buffer this '("ping" "-c" "8" "8.8.8.8"))))
+  (let* ((process-buffer-state (tui-use-process-buffer this '("ping" "-c" "2" "8.8.8.8"))))
     (tui-process-component :process-buffer-state process-buffer-state)))
 
 (tui-defun-2 tui-process-test-composed-process (&this this)
   "tui-process-test-process"
-  (let* ((process-buffer-state (tui-use-process-buffer this '("sh" "-c" "sleep 5; ping -c 8 8.8.8.8; echo 'Done'"))))
+  (let* ((process-buffer-state (tui-use-process-buffer this '("sh" "-c" "sleep 5; ping -c 8 8.8.8.8; sleep 5"))))
     (tui-process-component :process-buffer-state process-buffer-state)))
 
+;; doesn't use a process lol
 (tui-defun-2 tui-process-test-counter (&this this)
   "tui-process-test-counter"
   (let* ((elapsed-time-state (tui-use-state this 0))
@@ -42,4 +43,4 @@
   (interactive)
   (tui-render-with-buffer
       (get-buffer-create "*tui-process-test*")
-    (tui-process-test-stderr-process)))
+    (tui-process-test-composed-process)))
