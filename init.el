@@ -17,7 +17,10 @@
 
 (straight-use-package 'use-package)
 
-(add-to-list 'load-path (expand-file-name "lisp/" user-emacs-directory))
+(defvar my-lisp (expand-file-name "lisp/" user-emacs-directory)
+  "Added to load path. Also holds custom.el")
+
+(add-to-list 'load-path my-lisp)
 
 
 (require 'cl-lib)
@@ -65,6 +68,7 @@
    "C-z" 'compile
    "C-r" 'recompile
    "C-a" 'async-shell-command
+   "C-k" 'bury-buffer
    :prefix "C-z")
   (general-define-key
    "g" 'keyboard-quit
@@ -120,9 +124,9 @@
   :config
   (savehist-mode))
 
-(use-package async-await
-  :config
-  (promise-rejection-tracking-enable '((all-rejections . t))))
+;; (use-package async-await
+;;   :config
+;;   (promise-rejection-tracking-enable '((all-rejections . t))))
 
 (use-package expand-region
   :after general
@@ -230,13 +234,14 @@
           "Obtaining current manifest md5")))))
        
   (defun my-sync-manifest-after-operation ()
+    (interactive)
     (let* ((buffer (get-buffer-create "*guix-manifest-management*"))
            (component (my-sync-manifest-after-operation-component)))
+      (with-current-buffer buffer (tui-unmount-current-buffer-content-trees))
       (tui-render-element
        (tui-buffer
         :buffer buffer
-        component))
-      (switch-to-buffer buffer)))
+        component))))
            
   (add-hook 'guix-repl-after-operation-hook 'my-sync-manifest-after-operation)
 
@@ -498,5 +503,5 @@ If ARG is not nil or 1, move forward ARG - 1 lines first.  Ifpoint reaches the b
 
   (setq ns-right-command-modifier 'control))
 
-(setq custom-file (concat user-emacs-directory "custom.el"))
+(setq custom-file (concat my-lisp "custom.el"))
 (load custom-file)

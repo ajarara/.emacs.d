@@ -5,7 +5,8 @@
  ;; If there is more than one, they won't work right.
  '(native-comp-async-report-warnings-errors 'silent)
  '(safe-local-variable-values
-   '((eval let
+   '((eval add-to-list 'completion-ignored-extensions ".go")
+     (eval let
            ((root-dir-unexpanded
              (locate-dominating-file default-directory ".dir-locals.el")))
            (when root-dir-unexpanded
