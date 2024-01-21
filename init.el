@@ -124,10 +124,6 @@
   :config
   (savehist-mode))
 
-;; (use-package async-await
-;;   :config
-;;   (promise-rejection-tracking-enable '((all-rejections . t))))
-
 (use-package expand-region
   :after general
   :config
@@ -237,7 +233,6 @@
     (interactive)
     (let* ((buffer (get-buffer-create "*guix-manifest-management*"))
            (component (my-sync-manifest-after-operation-component)))
-      (with-current-buffer buffer (tui-unmount-current-buffer-content-trees))
       (tui-render-element
        (tui-buffer
         :buffer buffer
