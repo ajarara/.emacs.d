@@ -128,8 +128,8 @@
   "Render a dashboard of the process, with buttons that take you to stdout/stderr buffers"
   (when process-buffer-state
     (let* ((process (tui-process-buffer-state-process process-buffer-state))
-           (stderr-buffer (tui-process-buffer-state-stdout-buffer process-buffer-state))
-           (stdout-buffer (tui-process-buffer-state-stderr-buffer process-buffer-state))
+           (stdout-buffer (tui-process-buffer-state-stdout-buffer process-buffer-state))
+           (stderr-buffer (tui-process-buffer-state-stderr-buffer process-buffer-state))
            (process-command (process-command process))
            (process-status (process-status process)))
       (tui-span

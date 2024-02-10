@@ -233,6 +233,7 @@
     (interactive)
     (let* ((buffer (get-buffer-create "*guix-manifest-management*"))
            (component (my-sync-manifest-after-operation-component)))
+      (tui-unmount-all-buffer-content-trees buffer)
       (tui-render-element
        (tui-buffer
         :buffer buffer
