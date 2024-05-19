@@ -189,11 +189,17 @@
   (setq geiser-repl-company-p nil) ; geiser removed in https://gitlab.com/emacs-geiser/geiser/-/merge_requests/7
   (defalias 'geiser-company--setup 'ignore)
 
-  (defvar my-manifest-path (expand-file-name "~/self/home/installed-packages.scm"))
-  
+  (defvar my-installed-packages-path (expand-file-name "~/self/manifest/installed-packages.scm"))
+  (defvar my-reinstall-args
+    (list
+     "-L"
+     (expand-file-name "~/self")
+     "-m"
+     (expand-file-name "~/self/manifest.scm")))
+     
   (tui-defun-2 my-sync-manifest-after-operation-component (&this this)
     "Represent process state of manifest sync"
-    (let* ((md5-of-checked-in-manifest-proc (tui-use-process-buffer this `("md5sum" ,my-manifest-path)))
+    (let* ((md5-of-checked-in-manifest-proc (tui-use-process-buffer this `("md5sum" ,my-installed-packages-path)))
            (md5-of-checked-in-manifest
             (and
              (tui-process-buffer-is-done md5-of-checked-in-manifest-proc)
@@ -218,7 +224,7 @@
                     md5-of-checked-in-manifest
                     (not (equal md5-of-checked-in-manifest md5-of-curr-manifest)))
            (with-current-buffer manifest-export
-             (write-file my-manifest-path)))))
+             (write-file my-installed-packages-path)))))
       (tui-span
        (tui-div
         (if md5-of-curr-manifest
@@ -245,9 +251,13 @@
     "Pull package definitions and install the current manifest"
     (let* ((guix-pull-proc (tui-use-process-buffer this '("guix" "pull")))
            (guix-pull-proc-success (tui-process-buffer-is-done guix-pull-proc))
-           (guix-package-proc (tui-use-process-buffer this
-                                                      (and guix-pull-proc-success
-                                                           `("guix" "package" "-m" ,my-manifest-path)))))
+           (guix-package-proc (tui-use-process-buffer
+                               this
+                               (and guix-pull-proc-success
+                                    `("guix" "package" "-L"
+                                      ,(expand-file-name "~/self")
+                                      "-m"
+                                      ,(expand-file-name "~/self/manifest.scm"))))))
       (tui-span
        (tui-process-component :process-buffer-state guix-pull-proc)
        (tui-process-component :process-buffer-state guix-package-proc))))
