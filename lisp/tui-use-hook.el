@@ -5,25 +5,15 @@
 (require 'tui-hooks)
 (require 'tui-hooks-x)
 
-(defun tui-use-hook (component hook)
-  "Rerender component whenever hook is invoked."
-  (let* ((trigger-render (cadr (tui-use-state component nil))))
-    (tui-use-effect
-     component
-     trigger-render
-     (lambda ()
-       (add-hook hook trigger-render)
-       (lambda ()
-         (remove-hook hook trigger-render))))))
 
-(defun tui-use-hook-abnormal (component abnormal-hook callback)
+(defun tui-use-hook (component hook callback)
   "Register callback against hook using an effect."
   (tui-use-effect component
-                  callback
+                  (list hook callback)
                   (lambda ()
-                    (push callback abnormal-hook)
+                    (add-hook hook callback)
                     (lambda ()
-                      (delete callback abnormal-hook)))))
+                      (remove-hook hook callback)))))
 
 (defun tui-use-hook--create-anon-symbol ()
   (gensym " anonymous-symbol-"))
@@ -36,6 +26,6 @@
                                                (funcall rerender-cb
                                                         (tui-use-process-buffer--create-anon-symbol))))))
     (with-current-buffer buf
-      (tui-use-hook-abnormal component after-change-functions #'trigger-rerender))))
+      (tui-use-hook component after-change-functions #'trigger-rerender))))
 
 (provide 'tui-use-hook)
