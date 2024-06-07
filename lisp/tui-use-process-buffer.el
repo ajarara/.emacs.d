@@ -48,7 +48,18 @@
     (interactive)
     (pop-to-buffer
      (or (get-buffer buffer-name)
-         (make-indirect-buffer buffer buffer-name t)))))
+         (tui-use-process-buffer--link-process-buffer buffer buffer-name)))))
+
+(defun tui-use-process-buffer--link-process-buffer (buffer buffer-name)
+  (let ((proc (get-buffer-process buffer))
+        (indirect (make-indirect-buffer buffer buffer-name t)))
+    ;; so we can send stdin to it as we focus in on it
+    (set-process-buffer proc indirect)
+    (add-hook 'kill-buffer-hook
+              (lambda ()
+                ;; right before we then link it back to the old buffer
+                (set-process-buffer proc buffer)))
+    indirect))
 
 (defun tui-use-process-buffer (component command)
   (let* ((proc-state (tui-use-state component nil))
@@ -85,8 +96,10 @@
                   :filter (tui-use-process-buffer--process-filter
                            stdout-buffer
                            set-proc-state)
-                  :sentinel (lambda (&rest ignored)
-                              (funcall set-proc-state #'tui-use-process-buffer--signal-update)))))
+                  :sentinel (lambda (proc &rest ignored)
+                              ;; we could've gotten a signal as a result of the component unmount
+                              (if (buffer-live-p (process-buffer proc))
+                                  (funcall set-proc-state #'tui-use-process-buffer--signal-update))))))
            (funcall set-proc-state
                     (tui-process-buffer-state--create
                      :process process
