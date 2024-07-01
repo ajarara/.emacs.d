@@ -90,7 +90,7 @@
 (use-package markdown-mode)
 (use-package company)
 (use-package git-link)
-(use-package buttercup)
+(use-package-conditionally buttercup is-personal)
 
 (use-package desktop-environment
   :config
@@ -99,7 +99,7 @@
       (mkdir screenies))
     (setq desktop-environment-screenshot-directory screenies)))
 
-(use-package org)
+(use-package-conditionally org has-org)
 
 (use-package compile
   :config
@@ -348,8 +348,6 @@
 (use-package-conditionally dumb-jump is-personal
   :config
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
-
-(use-package eglot :disabled)
 
 (use-package tui
   :config
