@@ -22,14 +22,12 @@
 
 (add-to-list 'load-path my-lisp)
 
-
 (require 'cl-lib)
 (require 'json)
 
 (defvar attributes
-  '(is-personal is-guix)
-  "Attributes are minor modes that are enabled on a per host basis
-(and in some cases can be flipped on or off interactively)")
+  '(is-personal has-guix has-org)
+  "Attributes are minor modes that are enabled on a per host basis")
 
 (cl-loop for attribute in attributes
          do (eval `(define-minor-mode ,attribute nil :global t)))
@@ -37,26 +35,29 @@
 ;; convenience wrapper that adds a hook to the profile attribute. After adding,
 ;; if the profile attribute mode is enabled, it runs the hook. It otherwise
 ;; behaves like add-hook, calling on teardown, which means uses
-;; should still inspect  whether the minor mode is enabled and do
+;; should still inspect whether the minor mode is enabled and do
 ;; teardown if needed
 (defmacro subscribe-to-attribute (attribute &rest body)
   (declare (indent defun))
   (cl-assert (memq attribute attributes))
   `(progn
      (add-hook ',attribute (lambda () ,@body))
-     ,(when attribute
-        `(progn ,@body nil))))
+     ,@body
+     nil))
 
-;; load up the profile
-(let ((profile-path (concat user-emacs-directory "profile.json")))
-  (if (file-exists-p profile-path)
-      (let ((parsed (json-read-file profile-path)))
-        (cl-assert (vectorp parsed))
-        (cl-loop for enabled-attr-str across parsed
-                 for interned-attr = (intern enabled-attr-str)
-                 do (unless (memq interned-attr attributes)
-                      (error "unrecognized attribute from profile: %s"))
-                 do (funcall interned-attr)))))
+(catch 'file-missing
+  (require 'profile)
+  (cl-loop for attr in profile
+           do (unless (memq attr attributes)
+                (error "unrecognized attribute from profile: %s" attr))
+           do (funcall attr)))
+
+(defmacro use-package-conditionally (name condition &rest body)
+  "See https://github.com/radian-software/straight.el/issues/235. This makes it so that we don't clone if we're never going to use it, but the recommendation is to still register the package for... reasons. Eventually we will be able to move to :if exprs"
+  (declare (indent defun))
+  (if condition
+      `(use-package ,name ,@body)
+    `(straight-register-package ',name)))
 
 (use-package general
   :demand t
@@ -153,14 +154,11 @@
   (general-define-key
    "M-l" 'avy-goto-char-timer))
 
-(use-package password-store
-  :if is-personal)
+(use-package-conditionally password-store is-personal)
 
-(use-package ag
-  :if is-personal)
+(use-package-conditionally ag is-personal)
 
-(use-package direnv
-  :if is-personal
+(use-package-conditionally direnv is-personal
   :config
   (setq direnv-always-show-summary nil)
   (direnv-mode))
@@ -182,8 +180,7 @@
   (general-define-key "C-S-s" 'consult-line-multi)
   (general-define-key "C-h a" 'consult-apropos))
 
-(use-package guix
-  :if is-guix
+(use-package-conditionally guix is-guix
   :after tui
   :config
   (setq geiser-repl-company-p nil) ; geiser removed in https://gitlab.com/emacs-geiser/geiser/-/merge_requests/7
@@ -295,8 +292,7 @@
   :config
   (setq reb-re-syntax 'string))
 
-(use-package rust-mode
-  :if is-personal
+(use-package-conditionally rust-mode is-personal
   :mode "\\.rs"
   :config
   (eval-when-load
@@ -308,8 +304,7 @@
   :config
   (add-hook 'rust-mode-hook 'cargo-minor-mode))
 
-(use-package typescript-mode
-  :if is-personal
+(use-package-conditionally typescript-mode is-personal
   :config
   (add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
   (add-to-list 'auto-mode-alist '("\\.tsx" . typescript-mode))
@@ -331,8 +326,7 @@
    :prefix "C-h")
   (which-key-mode))
 
-(use-package geiser
-  :if is-personal)
+(use-package-conditionally geiser is-personal)
 
 (use-package geiser-guile
   :after geiser
@@ -340,22 +334,18 @@
   ; (add-to-list 'geiser-guile-load-path "~/src/guix")
   (add-to-list 'geiser-guile-load-path "~/src/nonguix"))
 
-(use-package srfi
-  :if is-personal
+(use-package-conditionally srfi is-personal
   :config
   (add-hook
    'srfi-mode-hook
    (lambda ()
      (setq-local browse-url-browser-function 'eww))))
 
-(use-package nov
-  :disabled
-  :if is-personal
+(use-package-conditionally nov.el is-personal
   :config
   (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
 
-(use-package dumb-jump
-  :if is-personal
+(use-package-conditionally dumb-jump is-personal
   :config
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
@@ -370,8 +360,7 @@
 
 (use-package flycheck)
 
-(use-package circe
-  :if is-personal
+(use-package-conditionally circe is-personal
   :requires password-store
   :config
   (setq circe-network-defaults nil)
