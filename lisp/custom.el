@@ -5,7 +5,8 @@
  ;; If there is more than one, they won't work right.
  '(native-comp-async-report-warnings-errors 'silent)
  '(safe-local-variable-values
-   '((geiser-guile-binary "guix" "repl")
+   '((major-mode . shell-mode)
+     (geiser-guile-binary "guix" "repl")
      (geiser-insert-actual-lambda)
      (geiser-repl-per-project-p . t)
      (eval add-to-list 'completion-ignored-extensions ".go")
