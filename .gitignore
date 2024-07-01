@@ -3,6 +3,7 @@
 !init.el
 !custom.el
 !lisp
+lisp/profile.el
 
 !early-init.el
 !README.md
