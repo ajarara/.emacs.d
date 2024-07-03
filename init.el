@@ -26,7 +26,7 @@
 (require 'json)
 
 (defvar attributes
-  '(is-personal has-guix has-org)
+  '(is-personal has-guix has-org has-magit)
   "Attributes are minor modes that are enabled on a per host basis")
 
 (cl-loop for attribute in attributes
@@ -87,7 +87,7 @@
 
 (use-package project)
 (use-package diminish)
-(use-package magit)
+(use-package-conditionally magit has-magit)
 (use-package markdown-mode)
 (use-package company)
 (use-package git-link)
@@ -303,7 +303,7 @@
    "lsp-mode"
    (add-hook 'rust-mode-hook 'lsp)))
 
-(use-package cargo
+(use-package-conditionall cargo is-personal
   :after 'rust-mode
   :config
   (add-hook 'rust-mode-hook 'cargo-minor-mode))
@@ -332,7 +332,7 @@
 
 (use-package-conditionally geiser is-personal)
 
-(use-package geiser-guile
+(use-package-conditionally geiser-guile is-personal
   :after geiser
   :config
   ; (add-to-list 'geiser-guile-load-path "~/src/guix")
