@@ -41,7 +41,7 @@
   (declare (indent defun))
   (cl-assert (memq attribute attributes))
   `(progn
-     (add-hook ',attribute (lambda () ,@body))
+     (add-hook ',(intern (format "%s-hook" attribute)) (lambda () ,@body))
      ,@body
      nil))
 
