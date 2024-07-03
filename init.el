@@ -52,12 +52,13 @@
                 (error "unrecognized attribute from profile: %s" attr))
            do (funcall attr)))
 
-(defmacro use-package-conditionally (name condition &rest body)
+(defmacro use-package-conditionally (name mode &rest body)
   "See https://github.com/radian-software/straight.el/issues/235. This makes it so that we don't clone if we're never going to use it, but the recommendation is to still register the package for... reasons. Eventually we will be able to move to :if exprs"
   (declare (indent defun))
-  (if condition
-      `(use-package ,name ,@body)
-    `(straight-register-package ',name)))
+  `(subscribe-to-attribute ,mode
+     (if ,mode
+         (use-package ,name ,@body)
+       (straight-register-package ',name))))
 
 (use-package general
   :demand t
@@ -90,7 +91,10 @@
 (use-package markdown-mode)
 (use-package company)
 (use-package git-link)
-(use-package-conditionally buttercup is-personal)
+(if
+    (ignore-error is-personal)
+    (use-package buttercup)
+  (straight-register-package 'buttercup))
 
 (use-package desktop-environment
   :config
