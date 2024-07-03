@@ -180,7 +180,7 @@
   (general-define-key "C-S-s" 'consult-line-multi)
   (general-define-key "C-h a" 'consult-apropos))
 
-(use-package-conditionally guix is-guix
+(use-package-conditionally guix has-guix
   :after tui
   :config
   (setq geiser-repl-company-p nil) ; geiser removed in https://gitlab.com/emacs-geiser/geiser/-/merge_requests/7
@@ -357,6 +357,9 @@
   '(:host github :repo "ajarara/tui.el" :branch "ajarara/add-use-effect-state" :files ("*.el" "components" "layout" "demo" "snippets")))
 
 (use-package flycheck)
+
+;; https://github.com/casouri/tree-sitter-module has a bunch of them installed
+(use-package tree-sitter)
 
 (use-package-conditionally circe is-personal
   :requires password-store
