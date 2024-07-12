@@ -303,7 +303,7 @@
    "lsp-mode"
    (add-hook 'rust-mode-hook 'lsp)))
 
-(use-package-conditionall cargo is-personal
+(use-package-conditionally cargo is-personal
   :after 'rust-mode
   :config
   (add-hook 'rust-mode-hook 'cargo-minor-mode))
