@@ -45,12 +45,12 @@
      ,@body
      nil))
 
-(catch 'file-missing
-  (require 'profile)
-  (cl-loop for attr in profile
-           do (unless (memq attr attributes)
-                (error "unrecognized attribute from profile: %s" attr))
-           do (funcall attr)))
+(require 'profile nil t)
+(if (boundp 'profile)
+    (cl-loop for attr in profile
+             do (unless (memq attr attributes)
+                  (error "unrecognized attribute from profile: %s" attr))
+             do (funcall attr)))
 
 (defmacro use-package-conditionally (name mode &rest body)
   "See https://github.com/radian-software/straight.el/issues/235. This makes it so that we don't clone if we're never going to use it, but the recommendation is to still register the package for... reasons. Eventually we will be able to move to :if exprs"
