@@ -96,6 +96,13 @@
     (use-package buttercup)
   (straight-register-package 'buttercup))
 
+(use-package ansi-color
+  :config
+  (defun my-colorize-buffer-compilation-hook ()
+    (let ((buffer-read-only nil))
+      (ansi-color-apply-on-region compilation-filter-start (point))))
+  (add-hook 'compilation-filter-hook 'my-colorize-buffer-compilation-hook))
+
 (use-package desktop-environment
   :config
   (let ((screenies (expand-file-name "~/screenies")))
