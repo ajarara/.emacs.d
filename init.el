@@ -96,6 +96,8 @@
     (use-package buttercup)
   (straight-register-package 'buttercup))
 
+(use-package-conditionally buttercup is-personal)
+
 (use-package ansi-color
   :config
   (defun my-colorize-buffer-compilation-hook ()
@@ -111,18 +113,6 @@
     (setq desktop-environment-screenshot-directory screenies)))
 
 (use-package-conditionally org has-org)
-
-(use-package compile
-  :config
-  ;; https://stackoverflow.com/a/20788581 more or less
-  (when is-personal
-    (ignore-errors
-      (require 'ansi-color)
-      
-      (defun my-colorize-compilation-buffer ()
-        (when (eq major-mode 'compilation-mode)
-          (ansi-color-compilation-filter)))
-      (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer))))
 
 (use-package winner
   :after general
