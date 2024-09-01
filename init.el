@@ -53,7 +53,7 @@
              do (funcall attr)))
 
 (defmacro use-package-conditionally (name mode &rest body)
-  "See https://github.com/radian-software/straight.el/issues/235. This makes it so that we don't clone if we're never going to use it, but the recommendation is to still register the package for... reasons. Eventually we will be able to move to :if exprs"
+  "See https://github.com/radian-software/straight.el/issues/235. This makes it so that we don't clone if we're never going to use it, but the recommendation is to still register the package for... reasons. Eventually we will be able to move to :if exprs once the issue is resolved."
   (declare (indent defun))
   `(subscribe-to-attribute ,mode
      (if ,mode
@@ -267,7 +267,6 @@
         (my-guix-update-all-component))
       (pop-to-buffer buf)))
 
-            
   (setq guix-dot-program "xt"))
 
 (use-package paren
