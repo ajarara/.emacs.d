@@ -382,6 +382,10 @@
 
       (message (prin1-to-string (-intersection names1 names2))))))
 
+(use-package-conditionally nov is-personal
+  :config
+  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
+
 (use-package server
   :config
   (unless (server-running-p) (server-start)))
