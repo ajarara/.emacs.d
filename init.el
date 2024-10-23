@@ -26,7 +26,7 @@
 (require 'json)
 
 (defvar attributes
-  '(is-personal has-guix has-org has-magit)
+  '(is-personal has-guix has-org has-magit has-auth-sources)
   "Attributes are minor modes that are enabled on a per host basis")
 
 (cl-loop for attribute in attributes
@@ -184,17 +184,8 @@
 (use-package-conditionally guix has-guix
   :after tui
   :config
-  (setq geiser-repl-company-p nil) ; geiser removed in https://gitlab.com/emacs-geiser/geiser/-/merge_requests/7
-  (defalias 'geiser-company--setup 'ignore)
 
-  (defvar my-installed-packages-path (expand-file-name "~/self/manifest/installed-packages.scm"))
-  (defvar my-reinstall-args
-    (list
-     "-L"
-     (expand-file-name "~/self")
-     "-m"
-     (expand-file-name "~/self/manifest.scm")))
-     
+  (defvar my-installed-packages-path (expand-file-name "~/self/manifest/installed-packages.scm") )    
   (tui-defun-2 my-sync-manifest-after-operation-component (&this this)
     "Represent process state of manifest sync"
     (let* ((md5-of-checked-in-manifest-proc (tui-use-process-buffer this `("md5sum" ,my-installed-packages-path)))
