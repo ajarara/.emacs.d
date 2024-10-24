@@ -32,11 +32,10 @@
 (cl-loop for attribute in attributes
          do (eval `(define-minor-mode ,attribute nil :global t)))
 
-;; convenience wrapper that adds a hook to the profile attribute. After adding,
-;; if the profile attribute mode is enabled, it runs the hook. It otherwise
-;; behaves like add-hook, calling on teardown, which means uses
-;; should still inspect whether the minor mode is enabled and do
-;; teardown if needed
+;; convenience wrapper that adds a hook to the profile
+;; attribute. After adding, it runs the hook. It otherwise behaves
+;; like add-hook, calling on teardown, which means uses should still
+;; inspect whether the minor mode is enabled and do teardown if needed
 (defmacro subscribe-to-attribute (attribute &rest body)
   (declare (indent defun))
   (cl-assert (memq attribute attributes))
