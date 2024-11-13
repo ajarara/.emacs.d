@@ -26,9 +26,8 @@
 (require 'json)
 
 (defvar attributes
-  '(is-personal has-guix has-org has-magit has-auth-sources)
+  '(is-personal has-guix has-org has-magit has-self)
   "Attributes are minor modes that are enabled on a per host basis")
-
 (cl-loop for attribute in attributes
          do (eval `(define-minor-mode ,attribute nil :global t)))
 
@@ -51,8 +50,13 @@
                   (error "unrecognized attribute from profile: %s" attr))
              do (funcall attr)))
 
+(when (and
+       has-self
+       (not (file-exists-p "~/self")))
+  (display-warning :error "Clone the self repository!!"))
+
 (defmacro use-package-conditionally (name mode &rest body)
-  "See https://github.com/radian-software/straight.el/issues/235. This makes it so that we don't clone if we're never going to use it, but the recommendation is to still register the package for... reasons. Eventually we will be able to move to :if exprs once the issue is resolved."
+  "See https://github.com/radian-software/straight.el/issues/235. This makes it so that we don't clone if we're never going to use it, but the recommendation is to still register the package for... reasons. Eventually we will be able to move to :if exprs once the issue is resolved. The reason we do this is because often I boot up emacs on new machines, and less clones means way faster startup."
   (declare (indent defun))
   `(subscribe-to-attribute ,mode
      (if ,mode
@@ -153,8 +157,6 @@
   :config
   (general-define-key
    "M-l" 'avy-goto-char-timer))
-
-(use-package-conditionally password-store is-personal)
 
 (use-package-conditionally ag is-personal)
 
@@ -321,8 +323,12 @@
 (use-package-conditionally geiser-guile is-personal
   :after geiser
   :config
-  ; (add-to-list 'geiser-guile-load-path "~/src/guix")
   (add-to-list 'geiser-guile-load-path "~/src/nonguix"))
+
+(use-package-conditionally paredit is-personal
+  :config
+  (add-hook 'scheme-mode-hook 'enable-paredit-mode)
+  (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode))
 
 (use-package-conditionally srfi is-personal
   :config
@@ -330,6 +336,20 @@
    'srfi-mode-hook
    (lambda ()
      (setq-local browse-url-browser-function 'eww))))
+
+(use-package-conditionally ement is-personal
+  :require auth-source
+  :config
+  (defun my-ement-connect-matrix ()
+    (interactive)
+    (let* ((search-results
+            (auth-source-search :host "matrix.org" :max 1))
+           (_ (cl-assert search-results t "No password found for matrix!"))
+           (auth-info (car search-results))
+           (user (plist-get auth-info :user))
+           (password (auth-info-password auth-info))
+           (user-id (concat "@" user ":matrix.org")))
+      (ement-connect :user-id user-id :password password))))  
 
 (use-package-conditionally nov.el is-personal
   :config
@@ -351,8 +371,12 @@
 ;; https://github.com/casouri/tree-sitter-module has a bunch of them installed
 (use-package tree-sitter)
 
-(use-package-conditionally circe is-personal
-  :requires password-store
+(use-package-conditionally auth-source has-self
+  :config
+  (push "~/self/private/.authinfo.gpg" auth-sources))
+
+(use-package-conditionally circe has-self
+  :requires auth-source
   :config
   (setq circe-network-defaults nil)
   (setq lui-fill-column 63)
@@ -365,7 +389,11 @@
            :sasl-strict t
            :sasl-username "ajarara"
            :sasl-password (lambda (host)
-                            (password-store-get host)))))
+                            (let* ((search-result
+                                    (auth-source-search :host "irc.libera.chat"))
+                                   (auth-info
+                                    (car search-result)))
+                              (auth-info-password auth-info))))))
   (enable-circe-color-nicks)
     
   ;; Don't bombard me with leaves if the leaver hasn't spoke in a while
