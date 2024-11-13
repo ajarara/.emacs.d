@@ -3,9 +3,24 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(magit-log-margin-show-committer-date t)
  '(native-comp-async-report-warnings-errors 'silent)
  '(safe-local-variable-values
-   '((major-mode . shell-mode)
+   '((eval with-eval-after-load 'tempel
+           (if
+               (stringp tempel-path)
+               (setq tempel-path
+                     (list tempel-path)))
+           (let
+               ((guix-tempel-snippets
+                 (concat
+                  (expand-file-name "etc/snippets/tempel"
+                                    (locate-dominating-file default-directory ".dir-locals.el"))
+                  "/*.eld")))
+             (unless
+                 (member guix-tempel-snippets tempel-path)
+               (add-to-list 'tempel-path guix-tempel-snippets))))
+     (major-mode . shell-mode)
      (geiser-guile-binary "guix" "repl")
      (geiser-insert-actual-lambda)
      (geiser-repl-per-project-p . t)
