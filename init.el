@@ -224,32 +224,37 @@
         (if (tui-process-buffer-is-done manifest-export-proc)
             (format "New manifest md5: %s" md5-of-curr-manifest)
           "Obtaining current manifest md5")))))
-       
-  (defun my-sync-manifest-after-operation ()
-    (interactive)
-    (let* ((buffer (get-buffer-create "*guix-manifest-management*"))
-           (component (my-sync-manifest-after-operation-component)))
-      (tui-unmount-all-buffer-content-trees buffer)
-      (tui-render-element
-       (tui-buffer
-        :buffer buffer
-        component))))
-           
-  (add-hook 'guix-repl-after-operation-hook 'my-sync-manifest-after-operation)
 
-  (tui-defun-2 my-guix-update-all-component (&this this)
-    "Pull package definitions and install the current manifest"
-    (let* ((guix-pull-proc (tui-use-process-buffer this '("guix" "pull")))
-           (guix-pull-proc-success (tui-process-buffer-is-done guix-pull-proc))
-           (guix-package-proc (tui-use-process-buffer
-                               this
-                               (and guix-pull-proc-success
-                                    `("guix" "package" "-L"
-                                      ,(getenv "SELF")
-                                      "/installed-packages.scm")))))
-      (tui-span
-       (tui-process-component :process-buffer-state guix-pull-proc)
-       (tui-process-component :process-buffer-state guix-package-proc))))
+  (when has-self
+    ;; we use interactive packages, but we want to check them in
+    ;; to a meta-repo so that we can rebuild without having
+    ;; to edit a config file
+    ;; the experience of imperatively managing packages is better
+    (defun my-sync-manifest-after-operation ()
+      (interactive)
+      (let* ((buffer (get-buffer-create "*guix-manifest-management*"))
+             (component (my-sync-manifest-after-operation-component)))
+        (tui-unmount-all-buffer-content-trees buffer)
+        (tui-render-element
+         (tui-buffer
+          :buffer buffer
+          component))))
+
+    (add-hook 'guix-repl-after-operation-hook 'my-sync-manifest-after-operation)
+
+    (tui-defun-2 my-guix-update-all-component (&this this)
+      "Pull package definitions and install the current manifest"
+      (let* ((guix-pull-proc (tui-use-process-buffer this '("guix" "pull")))
+             (guix-pull-proc-success (tui-process-buffer-is-done guix-pull-proc))
+             (guix-package-proc (tui-use-process-buffer
+                                 this
+                                 (and guix-pull-proc-success
+                                      `("guix" "package" "-L"
+                                        ,(getenv "SELF")
+                                        "/manifest/installed-packages.scm")))))
+        (tui-span
+         (tui-process-component :process-buffer-state guix-pull-proc)
+         (tui-process-component :process-buffer-state guix-package-proc)))))
       
   (defun my-guix-pull ()
     (interactive)
@@ -317,7 +322,11 @@
    :prefix "C-h")
   (which-key-mode))
 
-(use-package-conditionally geiser is-personal)
+(use-package-conditionally geiser is-personal
+  :config
+  (setq geiser-repl-history-filename
+        (or (file-name-concat (getenv "XDG_STATE_HOME") ".geiser_history")
+            geiser-repl-history-filename)))
 
 (use-package-conditionally geiser-guile is-personal
   :after geiser
@@ -369,6 +378,8 @@
 
 ;; https://github.com/casouri/tree-sitter-module has a bunch of them installed
 (use-package tree-sitter)
+
+(use-package kotlin-mode)
 
 (use-package-conditionally auth-source has-self
   :config
