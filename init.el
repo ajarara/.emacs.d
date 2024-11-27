@@ -245,9 +245,8 @@
                                this
                                (and guix-pull-proc-success
                                     `("guix" "package" "-L"
-                                      ,(expand-file-name "~/self")
-                                      "-m"
-                                      ,(expand-file-name "~/self/manifest.scm"))))))
+                                      ,(getenv "SELF")
+                                      "/installed-packages.scm")))))
       (tui-span
        (tui-process-component :process-buffer-state guix-pull-proc)
        (tui-process-component :process-buffer-state guix-package-proc))))
