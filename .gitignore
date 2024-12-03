@@ -4,6 +4,7 @@
 !custom.el
 !lisp
 lisp/profile.el
+!bin
 
 !early-init.el
 !README.md
