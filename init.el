@@ -276,7 +276,7 @@
      (setq-local browse-url-browser-function 'eww))))
 
 (use-package-conditionally ement is-personal
-  :require auth-source
+  :requires auth-source
   :config
   (defun my-ement-connect-matrix ()
     (interactive)
