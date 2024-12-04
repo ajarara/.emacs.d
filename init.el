@@ -254,14 +254,15 @@
   :config
   (add-to-list 'geiser-guile-load-path "~/src/nonguix")
   (subscribe-to-attribute has-guix
-    (cond
-     (has-guix
-      ;; quick hack to get us channel/profile awareness
-      (setq geiser-guile-binary "guix-shim")
-      (add-to-list 'exec-path (concat user-emacs-directory "bin")))
-     ((not has-guix)
-      (setq geiser-guile-binary "guile")
-      (delete (concat user-emacs-directory "bin") exec-path)))))
+    (let ((emacs-bin (expand-file-name "bin" user-emacs-directory)))
+      (cond
+       (has-guix
+        ;; quick hack to get us channel/profile awareness
+        (setq geiser-guile-binary "guix-shim")
+        (cl-pushnew emacs-bin exec-path :test #'equal))
+       ((not has-guix)
+        (setq geiser-guile-binary "guile")
+        (delete exec-path exec-addition))))))
 
 (use-package-conditionally paredit is-personal
   :config
