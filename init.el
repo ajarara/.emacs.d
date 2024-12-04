@@ -258,11 +258,10 @@
       (cond
        (has-guix
         ;; quick hack to get us channel/profile awareness
-        (setq geiser-guile-binary "guix-shim")
+        (setq geiser-guile-binary (list "guix" "repl"))
         (cl-pushnew emacs-bin exec-path :test #'equal))
        ((not has-guix)
-        (setq geiser-guile-binary "guile")
-        (delete exec-path exec-addition))))))
+        (setq geiser-guile-binary "guile"))))))
 
 (use-package-conditionally paredit is-personal
   :config
