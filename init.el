@@ -115,7 +115,9 @@
       (mkdir screenies))
     (setq desktop-environment-screenshot-directory screenies)))
 
-(use-package-conditionally org has-org)
+(use-package-conditionally org has-org
+  :config
+  (add-hook 'org-mode-hook (lambda () (visual-line-mode 1))))
 
 (use-package winner
   :after general
@@ -275,6 +277,15 @@
    (lambda ()
      (setq-local browse-url-browser-function 'eww))))
 
+(use-package cc-mode
+  :config
+  (add-hook
+   'c-mode-hook
+   (lambda ()
+     (setq-local
+      compile-command
+      "make -k -j $(nproc --ignore=2)"))))
+
 (use-package-conditionally ement is-personal
   :requires auth-source
   :config
@@ -313,7 +324,7 @@
 
 (use-package-conditionally auth-source has-self
   :config
-  (push "~/self/private/.authinfo.gpg" auth-sources))
+  (push "~/self/vault/.authinfo.gpg" auth-sources))
 
 (use-package-conditionally circe has-self
   :requires auth-source
