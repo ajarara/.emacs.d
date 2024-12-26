@@ -6,7 +6,8 @@
  '(magit-log-margin-show-committer-date t)
  '(native-comp-async-report-warnings-errors 'silent)
  '(safe-local-variable-values
-   '((eval with-eval-after-load 'tempel
+   '((visual-line-mode . t)
+     (eval with-eval-after-load 'tempel
            (if
                (stringp tempel-path)
                (setq tempel-path
