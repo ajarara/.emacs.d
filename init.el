@@ -364,6 +364,8 @@
   :config
   (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
 
+(use-package yaml-mode)
+
 (use-package server
   :config
   (unless (server-running-p) (server-start)))
