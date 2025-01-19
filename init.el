@@ -255,6 +255,7 @@
   :after geiser
   :config
   (add-to-list 'geiser-guile-load-path "~/src/nonguix")
+  (add-to-list 'geiser-guile-load-path "~/src/guix")
   (subscribe-to-attribute has-guix
     (let ((emacs-bin (expand-file-name "bin" user-emacs-directory)))
       (cond
@@ -416,6 +417,8 @@ If ARG is not nil or 1, move forward ARG - 1 lines first.  Ifpoint reaches the b
 
     (general-define-key [remap move-beginning-of-line]
                         'my-smarter-move-beginning-of-line))
+
+  (defalias 'pretty-print-last-sexp 'pp-macroexpand-last-sexp)
 
   (progn
     (defun my-toggle-init ()
