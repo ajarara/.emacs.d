@@ -94,10 +94,6 @@
 (use-package markdown-mode)
 (use-package company)
 (use-package git-link)
-(if
-    (ignore-error is-personal)
-    (use-package buttercup)
-  (straight-register-package 'buttercup))
 
 (use-package-conditionally buttercup is-personal)
 
@@ -254,8 +250,9 @@
 (use-package-conditionally geiser-guile is-personal
   :after geiser
   :config
-  (add-to-list 'geiser-guile-load-path "~/src/nonguix")
-  (add-to-list 'geiser-guile-load-path "~/src/guix")
+  (add-to-list 'geiser-guile-load-path "~/upstream/nonguix")
+  ;; (add-to-list 'geiser-guile-load-path "~/src/guix")
+  ;; (remove "~/src/guix" geiser-guile-load-path)
   (subscribe-to-attribute has-guix
     (let ((emacs-bin (expand-file-name "bin" user-emacs-directory)))
       (cond
@@ -366,6 +363,18 @@
   (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
 
 (use-package yaml-mode)
+
+(use-package sops)
+
+(use-package-conditionally gptel is-personal
+  :config
+  (setq
+ gptel-model 'gemini-pro
+ gptel-backend (gptel-make-gemini "Gemini"
+                 :key (with-temp-buffer
+                        (insert-file-contents "/run/secrets/gemini")
+                        (buffer-string))
+                 :stream t)))
 
 (use-package server
   :config
