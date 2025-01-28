@@ -88,7 +88,11 @@
    "i" 'imenu
    :prefix "C-c"))
 
-(use-package project)
+(use-package project
+  :config
+  (general-define-key
+   "a" 'project-async-shell-command
+   :keymaps 'project-prefix-map))
 (use-package diminish)
 (use-package-conditionally magit has-magit)
 (use-package markdown-mode)
