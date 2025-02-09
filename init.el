@@ -364,11 +364,16 @@
 
 (use-package-conditionally nov is-personal
   :config
-  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
+  (add-to-list 'auto-mode-alist '("\\.epub" . nov-mode)))
 
 (use-package yaml-mode)
 
-(use-package sops)
+(use-package python
+  :config
+  (add-to-list 'auto-mode-alist '("BUCK" . python-mode))
+  (add-to-list 'auto-mode-alist '("\\.bzl" . python-mode)))
+
+(use-package-conditionally sops is-personal)
 
 (use-package server
   :config
