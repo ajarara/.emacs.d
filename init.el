@@ -375,6 +375,16 @@
 
 (use-package-conditionally sops is-personal)
 
+(use-package-conditionally gptel is-personal
+  :config
+  (setq
+ gptel-model 'gemini-pro
+ gptel-backend (gptel-make-gemini "Gemini"
+                 :key (with-temp-buffer
+                        (insert-file-contents "/run/secrets/gemini")
+                        (buffer-string))
+                 :stream t)))
+
 (use-package server
   :config
   (unless (server-running-p) (server-start)))
