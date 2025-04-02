@@ -378,12 +378,14 @@
 (use-package-conditionally gptel is-personal
   :config
   (setq
- gptel-model 'gemini-pro
+ gptel-model 'gemini
  gptel-backend (gptel-make-gemini "Gemini"
                  :key (with-temp-buffer
                         (insert-file-contents "/run/secrets/gemini")
                         (buffer-string))
                  :stream t)))
+
+(use-package-conditionally cmake-mode is-personal)
 
 (use-package server
   :config
