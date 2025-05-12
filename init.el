@@ -371,6 +371,7 @@
 (use-package python
   :config
   (add-to-list 'auto-mode-alist '("BUCK" . python-mode))
+  (add-to-list 'auto-mode-alist '("BUILD" . python-mode))
   (add-to-list 'auto-mode-alist '("\\.bzl" . python-mode)))
 
 (use-package-conditionally sops is-personal)
