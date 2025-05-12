@@ -324,6 +324,8 @@
 
 (use-package kotlin-mode)
 
+;; guix shell libtool perl gcc-toolchain cmake -- env CC="gcc" emacs
+(use-package-conditionally vterm has-guix)
 (use-package-conditionally auth-source has-self
   :config
   (push "~/self/vault/.authinfo.gpg" auth-sources))
