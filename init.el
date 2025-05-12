@@ -379,7 +379,7 @@
 (use-package-conditionally gptel is-personal
   :config
   (setq
- gptel-model 'gemini
+ gptel-model 'gemini-1.5-pro-latest
  gptel-backend (gptel-make-gemini "Gemini"
                  :key (with-temp-buffer
                         (insert-file-contents "/run/secrets/gemini")
