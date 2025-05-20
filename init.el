@@ -326,8 +326,10 @@
 
 ;; guix shell libtool perl gcc-toolchain cmake -- env CC="gcc" emacs
 (use-package-conditionally vterm has-guix)
+
 (use-package-conditionally auth-source has-self
   :config
+  (setq auth-sources '("~/.authinfo" "~/.authinfo.gpg" "~/.netrc"))
   (push "~/self/vault/.authinfo.gpg" auth-sources))
 
 (use-package-conditionally circe has-self
