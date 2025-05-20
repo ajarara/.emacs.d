@@ -254,18 +254,11 @@
 (use-package-conditionally geiser-guile is-personal
   :after geiser
   :config
-  (add-to-list 'geiser-guile-load-path "~/upstream/nonguix")
-  ;; (add-to-list 'geiser-guile-load-path "~/src/guix")
-  ;; (remove "~/src/guix" geiser-guile-load-path)
+  ;; (add-to-list 'geiser-guile-load-path "~/upstream/nonguix")
   (subscribe-to-attribute has-guix
-    (let ((emacs-bin (expand-file-name "bin" user-emacs-directory)))
-      (cond
-       (has-guix
-        ;; quick hack to get us channel/profile awareness
+    (if has-guix
         (setq geiser-guile-binary (list "guix" "repl"))
-        (cl-pushnew emacs-bin exec-path :test #'equal))
-       ((not has-guix)
-        (setq geiser-guile-binary "guile"))))))
+      (setq geiser-guile-binary "guile"))))
 
 (use-package-conditionally paredit is-personal
   :config
@@ -327,9 +320,12 @@
 ;; guix shell libtool perl gcc-toolchain cmake -- env CC="gcc" emacs
 (use-package-conditionally vterm has-guix)
 
+;; guix shell guile-next guile-ares-rs -- guile -c '((@ (ares server) run-nrepl-server))'
+;; (use-package-conditionally arei has-guix
+;;   :straight (:host github :repo "abcdw/emacs-arei"))
+
 (use-package-conditionally auth-source has-self
   :config
-  (setq auth-sources '("~/.authinfo" "~/.authinfo.gpg" "~/.netrc"))
   (push "~/self/vault/.authinfo.gpg" auth-sources))
 
 (use-package-conditionally circe has-self
@@ -418,6 +414,7 @@
     (setq split-width-threshold 140))
   (setq-default cursor-type 'hbar)
   (setq-default indent-tabs-mode nil)
+  (setq source-directory "~/upstream/emacs/src")
 
   (progn
     (defun my-smarter-move-beginning-of-line (arg)
