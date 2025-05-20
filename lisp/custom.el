@@ -7,7 +7,13 @@
  '(magit-log-margin-show-committer-date t)
  '(native-comp-async-report-warnings-errors 'silent)
  '(safe-local-variable-values
-   '((visual-line-mode . t)
+   '((etags-regen-ignores "test/manual/etags/")
+     (etags-regen-regexp-alist
+      (("c" "objc")
+       "/[ \11]*DEFVAR_[A-Z_ \11(]+\"\\([^\"]+\\)\"/\\1/" "/[ \11]*DEFVAR_[A-Z_ \11(]+\"[^\"]+\",[ \11]\\([A-Za-z0-9_]+\\)/\\1/"))
+     (eval with-eval-after-load 'git-commit
+           (add-to-list 'git-commit-trailers "Change-Id"))
+     (visual-line-mode . t)
      (eval with-eval-after-load 'tempel
            (if
                (stringp tempel-path)
