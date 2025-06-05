@@ -318,7 +318,7 @@
 (use-package kotlin-mode)
 
 ;; guix shell libtool perl gcc-toolchain cmake -- env CC="gcc" emacs
-(use-package-conditionally vterm has-guix)
+;; (use-package-conditionally vterm has-guix)
 
 ;; guix shell guile-next guile-ares-rs -- guile -c '((@ (ares server) run-nrepl-server))'
 ;; (use-package-conditionally arei has-guix
