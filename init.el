@@ -249,7 +249,10 @@
   :config
   (setq geiser-repl-history-filename
         (or (file-name-concat (getenv "XDG_STATE_HOME") ".geiser_history")
-            geiser-repl-history-filename)))
+            geiser-repl-history-filename))
+  (subscribe-to-attribute has-self
+    (if has-self
+        (setq geiser-guile-load-path (cl-pushnew "~/self" geiser-guile-load-path)))))
 
 (use-package-conditionally geiser-guile is-personal
   :after geiser
