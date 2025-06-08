@@ -379,17 +379,9 @@
   (add-to-list 'auto-mode-alist '("\\.bzl" . python-mode)))
 
 (use-package-conditionally sops-file is-personal
-  :straight (:host github :repo "ajarara/sops-file.el"))
-
-(use-package-conditionally gptel is-personal
+  :straight (:host github :repo "ajarara/sops-file.el")
   :config
-  (setq
-   gptel-model 'gemini-1.5-pro-latest
-   gptel-backend (gptel-make-gemini "Gemini"
-                   :key (with-temp-buffer
-                          (insert-file-contents "/run/secrets/gemini")
-                          (buffer-string))
-                   :stream t)))
+  (sops-file-auto-mode 1))
 
 (use-package-conditionally cmake-mode is-personal)
 
