@@ -299,10 +299,6 @@
            (user-id (concat "@" user ":matrix.org")))
       (ement-connect :user-id user-id :password password))))  
 
-(use-package-conditionally nov.el is-personal
-  :config
-  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
-
 (use-package-conditionally dumb-jump is-personal
   :config
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
