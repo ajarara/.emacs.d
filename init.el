@@ -249,15 +249,16 @@
   :config
   (setq geiser-repl-history-filename
         (or (file-name-concat (getenv "XDG_STATE_HOME") ".geiser_history")
-            geiser-repl-history-filename))
-  (subscribe-to-attribute has-self
-    (if has-self
-        (setq geiser-guile-load-path (cl-pushnew "~/self" geiser-guile-load-path)))))
+            geiser-repl-history-filename)))
 
 (use-package-conditionally geiser-guile is-personal
   :after geiser
   :config
   ;; (add-to-list 'geiser-guile-load-path "~/upstream/nonguix")
+  (subscribe-to-attribute has-self
+    (if has-self
+        (setq geiser-guile-load-path (cl-pushnew "~/self" geiser-guile-load-path))
+      (setq geiser-guile-load-path (cl-delete "~/self" geiser-guile-load-path))))
   (subscribe-to-attribute has-guix
     (if has-guix
         (setq geiser-guile-binary (list "guix" "repl"))
