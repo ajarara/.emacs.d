@@ -50,7 +50,7 @@
  ("rust-mode" . "f7334861bfc1d3dbcfbde464751837be2ec09ef3")
  ("s.el" . "dda84d38fffdaf0c9b12837b504b402af910d01d")
  ("seq" . "da86da9bf111f68fb81efd466d76d53af5aebc00")
- ("sops-file.el" . "c56ddb8143f2b2d04655345403cc70dce7e338e5")
+ ("sops-file.el" . "8b4fe9d885635a7f2a2c26a6b414f32667a92c0e")
  ("straight.el" . "4272a70d5a385c5c4f92f4f4b111f063db0afac7")
  ("svg-lib" . "341b6d13f313ae8fb1a3f6d0a3fb27c02f3925d8")
  ("taxy" . "a35874a96e1cac5bc94ef572260dbb5f2ce68726")
