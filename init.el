@@ -377,7 +377,8 @@
 (use-package-conditionally sops-file is-personal
   :straight (:host github :repo "ajarara/sops-file.el")
   :config
-  (sops-file-auto-mode 1))
+  (sops-file-auto-mode 1)
+  (setq sops-file-disable-pinentry t))
 
 (use-package-conditionally cmake-mode is-personal)
 
