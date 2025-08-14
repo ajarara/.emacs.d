@@ -63,6 +63,20 @@
          (use-package ,name ,@body)
        (straight-register-package ',name))))
 
+
+(defun replace (place value selector)
+  "Replace first element selector returns true for. If no element found, add to end of list"
+  (set place
+       (named-let recur ((ls (symbol-value place)))
+         (cond
+          ((null ls)
+           ;; we haven't found based off our selector, so insert value here
+           (list value))
+          ((funcall selector (car ls))
+           (cons value (cdr ls)))
+          (t (cons (car ls)
+                   (recur (cdr ls))))))))
+
 (use-package general
   :demand t
   :config
@@ -342,11 +356,14 @@
            :sasl-strict t
            :sasl-username "ajarara"
            :sasl-password (lambda (host)
-                            (let* ((search-result
-                                    (auth-source-search :host "irc.libera.chat"))
-                                   (auth-info
-                                    (car search-result)))
-                              (auth-info-password auth-info))))))
+                            (with-temp-buffer
+                              (let* ((bfn "irc.libera.chat.enc.yaml")
+                                     (fn (file-name-concat (getenv "SELF") "sops" bfn))
+                                     (sops-file-name-inferrer (cl-constantly bfn)))
+                                (insert-file-contents fn)
+                                (format-decode-buffer 'sops-file)
+                                (re-search-forward "password: ")
+                                (buffer-substring-no-properties (point) (1- (point-max)))))))))
   (enable-circe-color-nicks)
     
   ;; Don't bombard me with leaves if the leaver hasn't spoke in a while
@@ -378,7 +395,8 @@
   :straight (:host github :repo "ajarara/sops-file.el")
   :config
   (sops-file-auto-mode 1)
-  (setq sops-file-disable-pinentry t))
+  (setq sops-file-disable-pinentry t)
+  (setq sops-file-auto-mode-regex "\\.enc\\."))
 
 (use-package-conditionally cmake-mode is-personal)
 
@@ -449,6 +467,14 @@ If ARG is not nil or 1, move forward ARG - 1 lines first.  Ifpoint reaches the b
             (previous-buffer)
           (find-file init-file-location))))
     (general-define-key "M-i" 'my-toggle-init))
+
+  (replace 'tramp-methods
+          `("flatpak"
+            (tramp-login-program "flatpak")
+            (tramp-login-args (("run") ("--command=/bin/bash") ("com.google.AndroidStudio")))
+            (tramp-remote-shell ,tramp-default-remote-shell))
+          (lambda (method)
+            (equal (car method) "flatpak")))
 
   (progn
     (setq scroll-conservatively 10000)
