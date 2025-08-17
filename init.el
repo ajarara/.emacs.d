@@ -359,7 +359,8 @@
                             (with-temp-buffer
                               (let* ((bfn "irc.libera.chat.enc.yaml")
                                      (fn (file-name-concat (getenv "SELF") "sops" bfn))
-                                     (sops-file-name-inferrer (cl-constantly bfn)))
+                                     (sops-file-name-inferrer (cl-constantly bfn))
+                                     (sops-file-mode-inferrer #'ignore))
                                 (insert-file-contents fn)
                                 (format-decode-buffer 'sops-file)
                                 (re-search-forward "password: ")
