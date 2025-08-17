@@ -347,6 +347,8 @@
   :config
   (setq circe-network-defaults nil)
   (setq lui-fill-column 63)
+  ;; on disconnect, just stay disconnected.
+  (setq circe-lagmon-reconnect-interval nil)
   
   (setq circe-network-options
         `(("libera"
