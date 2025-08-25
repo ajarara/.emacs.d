@@ -399,6 +399,7 @@
   :config
   (sops-file-auto-mode 1)
   (setq sops-file-disable-pinentry t)
+  (setq sops-file-skip-unavailable-smartcards nil)
   (setq sops-file-auto-mode-regex "\\.enc\\."))
 
 (use-package-conditionally cmake-mode is-personal)
