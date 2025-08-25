@@ -382,6 +382,16 @@
 
       (message (prin1-to-string (-intersection names1 names2))))))
 
+(use-package-conditionally gptel has-self
+  :config
+  (setq
+   gptel-model 'deepseek-coder:1.3b
+   gptel-backend (gptel-make-ollama "Ollama"
+                   :host "127.0.0.1:11434"
+                   :stream t
+                   :models '(deepseek-coder:1.3b)))
+  )
+
 (use-package-conditionally nov is-personal
   :config
   (add-to-list 'auto-mode-alist '("\\.epub" . nov-mode)))
