@@ -472,13 +472,14 @@ If ARG is not nil or 1, move forward ARG - 1 lines first.  Ifpoint reaches the b
           (find-file init-file-location))))
     (general-define-key "M-i" 'my-toggle-init))
 
+  ;; distinct from adb, this is an android development environment managed by flatpak's Android Studio
   (replace 'tramp-methods
-          `("flatpak"
-            (tramp-login-program "flatpak")
-            (tramp-login-args (("run") ("--command=/bin/bash") ("com.google.AndroidStudio")))
-            (tramp-remote-shell ,tramp-default-remote-shell))
-          (lambda (method)
-            (equal (car method) "flatpak")))
+           `("android"
+             (tramp-login-program "flatpak")
+             (tramp-login-args (("run") ("--command=/bin/bash") ("com.google.AndroidStudio")))
+             (tramp-remote-shell ,tramp-default-remote-shell))
+           (lambda (method)
+             (equal (car method) "android")))
 
   (progn
     (setq scroll-conservatively 10000)
