@@ -317,12 +317,35 @@
   :config
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
-(use-package tui
+(use-package-conditionally tui is-personal
   :config
   (require 'tui-use-process-buffer)
   (add-hook 'kill-buffer-hook #'tui-unmount-current-buffer-content-trees)
   :straight
   '(:host github :repo "ajarara/tui.el" :branch "ajarara/add-use-effect-state" :files ("*.el" "components" "layout" "demo" "snippets")))
+
+
+(use-package-conditionally subed is-personal
+  :straight '(:type git :host github :repo "sachac/subed" :files ("subed/*.el"))
+  :config
+  ;; Remember cursor position between sessions
+  (add-hook 'subed-mode-hook 'save-place-local-mode)
+  ;; Break lines automatically while typing
+  (add-hook 'subed-mode-hook 'turn-on-auto-fill)
+  ;; Break lines at 40 characters
+  (add-hook 'subed-mode-hook (lambda () (setq-local fill-column 40)))
+  ;; Some reasonable defaults
+  (add-hook 'subed-mode-hook 'subed-enable-pause-while-typing)
+  ;; As the player moves, update the point to show the current subtitle
+  (add-hook 'subed-mode-hook 'subed-enable-sync-point-to-player)
+  ;; As your point moves in Emacs, update the player to start at the current subtitle
+  (add-hook 'subed-mode-hook 'subed-enable-sync-player-to-point)
+  ;; Replay subtitles as you adjust their start or stop time with M-[, M-], M-{, or M-}
+  (add-hook 'subed-mode-hook 'subed-enable-replay-adjusted-subtitle)
+  ;; Loop over subtitles
+  (add-hook 'subed-mode-hook 'subed-enable-loop-over-current-subtitle)
+  ;; Show characters per second
+  (add-hook 'subed-mode-hook 'subed-enable-show-cps))
 
 (use-package flycheck)
 
