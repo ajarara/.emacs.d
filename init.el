@@ -408,11 +408,12 @@
 (use-package-conditionally gptel has-self
   :config
   (setq
-   gptel-model 'deepseek-coder:1.3b
-   gptel-backend (gptel-make-ollama "Ollama"
-                   :host "127.0.0.1:11434"
+   gptel-model   'test
+   gptel-backend (gptel-make-openai "llama-cpp"
                    :stream t
-                   :models '(deepseek-coder:1.3b)))
+                   :protocol "http"
+                   :host "localhost:8092"
+                   :models '(test)))
   )
 
 (use-package-conditionally nov is-personal
