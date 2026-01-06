@@ -7,7 +7,8 @@
  '(magit-log-margin-show-committer-date t)
  '(native-comp-async-report-warnings-errors 'silent)
  '(safe-local-variable-values
-   '((eval and buffer-file-name
+   '((lisp-fill-paragraphs-as-doc-string nil)
+     (eval and buffer-file-name
            (not (eq major-mode 'package-recipe-mode))
            (or (require 'package-recipe-mode nil t)
                (let ((load-path (cons "../package-build" load-path)))
