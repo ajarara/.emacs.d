@@ -420,6 +420,8 @@
   :config
   (add-to-list 'auto-mode-alist '("\\.epub" . nov-mode)))
 
+(use-package detached)
+
 (use-package yaml-mode)
 
 (use-package python
