@@ -423,6 +423,7 @@
 (use-package detached
   :init
   (detached-init)
+  (setq detached-notification-function 'ignore)
   :bind
   (([remap async-shell-command] . detached-shell-command)
    ([remap compile] . detached-compile)
