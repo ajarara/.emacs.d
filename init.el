@@ -198,6 +198,8 @@
   (general-define-key "C-S-s" 'consult-line-multi)
   (general-define-key "C-h a" 'consult-apropos))
 
+(use-package eat)
+
 (use-package-conditionally guix has-guix
   :config
   (setq guix-dot-program "xt"))
@@ -412,7 +414,7 @@
    gptel-backend (gptel-make-openai "llama-cpp"
                    :stream t
                    :protocol "http"
-                   :host "localhost:8092"
+                   :host "localhost:8080"
                    :models '(test)))
   )
 
