@@ -7,7 +7,11 @@
  '(magit-log-margin-show-committer-date t)
  '(native-comp-async-report-warnings-errors 'silent)
  '(safe-local-variable-values
-   '((eval outline-hide-sublevels 2) (eval outline-hide-sublevels)
+   '((eval setq-local bug-reference-bug-regexp
+           (rx
+            (group (seq (32 "guix/guix") (or "#" "!"))
+                   (group (one-or-more digit)))))
+     (eval outline-hide-sublevels 2) (eval outline-hide-sublevels)
      (lisp-fill-paragraphs-as-doc-string nil)
      (eval and buffer-file-name
            (not (eq major-mode 'package-recipe-mode))

@@ -382,16 +382,7 @@
            :port 6697
            :sasl-strict t
            :sasl-username "ajarara"
-           :sasl-password (lambda (host)
-                            (with-temp-buffer
-                              (let* ((bfn "irc.libera.chat.enc.yaml")
-                                     (fn (file-name-concat (getenv "SELF") "sops" bfn))
-                                     (sops-file-name-inferrer (cl-constantly bfn))
-                                     (sops-file-mode-inferrer #'ignore))
-                                (insert-file-contents fn)
-                                (format-decode-buffer 'sops-file)
-                                (re-search-forward "password: ")
-                                (buffer-substring-no-properties (point) (1- (point-max)))))))))
+)))
   (enable-circe-color-nicks)
     
   ;; Don't bombard me with leaves if the leaver hasn't spoke in a while
@@ -449,6 +440,8 @@
   (setq sops-file-auto-mode-regex "\\.enc\\."))
 
 (use-package-conditionally cmake-mode is-personal)
+
+(use-package ghostel)
 
 (use-package server
   :config
