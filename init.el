@@ -20,35 +20,35 @@
 (defvar my-lisp (expand-file-name "lisp/" user-emacs-directory)
   "Added to load path. Also holds custom.el")
 
+(setq custom-file (expand-file-name "custom.el" my-lisp))
 (add-to-list 'load-path my-lisp)
 
 (require 'cl-lib)
 (require 'json)
 
+;; global custom minor modes
 (defvar attributes
   '(is-personal has-guix has-org has-magit has-self)
   "Attributes are minor modes that are enabled on a per host basis")
 (cl-loop for attribute in attributes
          do (eval `(define-minor-mode ,attribute nil :global t)))
 
-;; convenience wrapper that adds a hook to the profile
-;; attribute. After adding, it runs the hook. It otherwise behaves
-;; like add-hook, calling on teardown, which means uses should still
-;; inspect whether the minor mode is enabled and do teardown if needed
 (defmacro subscribe-to-attribute (attribute &rest body)
   (declare (indent defun))
   (cl-assert (memq attribute attributes))
-  `(progn
-     (add-hook ',(intern (format "%s-hook" attribute)) (lambda () ,@body))
-     ,@body
-     nil))
+  (let ((hook-sym (intern (concat (symbol-name attribute) "-hook"))))
+    `(progn
+       (add-hook ',hook-sym (lambda () ,@body))
+       ,@body)))
+
 
 (require 'profile nil t)
 (if (boundp 'profile)
     (cl-loop for attr in profile
              do (unless (memq attr attributes)
                   (error "unrecognized attribute from profile: %s" attr))
-             do (funcall attr)))
+             do (funcall attr))
+  (warn "profile not available"))
 
 (when (and
        has-self
@@ -63,19 +63,18 @@
          (use-package ,name ,@body)
        (straight-register-package ',name))))
 
-
-(defun replace (place value selector)
-  "Replace first element selector returns true for. If no element found, add to end of list"
-  (set place
-       (named-let recur ((ls (symbol-value place)))
-         (cond
-          ((null ls)
-           ;; we haven't found based off our selector, so insert value here
-           (list value))
-          ((funcall selector (car ls))
-           (cons value (cdr ls)))
-          (t (cons (car ls)
-                   (recur (cdr ls))))))))
+(defmacro replace (place value selector)
+  "Replace first element SELECTOR returns true for in PLACE. 
+If no element found, add VALUE to the end of the list."
+  `(setf ,place
+         (named-let recur ((ls ,place))
+           (cond
+            ((null ls)
+             (list ,value))
+            ((funcall ,selector (car ls))
+             (cons ,value (cdr ls)))
+            (t (cons (car ls)
+                     (recur (cdr ls))))))))
 
 (use-package general
   :demand t
@@ -128,10 +127,6 @@
     (unless (file-exists-p screenies)
       (mkdir screenies))
     (setq desktop-environment-screenshot-directory screenies)))
-
-(use-package-conditionally org has-org
-  :config
-  (add-hook 'org-mode-hook (lambda () (visual-line-mode 1))))
 
 (use-package winner
   :after general
@@ -417,6 +412,7 @@
   :init
   (detached-init)
   (setq detached-notification-function 'ignore)
+  (setq detached-shell-command-initial-input nil)
   :bind
   (([remap async-shell-command] . detached-shell-command)
    ([remap detached-open-session] . detached-consult-session))
@@ -563,5 +559,4 @@ If ARG is not nil or 1, move forward ARG - 1 lines first.  Ifpoint reaches the b
 
   (setq ns-right-command-modifier 'control))
 
-(setq custom-file (concat my-lisp "custom.el"))
 (load custom-file)
