@@ -1,27 +1,51 @@
 ;; -*- lexical-binding: t -*-
-(setq straight-use-package-version 'straight)
-(setq straight-use-package-by-default t)
+(defvar elpaca-installer-version 0.12)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-sources-directory (expand-file-name "sources/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                              :ref nil :depth 1 :inherit ignore
+                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                              :build (:not elpaca-activate)))
+(let* ((repo  (expand-file-name "elpaca/" elpaca-sources-directory))
+       (build (expand-file-name "elpaca/" elpaca-builds-directory))
+       (order (cdr elpaca-order))
+       (default-directory repo))
+  (add-to-list 'load-path (if (file-exists-p build) build repo))
+  (unless (file-exists-p repo)
+    (make-directory repo t)
+    (when (<= emacs-major-version 28) (require 'subr-x))
+    (condition-case-unless-debug err
+        (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                  ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                  ,@(when-let* ((depth (plist-get order :depth)))
+                                                      (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                  ,(plist-get order :repo) ,repo))))
+                  ((zerop (call-process "git" nil buffer t "checkout"
+                                        (or (plist-get order :ref) "--"))))
+                  (emacs (concat invocation-directory invocation-name))
+                  ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                        "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                  ((require 'elpaca))
+                  ((elpaca-generate-autoloads "elpaca" repo)))
+            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+          (error "%s" (with-current-buffer buffer (buffer-string))))
+      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  (unless (require 'elpaca-autoloads nil t)
+    (require 'elpaca)
+    (elpaca-generate-autoloads "elpaca" repo)
+    (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
 
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 6))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-
-(straight-use-package 'use-package)
+(elpaca elpaca-use-package
+  (elpaca-use-package-mode))
 
 (defvar my-lisp (expand-file-name "lisp/" user-emacs-directory)
   "Added to load path. Also holds custom.el")
 
-(setq custom-file (expand-file-name "custom.el" my-lisp))
 (add-to-list 'load-path my-lisp)
+(setq custom-file (expand-file-name "custom.el" my-lisp))
 
 (require 'cl-lib)
 (require 'json)
@@ -33,13 +57,13 @@
 (cl-loop for attribute in attributes
          do (eval `(define-minor-mode ,attribute nil :global t)))
 
-(defmacro subscribe-to-attribute (attribute &rest body)
+(defmacro subscribe-to-attribute (attribute fn-def)
   (declare (indent defun))
   (cl-assert (memq attribute attributes))
   (let ((hook-sym (intern (concat (symbol-name attribute) "-hook"))))
     `(progn
-       (add-hook ',hook-sym (lambda () ,@body))
-       ,@body)))
+       (add-hook ',hook-sym ,fn-def)
+       (funcall ,fn-def))))
 
 
 (require 'profile nil t)
@@ -50,20 +74,21 @@
              do (funcall attr))
   (warn "profile not available"))
 
-(when (and
-       has-self
-       (not (file-exists-p "~/self")))
-  (display-warning :error "Clone the self repository!!"))
+(subscribe-to-attribute has-self
+  (defun has-self-warning ()
+    (and
+     has-self
+     (not (file-exists-p "~/self"))
+     (display-warning :error "Clone the self repository!!"))))
+
 
 (defmacro use-package-conditionally (name mode &rest body)
-  "See https://github.com/radian-software/straight.el/issues/235. This makes it so that we don't clone if we're never going to use it, but the recommendation is to still register the package for... reasons. Eventually we will be able to move to :if exprs once the issue is resolved. The reason we do this is because often I boot up emacs on new machines, and less clones means way faster startup."
   (declare (indent defun))
   `(subscribe-to-attribute ,mode
-     (if ,mode
-         (use-package ,name ,@body)
-       (straight-register-package ',name))))
+     (when ,mode
+       (use-package ,name ,@body))))
 
-(defmacro replace (place value selector)
+(defmacro replace-or-add (place value selector)
   "Replace first element SELECTOR returns true for in PLACE. 
 If no element found, add VALUE to the end of the list."
   `(setf ,place
@@ -107,19 +132,19 @@ If no element found, add VALUE to the end of the list."
    "a" 'project-async-shell-command
    :keymaps 'project-prefix-map))
 (use-package diminish)
-(use-package-conditionally magit has-magit)
 (use-package markdown-mode)
 (use-package company)
 (use-package git-link)
 
-(use-package-conditionally buttercup is-personal)
+(use-package-conditionally magit has-magit)
 
 (use-package ansi-color
   :config
-  (defun my-colorize-buffer-compilation-hook ()
-    (let ((buffer-read-only nil))
-      (ansi-color-apply-on-region compilation-filter-start (point))))
-  (add-hook 'compilation-filter-hook 'my-colorize-buffer-compilation-hook))
+  (add-hook
+   'compilation-filter-hook
+   (defun ansi-color-my-compilation-hook ()
+     (let ((buffer-read-only nil))
+       (ansi-color-apply-on-region compilation-filter-start (point))))))
 
 (use-package desktop-environment
   :config
@@ -138,7 +163,7 @@ If no element found, add VALUE to the end of the list."
 
 (use-package savehist
   :config
-  (savehist-mode))
+  (savehist-mode 1))
 
 (use-package expand-region
   :after general
@@ -169,8 +194,6 @@ If no element found, add VALUE to the end of the list."
   (general-define-key
    "M-l" 'avy-goto-char-timer))
 
-(use-package-conditionally ag is-personal)
-
 (use-package-conditionally direnv is-personal
   :config
   (setq direnv-always-show-summary nil)
@@ -187,13 +210,12 @@ If no element found, add VALUE to the end of the list."
         completion-category-overrides '((file (styles partial-completion)))))
 
 (use-package consult
-  :after (vertico general)
   :config
   (general-define-key "C-s" 'consult-line)
-  (general-define-key "C-S-s" 'consult-line-multi)
+  (general-define-key "C-c s" 'consult-line-multi)
   (general-define-key "C-h a" 'consult-apropos))
 
-(use-package eat)
+(use-package ghostel)
 
 (use-package-conditionally guix has-guix
   :config
@@ -222,24 +244,13 @@ If no element found, add VALUE to the end of the list."
   :config
   (setq reb-re-syntax 'string))
 
-(use-package-conditionally rust-mode is-personal
-  :mode "\\.rs"
+(use-package treesit-auto
   :config
-  (eval-when-load
-   "lsp-mode"
-   (add-hook 'rust-mode-hook 'lsp)))
+  (add-to-list 'treesit-language-source-alist
+             '(starlark "https://github.com/tree-sitter-grammars/tree-sitter-starlark"))
+  (global-treesit-auto-mode))
 
-(use-package-conditionally cargo is-personal
-  :after 'rust-mode
-  :config
-  (add-hook 'rust-mode-hook 'cargo-minor-mode))
-
-(use-package-conditionally typescript-mode is-personal
-  :config
-  (add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
-  (add-to-list 'auto-mode-alist '("\\.tsx" . typescript-mode))
-  (setq typescript-indent-level 2)
-  (setq js-indent-level 2))
+(use-package eglot)
 
 (use-package monokai-theme
   :config
@@ -263,21 +274,23 @@ If no element found, add VALUE to the end of the list."
             geiser-repl-history-filename)))
 
 (use-package-conditionally geiser-guile is-personal
-  :after geiser
   :config
   ;; (add-to-list 'geiser-guile-load-path "~/upstream/nonguix")
   (subscribe-to-attribute has-self
-    (if has-self
-        (setq geiser-guile-load-path (cl-pushnew "~/self" geiser-guile-load-path))
-      (setq geiser-guile-load-path (cl-delete "~/self" geiser-guile-load-path))))
+    (defun has-self-add-guile-load-path ()
+      (if has-self
+          (setq geiser-guile-load-path (cl-pushnew "~/self" geiser-guile-load-path))
+        (setq geiser-guile-load-path (cl-delete "~/self" geiser-guile-load-path)))))
   (subscribe-to-attribute has-guix
-    (if has-guix
-        (setq geiser-guile-binary (list "guix" "repl"))
-      (setq geiser-guile-binary "guile"))))
+    (defun has-guix-use-guix-repl ()
+      (if has-guix
+          (setq geiser-guile-binary (list "guix" "repl"))
+        (setq geiser-guile-binary "guile")))))
 
-(use-package-conditionally paredit is-personal
+(use-package paredit
   :config
-  (add-hook 'scheme-mode-hook 'enable-paredit-mode)
+  (with-eval-after-load 'scheme
+    (add-hook 'scheme-mode-hook 'enable-paredit-mode))
   (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode))
 
 (use-package-conditionally srfi is-personal
@@ -287,40 +300,9 @@ If no element found, add VALUE to the end of the list."
    (lambda ()
      (setq-local browse-url-browser-function 'eww))))
 
-(use-package cc-mode
-  :config
-  (add-hook
-   'c-mode-hook
-   (lambda ()
-     (setq-local
-      compile-command
-      "make -k -j $(nproc --ignore=2)"))))
-
-(use-package-conditionally ement is-personal
-  :requires auth-source
-  :config
-  (defun my-ement-connect-matrix ()
-    (interactive)
-    (let* ((search-results
-            (auth-source-search :host "matrix.org" :max 1))
-           (_ (cl-assert search-results t "No password found for matrix!"))
-           (auth-info (car search-results))
-           (user (plist-get auth-info :user))
-           (password (auth-info-password auth-info))
-           (user-id (concat "@" user ":matrix.org")))
-      (ement-connect :user-id user-id :password password))))  
-
-(use-package-conditionally dumb-jump is-personal
+(use-package dumb-jump
   :config
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
-
-(use-package-conditionally tui is-personal
-  :config
-  (require 'tui-use-process-buffer)
-  (add-hook 'kill-buffer-hook #'tui-unmount-current-buffer-content-trees)
-  :straight
-  '(:host github :repo "ajarara/tui.el" :branch "ajarara/add-use-effect-state" :files ("*.el" "components" "layout" "demo" "snippets")))
-
 
 (use-package-conditionally subed is-personal
   :straight '(:type git :host github :repo "sachac/subed" :files ("subed/*.el"))
@@ -343,24 +325,6 @@ If no element found, add VALUE to the end of the list."
   (add-hook 'subed-mode-hook 'subed-enable-loop-over-current-subtitle)
   ;; Show characters per second
   (add-hook 'subed-mode-hook 'subed-enable-show-cps))
-
-(use-package flycheck)
-
-;; https://github.com/casouri/tree-sitter-module has a bunch of them installed
-(use-package tree-sitter)
-
-(use-package kotlin-mode)
-
-;; guix shell libtool perl gcc-toolchain cmake -- env CC="gcc" emacs
-;; (use-package-conditionally vterm has-guix)
-
-;; guix shell guile-next guile-ares-rs -- guile -c '((@ (ares server) run-nrepl-server))'
-;; (use-package-conditionally arei has-guix
-;;   :straight (:host github :repo "abcdw/emacs-arei"))
-
-(use-package-conditionally auth-source has-self
-  :config
-  (push "~/self/vault/.authinfo.gpg" auth-sources))
 
 (use-package-conditionally circe has-self
   :requires auth-source
@@ -401,8 +365,7 @@ If no element found, add VALUE to the end of the list."
                    :stream t
                    :protocol "http"
                    :host "localhost:8080"
-                   :models '(test)))
-  )
+                   :models '(test))))
 
 (use-package-conditionally nov is-personal
   :config
@@ -419,14 +382,6 @@ If no element found, add VALUE to the end of the list."
   :custom ((detached-show-output-on-attach t)
            (detached-terminal-data-command system-type)))
 
-(use-package yaml-mode)
-
-(use-package python
-  :config
-  (add-to-list 'auto-mode-alist '("BUCK" . python-mode))
-  (add-to-list 'auto-mode-alist '("BUILD" . python-mode))
-  (add-to-list 'auto-mode-alist '("\\.bzl" . python-mode)))
-
 (use-package-conditionally sops-file is-personal
   :straight (:host github :repo "ajarara/sops-file.el")
   :config
@@ -435,16 +390,14 @@ If no element found, add VALUE to the end of the list."
   (setq sops-file-skip-unavailable-smartcards nil)
   (setq sops-file-auto-mode-regex "\\.enc\\."))
 
-(use-package-conditionally cmake-mode is-personal)
-
-(use-package ghostel)
-
 (use-package server
+  :ensure nil
   :config
   (unless (server-running-p) (server-start)))
 
 (use-package emacs
   :after general
+  :ensure nil
   :config
   (let ((backup-directory (concat user-emacs-directory "backup")))
     (make-directory backup-directory t)
@@ -508,7 +461,7 @@ If ARG is not nil or 1, move forward ARG - 1 lines first.  Ifpoint reaches the b
     (general-define-key "M-i" 'my-toggle-init))
 
   ;; distinct from adb, this is an android development environment managed by flatpak's Android Studio
-  (replace 'tramp-methods
+  (replace-or-add 'tramp-methods
            `("android"
              (tramp-login-program "flatpak")
              (tramp-login-args (("run") ("--command=/bin/bash") ("com.google.AndroidStudio")))
@@ -559,4 +512,6 @@ If ARG is not nil or 1, move forward ARG - 1 lines first.  Ifpoint reaches the b
 
   (setq ns-right-command-modifier 'control))
 
-(load custom-file)
+(add-hook 'elpaca-after-init-hook
+          (defun load-in-custom-file ()
+            (load custom-file 'noerror)))
