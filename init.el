@@ -40,6 +40,8 @@
 
 (elpaca elpaca-use-package
   (elpaca-use-package-mode))
+(setq use-package-always-ensure t)
+(elpaca-wait)
 
 (defvar my-lisp (expand-file-name "lisp/" user-emacs-directory)
   "Added to load path. Also holds custom.el")
@@ -80,13 +82,6 @@
      has-self
      (not (file-exists-p "~/self"))
      (display-warning :error "Clone the self repository!!"))))
-
-
-(defmacro use-package-conditionally (name mode &rest body)
-  (declare (indent defun))
-  `(subscribe-to-attribute ,mode
-     (when ,mode
-       (use-package ,name ,@body))))
 
 (defmacro replace-or-add (place value selector)
   "Replace first element SELECTOR returns true for in PLACE. 
@@ -136,9 +131,12 @@ If no element found, add VALUE to the end of the list."
 (use-package company)
 (use-package git-link)
 
-(use-package-conditionally magit has-magit)
+(when has-magit
+  (use-package transient)
+  (use-package magit))
 
 (use-package ansi-color
+  :ensure nil
   :config
   (add-hook
    'compilation-filter-hook
@@ -154,6 +152,7 @@ If no element found, add VALUE to the end of the list."
     (setq desktop-environment-screenshot-directory screenies)))
 
 (use-package winner
+  :ensure nil
   :after general
   :config
   (general-define-key
@@ -162,6 +161,7 @@ If no element found, add VALUE to the end of the list."
   (winner-mode))
 
 (use-package savehist
+  :ensure nil
   :config
   (savehist-mode 1))
 
@@ -194,10 +194,11 @@ If no element found, add VALUE to the end of the list."
   (general-define-key
    "M-l" 'avy-goto-char-timer))
 
-(use-package-conditionally direnv is-personal
-  :config
-  (setq direnv-always-show-summary nil)
-  (direnv-mode))
+(when is-personal
+  (use-package direnv
+    :config
+    (setq direnv-always-show-summary nil)
+    (direnv-mode)))
 
 (use-package vertico
   :config
@@ -217,11 +218,13 @@ If no element found, add VALUE to the end of the list."
 
 (use-package ghostel)
 
-(use-package-conditionally guix has-guix
-  :config
-  (setq guix-dot-program "xt"))
+(when has-guix
+  (use-package guix
+    :config
+    (setq guix-dot-program "xt")))
 
 (use-package paren
+  :ensure nil
   :config
   (setq show-paren-style 'mixed)
   (setq show-paren-when-point-in-periphery t)
@@ -230,6 +233,7 @@ If no element found, add VALUE to the end of the list."
   (after-init-hook . show-paren-mode))
 
 (use-package ibuffer
+  :ensure nil
   :after general
   :config
   (general-define-key
@@ -241,6 +245,7 @@ If no element found, add VALUE to the end of the list."
   (setq xref-show-definitions-function 'xref--show-defs-buffer-at-bottom))
 
 (use-package re-builder
+  :ensure nil
   :config
   (setq reb-re-syntax 'string))
 
@@ -250,6 +255,9 @@ If no element found, add VALUE to the end of the list."
              '(starlark "https://github.com/tree-sitter-grammars/tree-sitter-starlark"))
   (global-treesit-auto-mode))
 
+(use-package jsonrpc)
+(use-package flymake)
+(use-package eldoc)
 (use-package eglot)
 
 (use-package monokai-theme
@@ -267,110 +275,116 @@ If no element found, add VALUE to the end of the list."
    :prefix "C-h")
   (which-key-mode))
 
-(use-package-conditionally geiser is-personal
-  :config
-  (setq geiser-repl-history-filename
-        (or (file-name-concat (getenv "XDG_STATE_HOME") ".geiser_history")
-            geiser-repl-history-filename)))
+(when is-personal
+  (use-package geiser
+    :config
+    (setq geiser-repl-history-filename
+          (or (file-name-concat (getenv "XDG_STATE_HOME") ".geiser_history")
+              geiser-repl-history-filename)))
 
-(use-package-conditionally geiser-guile is-personal
-  :config
-  ;; (add-to-list 'geiser-guile-load-path "~/upstream/nonguix")
-  (subscribe-to-attribute has-self
-    (defun has-self-add-guile-load-path ()
-      (if has-self
-          (setq geiser-guile-load-path (cl-pushnew "~/self" geiser-guile-load-path))
-        (setq geiser-guile-load-path (cl-delete "~/self" geiser-guile-load-path)))))
-  (subscribe-to-attribute has-guix
-    (defun has-guix-use-guix-repl ()
-      (if has-guix
-          (setq geiser-guile-binary (list "guix" "repl"))
-        (setq geiser-guile-binary "guile")))))
+  (use-package geiser-guile
+    :config
+    ;; (add-to-list 'geiser-guile-load-path "~/upstream/nonguix")
+    (subscribe-to-attribute has-self
+      (defun has-self-add-guile-load-path ()
+	(if has-self
+            (setq geiser-guile-load-path (cl-pushnew "~/self" geiser-guile-load-path))
+          (setq geiser-guile-load-path (cl-delete "~/self" geiser-guile-load-path)))))
+    (subscribe-to-attribute has-guix
+      (defun has-guix-use-guix-repl ()
+	(if has-guix
+            (setq geiser-guile-binary (list "guix" "repl"))
+          (setq geiser-guile-binary "guile"))))))
 
 (use-package paredit
+  :ensure (:host github :repo "emacsmirror/paredit")
   :config
   (with-eval-after-load 'scheme
     (add-hook 'scheme-mode-hook 'enable-paredit-mode))
   (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode))
 
-(use-package-conditionally srfi is-personal
-  :config
-  (add-hook
-   'srfi-mode-hook
-   (lambda ()
-     (setq-local browse-url-browser-function 'eww))))
+(when is-personal
+  (use-package srfi
+    :config
+    (add-hook
+     'srfi-mode-hook
+     (lambda ()
+       (setq-local browse-url-browser-function 'eww)))))
 
 (use-package dumb-jump
   :config
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
-(use-package-conditionally subed is-personal
-  :straight '(:type git :host github :repo "sachac/subed" :files ("subed/*.el"))
-  :config
+(when is-personal
+  (use-package subed
+    :straight '(:type git :host github :repo "sachac/subed" :files ("subed/*.el"))
+    :config
   ;; Remember cursor position between sessions
-  (add-hook 'subed-mode-hook 'save-place-local-mode)
-  ;; Break lines automatically while typing
-  (add-hook 'subed-mode-hook 'turn-on-auto-fill)
-  ;; Break lines at 40 characters
-  (add-hook 'subed-mode-hook (lambda () (setq-local fill-column 40)))
-  ;; Some reasonable defaults
-  (add-hook 'subed-mode-hook 'subed-enable-pause-while-typing)
-  ;; As the player moves, update the point to show the current subtitle
-  (add-hook 'subed-mode-hook 'subed-enable-sync-point-to-player)
-  ;; As your point moves in Emacs, update the player to start at the current subtitle
-  (add-hook 'subed-mode-hook 'subed-enable-sync-player-to-point)
-  ;; Replay subtitles as you adjust their start or stop time with M-[, M-], M-{, or M-}
-  (add-hook 'subed-mode-hook 'subed-enable-replay-adjusted-subtitle)
-  ;; Loop over subtitles
-  (add-hook 'subed-mode-hook 'subed-enable-loop-over-current-subtitle)
-  ;; Show characters per second
-  (add-hook 'subed-mode-hook 'subed-enable-show-cps))
+    (add-hook 'subed-mode-hook 'save-place-local-mode)
+    ;; Break lines automatically while typing
+    (add-hook 'subed-mode-hook 'turn-on-auto-fill)
+    ;; Break lines at 40 characters
+    (add-hook 'subed-mode-hook (lambda () (setq-local fill-column 40)))
+    ;; Some reasonable defaults
+    (add-hook 'subed-mode-hook 'subed-enable-pause-while-typing)
+    ;; As the player moves, update the point to show the current subtitle
+    (add-hook 'subed-mode-hook 'subed-enable-sync-point-to-player)
+    ;; As your point moves in Emacs, update the player to start at the current subtitle
+    (add-hook 'subed-mode-hook 'subed-enable-sync-player-to-point)
+    ;; Replay subtitles as you adjust their start or stop time with M-[, M-], M-{, or M-}
+    (add-hook 'subed-mode-hook 'subed-enable-replay-adjusted-subtitle)
+    ;; Loop over subtitles
+    (add-hook 'subed-mode-hook 'subed-enable-loop-over-current-subtitle)
+    ;; Show characters per second
+    (add-hook 'subed-mode-hook 'subed-enable-show-cps)))
 
-(use-package-conditionally circe has-self
-  :requires auth-source
-  :config
-  (setq circe-network-defaults nil)
-  (setq lui-fill-column 63)
-  ;; on disconnect, just stay disconnected.
-  (setq circe-lagmon-reconnect-interval nil)
-  
-  (setq circe-network-options
-        `(("libera"
-           :tls t
-           :host "irc.libera.chat"
-           :port 6697
-           :sasl-strict t
-           :sasl-username "ajarara"
-)))
-  (enable-circe-color-nicks)
+(when has-self
+  (use-package circe
+    :requires auth-source
+    :config
+    (setq circe-network-defaults nil)
+    (setq lui-fill-column 63)
+    ;; on disconnect, just stay disconnected.
+    (setq circe-lagmon-reconnect-interval nil)
     
-  ;; Don't bombard me with leaves if the leaver hasn't spoke in a while
-  (setq circe-reduce-lurker-spam t)
+    (setq circe-network-options
+          `(("libera"
+             :tls t
+             :host "irc.libera.chat"
+             :port 6697
+             :sasl-strict t
+             :sasl-username "ajarara"
+	     )))
+    (enable-circe-color-nicks)
+    
+    ;; Don't bombard me with leaves if the leaver hasn't spoke in a while
+    (setq circe-reduce-lurker-spam t)
 
-  (defun my-circe-intersect-nicks (buf1 buf2)
-    "Does what you think it does. It would make a little sense to remove your own nick from this list, but meh"
-    (interactive "b\nb")
-    (let ((names1 (with-current-buffer buf1
-                    (circe-channel-nicks)))
-          (names2 (with-current-buffer buf2
-                    (circe-channel-nicks))))
+    (defun my-circe-intersect-nicks (buf1 buf2)
+      "Does what you think it does. It would make a little sense to remove your own nick from this list, but meh"
+      (interactive "b\nb")
+      (let ((names1 (with-current-buffer buf1
+                      (circe-channel-nicks)))
+            (names2 (with-current-buffer buf2
+                      (circe-channel-nicks))))
+	(message (prin1-to-string (-intersection names1 names2)))))))
 
-      (message (prin1-to-string (-intersection names1 names2))))))
+(when has-self
+  (use-package gptel
+    :config
+    (setq
+     gptel-model   'test
+     gptel-backend (gptel-make-openai "llama-cpp"
+				      :stream t
+				      :protocol "http"
+				      :host "localhost:8080"
+				      :models '(test)))))
 
-(use-package-conditionally gptel has-self
-  :config
-  (setq
-   gptel-model   'test
-   gptel-backend (gptel-make-openai "llama-cpp"
-                   :stream t
-                   :protocol "http"
-                   :host "localhost:8080"
-                   :models '(test))))
-
-(use-package-conditionally nov is-personal
-  :config
-  (add-to-list 'auto-mode-alist '("\\.epub" . nov-mode)))
-
+(when is-personal
+  (use-package nov
+    :config
+    (add-to-list 'auto-mode-alist '("\\.epub" . nov-mode))))
+  
 (use-package detached
   :init
   (detached-init)
@@ -382,13 +396,14 @@ If no element found, add VALUE to the end of the list."
   :custom ((detached-show-output-on-attach t)
            (detached-terminal-data-command system-type)))
 
-(use-package-conditionally sops-file is-personal
-  :straight (:host github :repo "ajarara/sops-file.el")
-  :config
-  (sops-file-auto-mode 1)
-  (setq sops-file-disable-pinentry t)
-  (setq sops-file-skip-unavailable-smartcards nil)
-  (setq sops-file-auto-mode-regex "\\.enc\\."))
+(when is-personal
+  (use-package sops-file
+    :ensure (:host github :repo "ajarara/sops-file.el")
+    :config
+    (sops-file-auto-mode 1)
+    (setq sops-file-disable-pinentry t)
+    (setq sops-file-skip-unavailable-smartcards nil)
+    (setq sops-file-auto-mode-regex "\\.enc\\.")))
 
 (use-package server
   :ensure nil
@@ -459,15 +474,6 @@ If ARG is not nil or 1, move forward ARG - 1 lines first.  Ifpoint reaches the b
             (previous-buffer)
           (find-file init-file-location))))
     (general-define-key "M-i" 'my-toggle-init))
-
-  ;; distinct from adb, this is an android development environment managed by flatpak's Android Studio
-  (replace-or-add 'tramp-methods
-           `("android"
-             (tramp-login-program "flatpak")
-             (tramp-login-args (("run") ("--command=/bin/bash") ("com.google.AndroidStudio")))
-             (tramp-remote-shell ,tramp-default-remote-shell))
-           (lambda (method)
-             (equal (car method) "android")))
 
   (progn
     (setq scroll-conservatively 10000)
