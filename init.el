@@ -118,7 +118,17 @@ If no element found, add VALUE to the end of the list."
    
    "m" 'fill-region
 
-   "i" 'imenu
+   "i" (defun my-toggle-init ()
+         (interactive)
+         (let ((init-file-location
+                (file-truename
+                 (concat user-emacs-directory "init.el")))
+               (current-location
+                (and buffer-file-name
+                     (file-truename buffer-file-name))))
+           (if (string= init-file-location current-location)
+               (previous-buffer)
+             (find-file init-file-location))))
    :prefix "C-c"))
 
 (use-package project
@@ -460,20 +470,6 @@ If ARG is not nil or 1, move forward ARG - 1 lines first.  Ifpoint reaches the b
                         'my-smarter-move-beginning-of-line))
 
   (defalias 'pretty-print-last-sexp 'pp-macroexpand-last-sexp)
-
-  (progn
-    (defun my-toggle-init ()
-      (interactive)
-      (let ((init-file-location
-             (file-truename
-              (concat user-emacs-directory "init.el")))
-            (current-location
-             (and buffer-file-name
-                  (file-truename buffer-file-name))))
-        (if (string= init-file-location current-location)
-            (previous-buffer)
-          (find-file init-file-location))))
-    (general-define-key "M-i" 'my-toggle-init))
 
   (progn
     (setq scroll-conservatively 10000)
