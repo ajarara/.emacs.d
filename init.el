@@ -36,6 +36,7 @@
     (elpaca-generate-autoloads "elpaca" repo)
     (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
 (add-hook 'after-init-hook #'elpaca-process-queues)
+(setq elpaca-lock-file (expand-file-name "lock-file.eld" "elpaca"))
 (elpaca `(,@elpaca-order))
 
 (elpaca elpaca-use-package
