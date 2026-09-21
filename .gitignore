@@ -6,15 +6,9 @@
 lisp/profile.el
 !bin
 
-
 !early-init.el
 !README.md
 !COPYING
-!straight
-straight/*
-!straight/versions
-straight/versions/*
-!straight/versions/default.el
 !elpaca
 elpaca/*
 !elpaca/lock-file.eld

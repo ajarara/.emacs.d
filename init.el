@@ -46,8 +46,9 @@
 (setq use-package-always-ensure t)
 (elpaca-wait)
 
-
-
+(defun my-elpaca-write-lock-file ()
+  (interactive)
+  (elpaca-write-lock-file elpaca-lock-file))
 (defvar my-lisp (expand-file-name "lisp/" user-emacs-directory)
   "Added to load path. Also holds custom.el")
 
