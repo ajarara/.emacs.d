@@ -7,7 +7,8 @@
  '(magit-log-margin-show-committer-date t)
  '(native-comp-async-report-warnings-errors 'silent)
  '(safe-local-variable-values
-   '((eval setq-local bug-reference-bug-regexp
+   '((package-lint-main-file . "llm.el")
+     (eval setq-local bug-reference-bug-regexp
            (rx
             (group (seq (32 "guix/guix") (or "#" "!"))
                    (group (one-or-more digit)))))

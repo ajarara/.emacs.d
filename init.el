@@ -39,10 +39,14 @@
 (setq elpaca-lock-file (expand-file-name "lock-file.eld" "elpaca"))
 (elpaca `(,@elpaca-order))
 
+(setq elpaca-lock-file (expand-file-name "elpaca/lock-file.eld" user-emacs-directory))
+
 (elpaca elpaca-use-package
   (elpaca-use-package-mode))
 (setq use-package-always-ensure t)
 (elpaca-wait)
+
+
 
 (defvar my-lisp (expand-file-name "lisp/" user-emacs-directory)
   "Added to load path. Also holds custom.el")
