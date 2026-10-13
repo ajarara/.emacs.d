@@ -371,7 +371,6 @@ If no element found, add VALUE to the end of the list."
              :sasl-strict t
              :sasl-username "ajarara"
 	     )))
-    (enable-circe-color-nicks)
     
     ;; Don't bombard me with leaves if the leaver hasn't spoke in a while
     (setq circe-reduce-lurker-spam t)
@@ -385,16 +384,6 @@ If no element found, add VALUE to the end of the list."
                       (circe-channel-nicks))))
 	(message (prin1-to-string (-intersection names1 names2)))))))
 
-(when has-self
-  (use-package gptel
-    :config
-    (setq
-     gptel-model   'test
-     gptel-backend (gptel-make-openai "llama-cpp"
-				      :stream t
-				      :protocol "http"
-				      :host "localhost:8080"
-				      :models '(test)))))
 
 (when is-personal
   (use-package nov
@@ -403,7 +392,6 @@ If no element found, add VALUE to the end of the list."
   
 (use-package detached
   :init
-  (detached-init)
   (setq detached-notification-function 'ignore)
   (setq detached-shell-command-initial-input nil)
   :bind
